@@ -254,12 +254,47 @@ def main():
         
         # Model settings
         st.subheader("LLM Settings")
-        model = st.selectbox(
-            "Model",
-            ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
-            index=0,
-            help="OpenAI model (ignored if using Gemini)"
-        )
+        
+        if api_type == "gemini":
+            # Gemini model options
+            model = st.selectbox(
+                "Gemini Model",
+                ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"],
+                index=0,
+                help="Google Gemini model for language processing"
+            )
+        elif api_type == "openai":
+            # OpenAI model options
+            model = st.selectbox(
+                "OpenAI Model",
+                ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
+                index=0,
+                help="OpenAI model for language processing"
+            )
+        else:  # auto mode
+            # Show both options with explanation
+            model_type = st.radio(
+                "Model Type",
+                ["Gemini (Recommended)", "OpenAI"],
+                index=0,
+                help="Auto mode will prefer Gemini if available"
+            )
+            
+            if model_type == "Gemini (Recommended)":
+                model = st.selectbox(
+                    "Gemini Model",
+                    ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"],
+                    index=0,
+                    help="Google Gemini model (faster and cheaper)"
+                )
+            else:
+                model = st.selectbox(
+                    "OpenAI Model",
+                    ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
+                    index=0,
+                    help="OpenAI model"
+                )
+        
         temperature = st.slider("Temperature", 0.0, 1.0, 0.2, 0.1)
         
         # Processing settings

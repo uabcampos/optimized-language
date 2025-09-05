@@ -232,7 +232,7 @@ def get_openai_client() -> OpenAI:
         raise RuntimeError("OPENAI_API_KEY is not set. Set it in your shell or supply a .env file (see --env-file).")
     return OpenAI(api_key=api_key)
 
-def get_gemini_client():
+def get_gemini_client(model: str = "gemini-1.5-flash"):
     """Initialize Gemini client."""
     if not _GEMINI_AVAILABLE:
         raise RuntimeError("google-generativeai package not available. Install with `pip install google-generativeai`.")
@@ -240,7 +240,7 @@ def get_gemini_client():
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not set. Set it in your shell or supply a .env file (see --env-file).")
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-1.5-flash')
+    return genai.GenerativeModel(model)
 
 @retry(wait=wait_exponential(multiplier=1, min=1, max=20), stop=stop_after_attempt(4))
 def llm_suggest_gemini(model, term: str, static_suggestion: str, context: str, temperature: float) -> Tuple[str, str]:
@@ -362,7 +362,7 @@ def process_terms_chunk(args) -> List[Hit]:
     # Create a new client for this process
     try:
         if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
-            client = get_gemini_client()
+            client = get_gemini_client(model)
         else:
             client = get_openai_client()
     except Exception as e:
@@ -716,7 +716,7 @@ def highlight_docx_simple(input_docx: str, hits: List['Hit'], output_docx: str) 
         shutil.copy2(input_docx, output_docx)
 
 def process_docx_advanced(input_docx: str, flagged_terms: List[str], repl_map: Dict[str, str], 
-                         model: str, temperature: float, cache: Dict[str, Tuple[str, str]]) -> Tuple[Document, List['Hit']]:
+                         model: str, temperature: float, cache: Dict[str, Tuple[str, str]], api_type: str = "auto") -> Tuple[Document, List['Hit']]:
     """Advanced DOCX processing with track changes and highlighting."""
     # Use absolute path to avoid issues
     input_path = os.path.abspath(input_docx)
@@ -744,8 +744,11 @@ def process_docx_advanced(input_docx: str, flagged_terms: List[str], repl_map: D
         if cache_key in cache:
             suggestion, reason = cache[cache_key]
         else:
-            client = get_openai_client()
-            suggestion, reason = llm_suggest(client, model, term, static_suggestion, context, temperature)
+            if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+                client = get_gemini_client(model)
+            else:
+                client = get_openai_client()
+            suggestion, reason = llm_suggest(client, model, term, static_suggestion, context, temperature, api_type)
             cache[cache_key] = (suggestion, reason)
         
         # Create hit object
@@ -853,7 +856,8 @@ def process_docx_file(input_docx: str,
                      repl_map: Dict[str, str],
                      outdir: str,
                      model: str,
-                     temperature: float) -> Tuple[str, List[Hit]]:
+                     temperature: float,
+                     api_type: str = "auto") -> Tuple[str, List[Hit]]:
     """Process DOCX file with Python-Redlines tracked changes and highlighting."""
     os.makedirs(outdir, exist_ok=True)
     
@@ -862,7 +866,7 @@ def process_docx_file(input_docx: str,
     
     # Process document with advanced method
     cache = {}
-    doc, hits = process_docx_advanced(input_docx, all_terms, repl_map, model, temperature, cache)
+    doc, hits = process_docx_advanced(input_docx, all_terms, repl_map, model, temperature, cache, api_type)
     
     # Create output versions
     out_docx_redlined = os.path.join(outdir, "flagged_output_redlined.docx")
@@ -911,7 +915,7 @@ def process_file(input_file: str,
     if file_type == 'pdf':
         return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type)
     elif file_type == 'docx':
-        return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature)
+        return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature, api_type)
     else:
         raise ValueError(f"Unsupported file type: {file_type}")
 
