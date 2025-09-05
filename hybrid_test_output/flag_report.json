@@ -1,0 +1,982 @@
+[
+  {
+    "page_num": 1,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      125.51349639892578,
+      434.69110107421875,
+      277.7220153808594,
+      447.0227966308594
+    ],
+    "context": "ing a \ncollective effort to reduce the persistent burden of cardiometabolic diseases and promote T3-T4 res"
+  },
+  {
+    "page_num": 1,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      125.51349639892578,
+      434.69110107421875,
+      277.7220153808594,
+      447.0227966308594
+    ],
+    "context": "rs across the region. \nGiven the disproportionate burden of cardiometabolic diseases evident in the Deep S"
+  },
+  {
+    "page_num": 1,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      125.51349639892578,
+      434.69110107421875,
+      277.7220153808594,
+      447.0227966308594
+    ],
+    "context": "focus these \nenergies on reducing this persistent burden, the Deep South Center to Reduce Disparities in C"
+  },
+  {
+    "page_num": 1,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      125.51349639892578,
+      434.69110107421875,
+      277.7220153808594,
+      447.0227966308594
+    ],
+    "context": "approach across the care continuum to \nreduce the burden of cardiometabolic disease and brings together an"
+  },
+  {
+    "page_num": 1,
+    "original_key": "disparities",
+    "matched_text": "DISPARITIES",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      49.7594108581543,
+      577.2481689453125,
+      62.09109115600586
+    ],
+    "context": "tton & Cherrington)  \nDEEP SOUTH CENTER TO REDUCE DISPARITIES IN CHRONIC DISEASES OVERVIEW: SPECIFIC AIMS \n  \nI"
+  },
+  {
+    "page_num": 1,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      49.7594108581543,
+      577.2481689453125,
+      62.09109115600586
+    ],
+    "context": "ersistent burden, the Deep South Center to Reduce Disparities in Chronic \nDiseases is ideally situated to infor"
+  },
+  {
+    "page_num": 1,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      49.7594108581543,
+      577.2481689453125,
+      62.09109115600586
+    ],
+    "context": "\n \nThe mission of the Deep South Center to Reduce Disparities in Chronic Diseases is to develop a regional \ncom"
+  },
+  {
+    "page_num": 1,
+    "original_key": "highest",
+    "matched_text": "highest",
+    "suggestion": "elevated",
+    "reason": "deficit-framing language, emphasizes an extreme negative prevalence of diseases",
+    "bbox": [
+      330.1225891113281,
+      175.75941467285156,
+      513.6177978515625,
+      188.09109497070312
+    ],
+    "context": "ity, cardiovascular disease, and diabetes are the highest in the nation.2-4 The \nprevalence of adults with "
+  },
+  {
+    "page_num": 1,
+    "original_key": "lower",
+    "matched_text": "lower",
+    "suggestion": "reduced",
+    "reason": "deficit-framing language, emphasizes a negative outcome in comparison",
+    "bbox": [
+      240.1990966796875,
+      213.6793975830078,
+      569.1778564453125,
+      226.01107788085938
+    ],
+    "context": "ife expectancy in the Deep South is substantially lower \nthan other regions.5 \nImprovements in these card"
+  },
+  {
+    "page_num": 1,
+    "original_key": "none specifically focus on",
+    "matched_text": "none specifically focus on",
+    "suggestion": "a gap exists in specific focus on",
+    "reason": "deficit-framing language, highlights a lack rather than an opportunity",
+    "bbox": [
+      36.89540100097656,
+      396.7796936035156,
+      533.6533813476562,
+      409.11138916015625
+    ],
+    "context": "arch Centers (NORCs), HTN Research Center, etc.), none specifically focus on \nmultiple co-existing chronic diseases, nor trans"
+  },
+  {
+    "page_num": 1,
+    "original_key": "persistent burden",
+    "matched_text": "persistent burden",
+    "suggestion": "ongoing challenge",
+    "reason": "deficit-framing language, emphasizes a negative weight",
+    "bbox": [
+      125.51349639892578,
+      434.69110107421875,
+      277.7220153808594,
+      447.0227966308594
+    ],
+    "context": "oth, launching a \ncollective effort to reduce the persistent burden of cardiometabolic diseases and promote T3-T4 res"
+  },
+  {
+    "page_num": 1,
+    "original_key": "chronic disease",
+    "matched_text": "chronic disease",
+    "suggestion": "long-term health conditions",
+    "reason": "describes a prevalent health challenge",
+    "bbox": [
+      36.950599670410156,
+      49.7594108581543,
+      577.2481689453125,
+      62.09109115600586
+    ],
+    "context": "ton)  \nDEEP SOUTH CENTER TO REDUCE DISPARITIES IN CHRONIC DISEASES OVERVIEW: SPECIFIC AIMS \n  \nIn the Deep South, o"
+  },
+  {
+    "page_num": 1,
+    "original_key": "need",
+    "matched_text": "need",
+    "suggestion": "opportunity for improvement",
+    "reason": "deficit-framing language",
+    "bbox": [
+      42.700599670410156,
+      728.9594116210938,
+      251.84231567382812,
+      741.2910766601562
+    ],
+    "context": "abolic health \noutcomes in a region of tremendous need. \n \nThe mission of the Deep South Center to Reduc"
+  },
+  {
+    "page_num": 1,
+    "original_key": "suffer disproportionately",
+    "matched_text": "suffer disproportionately",
+    "suggestion": "are disproportionately affected by",
+    "reason": "deficit-framing language, emphasizes victimhood",
+    "bbox": [
+      44.390499114990234,
+      104.23939514160156,
+      572.1093139648438,
+      116.5710678100586
+    ],
+    "context": "s, and hypertension (HTN), among populations who \nsuffer disproportionately from these conditions in Alabama, Mississippi, an"
+  },
+  {
+    "page_num": 2,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.95280075073242,
+      356.4582824707031,
+      464.3553161621094,
+      368.78997802734375
+    ],
+    "context": "c and \nbehavioral domains, the socio-cultural and built environments, and health-care systems.9 To maximize impact, \n"
+  },
+  {
+    "page_num": 2,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      231.38490295410156,
+      78.07698059082031,
+      570.1776733398438,
+      90.40865325927734
+    ],
+    "context": "ases is to improve health outcomes and reduce the burden of cardiometabolic diseases across the Deep \nSout"
+  },
+  {
+    "page_num": 2,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      231.38490295410156,
+      78.07698059082031,
+      570.1776733398438,
+      90.40865325927734
+    ],
+    "context": "approach across the care continuum to \nreduce the burden of cardiometabolic \ndisease. Precision public hea"
+  },
+  {
+    "page_num": 2,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      231.38490295410156,
+      78.07698059082031,
+      570.1776733398438,
+      90.40865325927734
+    ],
+    "context": "s of \nHTN4, respectively. Table 1 illustrates the burden \nof these chronic conditions11-13 that contribute"
+  },
+  {
+    "page_num": 2,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      197.71510314941406,
+      65.35890197753906,
+      548.207275390625,
+      77.6905746459961
+    ],
+    "context": "e: The mission of the Deep South Center to Reduce Disparities in Chronic \nDiseases is to improve health outcome"
+  },
+  {
+    "page_num": 2,
+    "original_key": "suffer disproportionately",
+    "matched_text": "suffer disproportionately",
+    "suggestion": "experience higher rates",
+    "reason": "Problem-focused and potentially disempowering language; 'experience higher rates' is more objective.",
+    "bbox": [
+      373.46148681640625,
+      141.43751525878906,
+      572.2591552734375,
+      153.76919555664062
+    ],
+    "context": " Black \nAmericans and low-income populations \nwho suffer disproportionately from these \nconditions across Alabama (AL), \nMiss"
+  },
+  {
+    "page_num": 2,
+    "original_key": "risk factors",
+    "matched_text": "risk factors",
+    "suggestion": "health determinants",
+    "reason": "deficit-framing language",
+    "bbox": [
+      36.950599670410156,
+      90.79939270019531,
+      575.8779296875,
+      103.13106536865234
+    ],
+    "context": "s on obesity, diabetes, hypertension, and related risk factors and complications for \nthese chronic diseases. Th"
+  },
+  {
+    "page_num": 2,
+    "original_key": "chronic diseases",
+    "matched_text": "chronic diseases",
+    "suggestion": "long-term health conditions",
+    "reason": "problem-focused language",
+    "bbox": [
+      36.950599670410156,
+      103.51753234863281,
+      253.92623901367188,
+      115.84920501708984
+    ],
+    "context": "related risk factors and complications for \nthese chronic diseases. The Center focuses on the prevention, treatment "
+  },
+  {
+    "page_num": 2,
+    "original_key": "co-existing complications",
+    "matched_text": "co-existing complications",
+    "suggestion": "co-occurring health challenges",
+    "reason": "problem-focused language",
+    "bbox": [
+      107.88259887695312,
+      394.3993835449219,
+      483.3199157714844,
+      406.7310791015625
+    ],
+    "context": "t (self-management to manage chronic diseases and co-existing complications).  Figure 1 \nprovides an overarching conceptual f"
+  },
+  {
+    "page_num": 2,
+    "original_key": "impacts",
+    "matched_text": "impacts",
+    "suggestion": "effects",
+    "reason": "problem-focused language",
+    "bbox": [
+      36.950599670410156,
+      470.2239990234375,
+      352.39202880859375,
+      482.5556945800781
+    ],
+    "context": ". Significance \n   A.1.a. Cardiometabolic disease impacts in the Deep South \nare substantial. The Deep Sout"
+  },
+  {
+    "page_num": 2,
+    "original_key": "elevated prevalence",
+    "matched_text": "elevated prevalence",
+    "suggestion": "higher occurrence",
+    "reason": "deficit-framing language",
+    "bbox": [
+      36.95011901855469,
+      533.5974731445312,
+      343.955078125,
+      545.9291381835938
+    ],
+    "context": "hese high rates can be \nattributed in part to the elevated prevalence of cardiometabolic \nrisk factors, including obesi"
+  },
+  {
+    "page_num": 2,
+    "original_key": "obesity",
+    "matched_text": "obesity",
+    "suggestion": "individuals living with obesity",
+    "reason": "problem-focused language; promotes person-first language",
+    "bbox": [
+      36.950599670410156,
+      90.79939270019531,
+      575.8779296875,
+      103.13106536865234
+    ],
+    "context": "cross the Deep \nSouth, with a particular focus on obesity, diabetes, hypertension, and related risk factors"
+  },
+  {
+    "page_num": 2,
+    "original_key": "diabetes",
+    "matched_text": "diabetes",
+    "suggestion": "individuals living with diabetes",
+    "reason": "problem-focused language; promotes person-first language",
+    "bbox": [
+      36.950599670410156,
+      90.79939270019531,
+      575.8779296875,
+      103.13106536865234
+    ],
+    "context": " Deep \nSouth, with a particular focus on obesity, diabetes, hypertension, and related risk factors and compl"
+  },
+  {
+    "page_num": 2,
+    "original_key": "hypertension (HTN)",
+    "matched_text": "hypertension (HTN)",
+    "suggestion": "individuals living with hypertension",
+    "reason": "problem-focused language; promotes person-first language",
+    "bbox": [
+      40.28150177001953,
+      584.3294677734375,
+      298.49908447265625,
+      593.6796264648438
+    ],
+    "context": "iabetes Prevalence\nTable 1.  Diabetes, Obesity, & Hypertension (HTN) Prevalence in \nAlabama, Louisiana, Mississippi an"
+  },
+  {
+    "page_num": 2,
+    "original_key": "shortened life expectancy",
+    "matched_text": "shortened life expectancy",
+    "suggestion": "lower life expectancy",
+    "reason": "deficit-framing language, focuses on a negative outcome",
+    "bbox": [
+      332.4505920410156,
+      677.119384765625,
+      566.657470703125,
+      689.4510498046875
+    ],
+    "context": "e chronic conditions11-13 that contribute to \nthe shortened life expectancy in the Deep South. \nMS, AL, and LA have the 2nd, "
+  },
+  {
+    "page_num": 2,
+    "original_key": "Suboptimal",
+    "matched_text": "Suboptimal",
+    "suggestion": "Less than ideal",
+    "reason": "deficit-framing language, implies a deficiency",
+    "bbox": [
+      36.953521728515625,
+      740.2307739257812,
+      524.7736206054688,
+      752.5624389648438
+    ],
+    "context": "est \nlife expectancy in the U.S.5  \n \n \n   A.1.b. Suboptimal non-clinical determinants of health exacerbate ca"
+  },
+  {
+    "page_num": 2,
+    "original_key": "exacerbate",
+    "matched_text": "exacerbate",
+    "suggestion": "contribute to",
+    "reason": "problem-focused language, highlights negative impact",
+    "bbox": [
+      36.953521728515625,
+      740.2307739257812,
+      524.7736206054688,
+      752.5624389648438
+    ],
+    "context": "b. Suboptimal non-clinical determinants of health exacerbate cardiometabolic disease.  \nFigure 2. Heart Diseas"
+  },
+  {
+    "page_num": 3,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      154.32789611816406,
+      49.7594108581543,
+      403.2184143066406,
+      62.09109115600586
+    ],
+    "context": "herrington)  \nSocio-economic factors compound the burden of cardiometabolic diseases that impact health in"
+  },
+  {
+    "page_num": 3,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      724.3907470703125,
+      516.9412231445312,
+      736.722412109375
+    ],
+    "context": "sign, and multi-level measurement of physical and structural \ndeterminants of health; 3) By engaging 4 academi"
+  },
+  {
+    "page_num": 3,
+    "original_key": "housing instability",
+    "matched_text": "housing instability",
+    "suggestion": "housing challenges",
+    "reason": "Problem-focused language, highlights a negative state.",
+    "bbox": [
+      36.96588134765625,
+      190.1516876220703,
+      315.8011169433594,
+      202.48336791992188
+    ],
+    "context": "s of economic \nstability, such as food access and housing instability, are \nwell documented.17 Rurality, another contri"
+  },
+  {
+    "page_num": 3,
+    "original_key": "poor",
+    "matched_text": "poor",
+    "suggestion": "suboptimal",
+    "reason": "Deficit-framing language, describes a negative quality of outcomes.",
+    "bbox": [
+      130.34120178222656,
+      202.87940979003906,
+      309.50274658203125,
+      215.21109008789062
+    ],
+    "context": "ll documented.17 Rurality, another contributor to poor \ncardiometabolic health outcomes,18 is also relev"
+  },
+  {
+    "page_num": 3,
+    "original_key": "poverty",
+    "matched_text": "poverty",
+    "suggestion": "economic hardship",
+    "reason": "deficit-framing language",
+    "bbox": [
+      169.6678009033203,
+      125.83943176269531,
+      320.12225341796875,
+      138.17111206054688
+    ],
+    "context": "A \nhave the 45th, 49th, and 51st highest rates of poverty in the \ncountry (Figure 3)16, poverty rates are 2"
+  },
+  {
+    "page_num": 3,
+    "original_key": "suboptimal",
+    "matched_text": "suboptimal",
+    "suggestion": "less than ideal",
+    "reason": "deficit-framing language",
+    "bbox": [
+      266.88360595703125,
+      240.7956085205078,
+      525.54638671875,
+      253.12728881835938
+    ],
+    "context": "\nrates of poverty, rurality, and population-based suboptimal non-clinical determinants of health act as \ninter"
+  },
+  {
+    "page_num": 3,
+    "original_key": "risk factors",
+    "matched_text": "risk factors",
+    "suggestion": "contributing factors",
+    "reason": "problem-focused language",
+    "bbox": [
+      79.76371765136719,
+      62.4793815612793,
+      315.1829528808594,
+      74.8110580444336
+    ],
+    "context": "pact health in the region. In \ngeneral, 45-60% of risk factors that impact health can be \nattributed to non-clin"
+  },
+  {
+    "page_num": 3,
+    "original_key": "poor outcomes",
+    "matched_text": "poor outcomes",
+    "suggestion": "less favorable outcomes",
+    "reason": "deficit-framing language",
+    "bbox": [
+      36.950599670410156,
+      253.27943420410156,
+      452.6308288574219,
+      265.6111145019531
+    ],
+    "context": "ing risk factors for cardiometabolic diseases and poor outcomes in the region.  \n   A.1.c. New approaches that ad"
+  },
+  {
+    "page_num": 3,
+    "original_key": "low-income",
+    "matched_text": "low-income",
+    "suggestion": "economically diverse",
+    "reason": "deficit-framing language, focuses on lack of resources",
+    "bbox": [
+      36.950599670410156,
+      506.4793701171875,
+      180.04884338378906,
+      518.81103515625
+    ],
+    "context": "inical and community settings and with rural and \nlow-income populations. The Center also builds on foundation"
+  },
+  {
+    "page_num": 3,
+    "original_key": "not yet widely applied",
+    "matched_text": "not yet widely applied",
+    "suggestion": "emerging in practice",
+    "reason": "Highlights a current limitation or lack of widespread use.",
+    "bbox": [
+      36.950599670410156,
+      699.1974487304688,
+      534.6851806640625,
+      711.5291137695312
+    ],
+    "context": "\ngaining traction in public health circles but is not yet widely applied; 2) The Center houses expertise in \ninnovative an"
+  },
+  {
+    "page_num": 4,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      227.13670349121094,
+      712.1526489257812,
+      465.0155334472656,
+      724.4843139648438
+    ],
+    "context": "age in long-term strategic planning to reduce the burden of cardiometabolic disease. The Center’s \nExecuti"
+  },
+  {
+    "page_num": 5,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      163.52420043945312,
+      547.748779296875,
+      236.9291229248047,
+      560.0804443359375
+    ],
+    "context": "d management); 3) \nfocus on populations with high burden of cardiometabolic disease; 4) address 2+ levels "
+  },
+  {
+    "page_num": 5,
+    "original_key": "insufficient",
+    "matched_text": "insufficient",
+    "suggestion": "limited",
+    "reason": "deficit-framing language",
+    "bbox": [
+      36.93955993652344,
+      302.7126770019531,
+      88.93134307861328,
+      315.04437255859375
+    ],
+    "context": "ometabolic diseases, translational methods, and  \ninsufficient healthcare access in a region where it is despera"
+  },
+  {
+    "page_num": 5,
+    "original_key": "desperately",
+    "matched_text": "desperately",
+    "suggestion": "critically",
+    "reason": "deficit-framing language",
+    "bbox": [
+      183.68319702148438,
+      302.7126770019531,
+      393.4322204589844,
+      315.04437255859375
+    ],
+    "context": "ficient healthcare access in a region where it is desperately needed. \n    C.6. Community Engagement Core (CEC)"
+  },
+  {
+    "page_num": 5,
+    "original_key": "epidemic",
+    "matched_text": "epidemic",
+    "suggestion": "prevalence",
+    "reason": "problem-focused language",
+    "bbox": [
+      36.950599670410156,
+      403.9839782714844,
+      105.44496154785156,
+      416.315673828125
+    ],
+    "context": " goal of addressing the cardiometabolic diseases \nepidemic and improving health outcomes throughout the Deep"
+  },
+  {
+    "page_num": 6,
+    "original_key": "barrier",
+    "matched_text": "barrier",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      296.2393798828125,
+      570.0899047851562,
+      308.5710754394531
+    ],
+    "context": "ealth behaviors, food \ninsecurity, transportation barriers), 2) Interpersonal (Household environment) and 3"
+  },
+  {
+    "page_num": 6,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      296.2393798828125,
+      570.0899047851562,
+      308.5710754394531
+    ],
+    "context": "ealth behaviors, food \ninsecurity, transportation barriers), 2) Interpersonal (Household environment) and 3)"
+  },
+  {
+    "page_num": 6,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.950599670410156,
+      49.7594108581543,
+      574.364501953125,
+      62.09109115600586
+    ],
+    "context": "rs), 2) interpersonal (peer norms), 3) community (built environment, food environment); Non-academic \npartner: AL and"
+  },
+  {
+    "page_num": 6,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      426.7398986816406,
+      128.71937561035156,
+      500.14947509765625,
+      141.05105590820312
+    ],
+    "context": "siana, a majority of whom are low-income and high burden of \ncardiometabolic disease; Study design: Hybrid"
+  },
+  {
+    "page_num": 6,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      60.00212097167969,
+      373.51507568359375,
+      576.0230102539062,
+      385.8467712402344
+    ],
+    "context": " \n• Use shared measures of psychological/physical/structural determinants of health and biologic outcomes \nas "
+  },
+  {
+    "page_num": 6,
+    "original_key": "Cardiometabolic Risk",
+    "matched_text": "Cardiometabolic Risk",
+    "suggestion": "Cardiometabolic Health Challenges",
+    "reason": "problem-focused language, highlights potential negative outcomes",
+    "bbox": [
+      110.62529754638672,
+      78.07942199707031,
+      561.0968017578125,
+      90.41109466552734
+    ],
+    "context": "Extension. \nProject 2:  Improving Weight Loss and Cardiometabolic Risk in Black Primary Care Patients with \nObesity and "
+  },
+  {
+    "page_num": 6,
+    "original_key": "low-income",
+    "matched_text": "low-income",
+    "suggestion": "financially underserved",
+    "reason": "deficit-framing language, focusing on what is lacking rather than assets or potential",
+    "bbox": [
+      226.2093048095703,
+      128.71937561035156,
+      426.7729797363281,
+      141.05105590820312
+    ],
+    "context": "patients across Louisiana, a majority of whom are low-income and high burden of \ncardiometabolic disease; Stud"
+  },
+  {
+    "page_num": 6,
+    "original_key": "high burden",
+    "matched_text": "high burden",
+    "suggestion": "high prevalence",
+    "reason": "deficit-framing language, implying a heavy load or negative impact",
+    "bbox": [
+      426.7398986816406,
+      128.71937561035156,
+      500.14947509765625,
+      141.05105590820312
+    ],
+    "context": " Louisiana, a majority of whom are low-income and high burden of \ncardiometabolic disease; Study design: Hybrid"
+  },
+  {
+    "page_num": 6,
+    "original_key": "safety net",
+    "matched_text": "safety net",
+    "suggestion": "community-focused",
+    "reason": "implies a reactive system for those who have fallen through, rather than a proactive system for all",
+    "bbox": [
+      36.950599670410156,
+      115.99940490722656,
+      579.9266357421875,
+      128.33108520507812
+    ],
+    "context": " & non-academic partner: Ochsner Health System, a safety net care provider \nfor >950,000 patients across Louis"
+  },
+  {
+    "page_num": 6,
+    "original_key": "complex",
+    "matched_text": "complex",
+    "suggestion": "multiple health conditions",
+    "reason": "Can imply difficulty or burden associated with the patient, rather than neutrally describing their health status.",
+    "bbox": [
+      36.950599670410156,
+      232.87940979003906,
+      507.7469787597656,
+      245.21109008789062
+    ],
+    "context": "nd Michael Hall (UMMC)] Disease focus: \nMedically complex patients (i.e., those with DM on insulin and with"
+  },
+  {
+    "page_num": 6,
+    "original_key": "uncontrolled",
+    "matched_text": "uncontrolled",
+    "suggestion": "not yet at target",
+    "reason": "Can imply a lack of patient agency or failure in managing their condition, rather than the disease's progression or challenges in treatment.",
+    "bbox": [
+      123.79789733886719,
+      245.59938049316406,
+      344.5606689453125,
+      257.9310607910156
+    ],
+    "context": "Study Study \npopulation: Black adults living with uncontrolled type 2 diabetes; Setting: two university health s"
+  },
+  {
+    "page_num": 7,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      54.94580078125,
+      256.87750244140625,
+      555.702392578125,
+      269.2091979980469
+    ],
+    "context": "ll Center impact \nThe Deep South Center to Reduce Disparities in Chronic Diseases will be a transformative forc"
+  },
+  {
+    "page_num": 7,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      54.94580078125,
+      256.87750244140625,
+      555.702392578125,
+      269.2091979980469
+    ],
+    "context": "0/year for 5 years\nUAB Minority Health and Health Disparities Research Center\n$10,000/year for 5 years\nUAB Hype"
+  },
+  {
+    "page_num": 7,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      54.94580078125,
+      256.87750244140625,
+      555.702392578125,
+      269.2091979980469
+    ],
+    "context": "itutional Support for Deep South Center to Reduce Disparities in Chronic \nDiseases Investigator Development Cor"
+  },
+  {
+    "page_num": 7,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      44.61410140991211,
+      463.0025329589844,
+      260.7163391113281,
+      471.79296875
+    ],
+    "context": "ney Disease Research\n$20,000/year for 5 years\nUAB Minority Health and Health Disparities Research Center\n$10"
+  },
+  {
+    "page_num": 7,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.961639404296875,
+      282.07080078125,
+      535.9979248046875,
+      294.4024963378906
+    ],
+    "context": "metabolic diseases that disproportionately impact vulnerable \npopulations in AL, MS, and LA. Further, this wor"
+  },
+  {
+    "page_num": 7,
+    "original_key": "challenge",
+    "matched_text": "challenge",
+    "suggestion": "issue",
+    "reason": "problem-focused language",
+    "bbox": [
+      36.94696044921875,
+      572.9334716796875,
+      556.1323852539062,
+      585.26513671875
+    ],
+    "context": "al to meaningfully intervene upon the significant challenge of \ncardiometabolic diseases and their multi-leve"
+  },
+  {
+    "page_num": 7,
+    "original_key": "Chronic Diseases",
+    "matched_text": "Chronic Diseases",
+    "suggestion": "Long-term health conditions",
+    "reason": "While a standard medical term, in the context of 'reduce disparities,' it frames health conditions primarily as problems to be solved, which can contribute to a deficit-based view of health. 'Long-term health conditions' is more descriptive and less problem-focused.",
+    "bbox": [
+      54.94580078125,
+      256.87750244140625,
+      555.702392578125,
+      269.2091979980469
+    ],
+    "context": "t \nThe Deep South Center to Reduce Disparities in Chronic Diseases will be a transformative force in the \nregion for"
+  },
+  {
+    "page_num": 9,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Matched flagged term",
+    "bbox": [
+      355.35528564453125,
+      110.71937561035156,
+      567.466796875,
+      123.0510482788086
+    ],
+    "context": " approach across the care continuum to reduce the burden of cardiometabolic \ndiseases. The central goal of"
+  },
+  {
+    "page_num": 9,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      49.660499572753906,
+      157.27943420410156,
+      575.1754760742188,
+      169.61111450195312
+    ],
+    "context": "istrative Core of the Deep South Center to Reduce Disparities in Chronic Diseases will assure the \neffectivenes"
+  },
+  {
+    "page_num": 9,
+    "original_key": "disparities",
+    "matched_text": "disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      49.660499572753906,
+      157.27943420410156,
+      575.1754760742188,
+      169.61111450195312
+    ],
+    "context": "workforce committed to addressing these regional \ndisparities (through the IDC); and 3) engage academic and non"
+  },
+  {
+    "page_num": 9,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      49.660499572753906,
+      157.27943420410156,
+      575.1754760742188,
+      169.61111450195312
+    ],
+    "context": ". \nThe mission of the Deep South Center to Reduce Disparities in Chronic Diseases is to develop a regional \nres"
+  },
+  {
+    "page_num": 9,
+    "original_key": "suffer disproportionately",
+    "matched_text": "suffer disproportionately",
+    "suggestion": "are disproportionately affected by",
+    "reason": "Emphasizes a negative experience and can be disempowering. Focusing on 'being affected' or 'experiencing prevalence' is more neutral.",
+    "bbox": [
+      41.41080093383789,
+      85.51942443847656,
+      561.7153930664062,
+      97.8510971069336
+    ],
+    "context": "diabetes, and hypertension, among populations who suffer disproportionately from these \nconditions in Alabama, Mississippi, a"
+  },
+  {
+    "page_num": 10,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "Consider alternative",
+    "reason": "Matched flagged term",
+    "bbox": [
+      36.846778869628906,
+      44.9575309753418,
+      569.99365234375,
+      57.28921127319336
+    ],
+    "context": "INISTRATIVE CORE \nThe Deep South Center to Reduce Disparities in Chronic Diseases Administrative Core is struct"
+  }
+]

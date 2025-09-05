@@ -1,0 +1,176 @@
+page_num,original_key,matched_text,suggestion,reason,bbox,context
+1,burden,burden,challenge,Matched flagged term,"(125.51349639892578, 434.69110107421875, 277.7220153808594, 447.0227966308594)","ing a 
+collective effort to reduce the persistent burden of cardiometabolic diseases and promote T3-T4 res"
+1,burden,burden,challenge,Matched flagged term,"(125.51349639892578, 434.69110107421875, 277.7220153808594, 447.0227966308594)","rs across the region. 
+Given the disproportionate burden of cardiometabolic diseases evident in the Deep S"
+1,burden,burden,challenge,Matched flagged term,"(125.51349639892578, 434.69110107421875, 277.7220153808594, 447.0227966308594)","focus these 
+energies on reducing this persistent burden, the Deep South Center to Reduce Disparities in C"
+1,burden,burden,challenge,Matched flagged term,"(125.51349639892578, 434.69110107421875, 277.7220153808594, 447.0227966308594)","approach across the care continuum to 
+reduce the burden of cardiometabolic disease and brings together an"
+1,disparities,DISPARITIES,Consider alternative,Matched flagged term,"(36.950599670410156, 49.7594108581543, 577.2481689453125, 62.09109115600586)","tton & Cherrington)  
+DEEP SOUTH CENTER TO REDUCE DISPARITIES IN CHRONIC DISEASES OVERVIEW: SPECIFIC AIMS 
+  
+I"
+1,disparities,Disparities,Consider alternative,Matched flagged term,"(36.950599670410156, 49.7594108581543, 577.2481689453125, 62.09109115600586)","ersistent burden, the Deep South Center to Reduce Disparities in Chronic 
+Diseases is ideally situated to infor"
+1,disparities,Disparities,Consider alternative,Matched flagged term,"(36.950599670410156, 49.7594108581543, 577.2481689453125, 62.09109115600586)","
+ 
+The mission of the Deep South Center to Reduce Disparities in Chronic Diseases is to develop a regional 
+com"
+1,highest,highest,elevated,"deficit-framing language, emphasizes an extreme negative prevalence of diseases","(330.1225891113281, 175.75941467285156, 513.6177978515625, 188.09109497070312)","ity, cardiovascular disease, and diabetes are the highest in the nation.2-4 The 
+prevalence of adults with "
+1,lower,lower,reduced,"deficit-framing language, emphasizes a negative outcome in comparison","(240.1990966796875, 213.6793975830078, 569.1778564453125, 226.01107788085938)","ife expectancy in the Deep South is substantially lower 
+than other regions.5 
+Improvements in these card"
+1,none specifically focus on,none specifically focus on,a gap exists in specific focus on,"deficit-framing language, highlights a lack rather than an opportunity","(36.89540100097656, 396.7796936035156, 533.6533813476562, 409.11138916015625)","arch Centers (NORCs), HTN Research Center, etc.), none specifically focus on 
+multiple co-existing chronic diseases, nor trans"
+1,persistent burden,persistent burden,ongoing challenge,"deficit-framing language, emphasizes a negative weight","(125.51349639892578, 434.69110107421875, 277.7220153808594, 447.0227966308594)","oth, launching a 
+collective effort to reduce the persistent burden of cardiometabolic diseases and promote T3-T4 res"
+1,chronic disease,chronic disease,long-term health conditions,describes a prevalent health challenge,"(36.950599670410156, 49.7594108581543, 577.2481689453125, 62.09109115600586)","ton)  
+DEEP SOUTH CENTER TO REDUCE DISPARITIES IN CHRONIC DISEASES OVERVIEW: SPECIFIC AIMS 
+  
+In the Deep South, o"
+1,need,need,opportunity for improvement,deficit-framing language,"(42.700599670410156, 728.9594116210938, 251.84231567382812, 741.2910766601562)","abolic health 
+outcomes in a region of tremendous need. 
+ 
+The mission of the Deep South Center to Reduc"
+1,suffer disproportionately,suffer disproportionately,are disproportionately affected by,"deficit-framing language, emphasizes victimhood","(44.390499114990234, 104.23939514160156, 572.1093139648438, 116.5710678100586)","s, and hypertension (HTN), among populations who 
+suffer disproportionately from these conditions in Alabama, Mississippi, an"
+2,built environment,built environment,physical surroundings and infrastructure,Matched flagged term,"(36.95280075073242, 356.4582824707031, 464.3553161621094, 368.78997802734375)","c and 
+behavioral domains, the socio-cultural and built environments, and health-care systems.9 To maximize impact, 
+"
+2,burden,burden,challenge,Matched flagged term,"(231.38490295410156, 78.07698059082031, 570.1776733398438, 90.40865325927734)","ases is to improve health outcomes and reduce the burden of cardiometabolic diseases across the Deep 
+Sout"
+2,burden,burden,challenge,Matched flagged term,"(231.38490295410156, 78.07698059082031, 570.1776733398438, 90.40865325927734)","approach across the care continuum to 
+reduce the burden of cardiometabolic 
+disease. Precision public hea"
+2,burden,burden,challenge,Matched flagged term,"(231.38490295410156, 78.07698059082031, 570.1776733398438, 90.40865325927734)","s of 
+HTN4, respectively. Table 1 illustrates the burden 
+of these chronic conditions11-13 that contribute"
+2,disparities,Disparities,Consider alternative,Matched flagged term,"(197.71510314941406, 65.35890197753906, 548.207275390625, 77.6905746459961)","e: The mission of the Deep South Center to Reduce Disparities in Chronic 
+Diseases is to improve health outcome"
+2,suffer disproportionately,suffer disproportionately,experience higher rates,Problem-focused and potentially disempowering language; 'experience higher rates' is more objective.,"(373.46148681640625, 141.43751525878906, 572.2591552734375, 153.76919555664062)"," Black 
+Americans and low-income populations 
+who suffer disproportionately from these 
+conditions across Alabama (AL), 
+Miss"
+2,risk factors,risk factors,health determinants,deficit-framing language,"(36.950599670410156, 90.79939270019531, 575.8779296875, 103.13106536865234)","s on obesity, diabetes, hypertension, and related risk factors and complications for 
+these chronic diseases. Th"
+2,chronic diseases,chronic diseases,long-term health conditions,problem-focused language,"(36.950599670410156, 103.51753234863281, 253.92623901367188, 115.84920501708984)","related risk factors and complications for 
+these chronic diseases. The Center focuses on the prevention, treatment "
+2,co-existing complications,co-existing complications,co-occurring health challenges,problem-focused language,"(107.88259887695312, 394.3993835449219, 483.3199157714844, 406.7310791015625)","t (self-management to manage chronic diseases and co-existing complications).  Figure 1 
+provides an overarching conceptual f"
+2,impacts,impacts,effects,problem-focused language,"(36.950599670410156, 470.2239990234375, 352.39202880859375, 482.5556945800781)",". Significance 
+   A.1.a. Cardiometabolic disease impacts in the Deep South 
+are substantial. The Deep Sout"
+2,elevated prevalence,elevated prevalence,higher occurrence,deficit-framing language,"(36.95011901855469, 533.5974731445312, 343.955078125, 545.9291381835938)","hese high rates can be 
+attributed in part to the elevated prevalence of cardiometabolic 
+risk factors, including obesi"
+2,obesity,obesity,individuals living with obesity,problem-focused language; promotes person-first language,"(36.950599670410156, 90.79939270019531, 575.8779296875, 103.13106536865234)","cross the Deep 
+South, with a particular focus on obesity, diabetes, hypertension, and related risk factors"
+2,diabetes,diabetes,individuals living with diabetes,problem-focused language; promotes person-first language,"(36.950599670410156, 90.79939270019531, 575.8779296875, 103.13106536865234)"," Deep 
+South, with a particular focus on obesity, diabetes, hypertension, and related risk factors and compl"
+2,hypertension (HTN),hypertension (HTN),individuals living with hypertension,problem-focused language; promotes person-first language,"(40.28150177001953, 584.3294677734375, 298.49908447265625, 593.6796264648438)","iabetes Prevalence
+Table 1.  Diabetes, Obesity, & Hypertension (HTN) Prevalence in 
+Alabama, Louisiana, Mississippi an"
+2,shortened life expectancy,shortened life expectancy,lower life expectancy,"deficit-framing language, focuses on a negative outcome","(332.4505920410156, 677.119384765625, 566.657470703125, 689.4510498046875)","e chronic conditions11-13 that contribute to 
+the shortened life expectancy in the Deep South. 
+MS, AL, and LA have the 2nd, "
+2,Suboptimal,Suboptimal,Less than ideal,"deficit-framing language, implies a deficiency","(36.953521728515625, 740.2307739257812, 524.7736206054688, 752.5624389648438)","est 
+life expectancy in the U.S.5  
+ 
+ 
+   A.1.b. Suboptimal non-clinical determinants of health exacerbate ca"
+2,exacerbate,exacerbate,contribute to,"problem-focused language, highlights negative impact","(36.953521728515625, 740.2307739257812, 524.7736206054688, 752.5624389648438)","b. Suboptimal non-clinical determinants of health exacerbate cardiometabolic disease.  
+Figure 2. Heart Diseas"
+3,burden,burden,challenge,Matched flagged term,"(154.32789611816406, 49.7594108581543, 403.2184143066406, 62.09109115600586)","herrington)  
+Socio-economic factors compound the burden of cardiometabolic diseases that impact health in"
+3,structural,structural,Consider alternative,Matched flagged term,"(36.950599670410156, 724.3907470703125, 516.9412231445312, 736.722412109375)","sign, and multi-level measurement of physical and structural 
+determinants of health; 3) By engaging 4 academi"
+3,housing instability,housing instability,housing challenges,"Problem-focused language, highlights a negative state.","(36.96588134765625, 190.1516876220703, 315.8011169433594, 202.48336791992188)","s of economic 
+stability, such as food access and housing instability, are 
+well documented.17 Rurality, another contri"
+3,poor,poor,suboptimal,"Deficit-framing language, describes a negative quality of outcomes.","(130.34120178222656, 202.87940979003906, 309.50274658203125, 215.21109008789062)","ll documented.17 Rurality, another contributor to poor 
+cardiometabolic health outcomes,18 is also relev"
+3,poverty,poverty,economic hardship,deficit-framing language,"(169.6678009033203, 125.83943176269531, 320.12225341796875, 138.17111206054688)","A 
+have the 45th, 49th, and 51st highest rates of poverty in the 
+country (Figure 3)16, poverty rates are 2"
+3,suboptimal,suboptimal,less than ideal,deficit-framing language,"(266.88360595703125, 240.7956085205078, 525.54638671875, 253.12728881835938)","
+rates of poverty, rurality, and population-based suboptimal non-clinical determinants of health act as 
+inter"
+3,risk factors,risk factors,contributing factors,problem-focused language,"(79.76371765136719, 62.4793815612793, 315.1829528808594, 74.8110580444336)","pact health in the region. In 
+general, 45-60% of risk factors that impact health can be 
+attributed to non-clin"
+3,poor outcomes,poor outcomes,less favorable outcomes,deficit-framing language,"(36.950599670410156, 253.27943420410156, 452.6308288574219, 265.6111145019531)","ing risk factors for cardiometabolic diseases and poor outcomes in the region.  
+   A.1.c. New approaches that ad"
+3,low-income,low-income,economically diverse,"deficit-framing language, focuses on lack of resources","(36.950599670410156, 506.4793701171875, 180.04884338378906, 518.81103515625)","inical and community settings and with rural and 
+low-income populations. The Center also builds on foundation"
+3,not yet widely applied,not yet widely applied,emerging in practice,Highlights a current limitation or lack of widespread use.,"(36.950599670410156, 699.1974487304688, 534.6851806640625, 711.5291137695312)","
+gaining traction in public health circles but is not yet widely applied; 2) The Center houses expertise in 
+innovative an"
+4,burden,burden,challenge,Matched flagged term,"(227.13670349121094, 712.1526489257812, 465.0155334472656, 724.4843139648438)","age in long-term strategic planning to reduce the burden of cardiometabolic disease. The Center’s 
+Executi"
+5,burden,burden,challenge,Matched flagged term,"(163.52420043945312, 547.748779296875, 236.9291229248047, 560.0804443359375)","d management); 3) 
+focus on populations with high burden of cardiometabolic disease; 4) address 2+ levels "
+5,insufficient,insufficient,limited,deficit-framing language,"(36.93955993652344, 302.7126770019531, 88.93134307861328, 315.04437255859375)","ometabolic diseases, translational methods, and  
+insufficient healthcare access in a region where it is despera"
+5,desperately,desperately,critically,deficit-framing language,"(183.68319702148438, 302.7126770019531, 393.4322204589844, 315.04437255859375)","ficient healthcare access in a region where it is desperately needed. 
+    C.6. Community Engagement Core (CEC)"
+5,epidemic,epidemic,prevalence,problem-focused language,"(36.950599670410156, 403.9839782714844, 105.44496154785156, 416.315673828125)"," goal of addressing the cardiometabolic diseases 
+epidemic and improving health outcomes throughout the Deep"
+6,barrier,barrier,challenge,Matched flagged term,"(36.950599670410156, 296.2393798828125, 570.0899047851562, 308.5710754394531)","ealth behaviors, food 
+insecurity, transportation barriers), 2) Interpersonal (Household environment) and 3"
+6,barriers,barriers,challenges,Matched flagged term,"(36.950599670410156, 296.2393798828125, 570.0899047851562, 308.5710754394531)","ealth behaviors, food 
+insecurity, transportation barriers), 2) Interpersonal (Household environment) and 3)"
+6,built environment,built environment,physical surroundings and infrastructure,Matched flagged term,"(36.950599670410156, 49.7594108581543, 574.364501953125, 62.09109115600586)","rs), 2) interpersonal (peer norms), 3) community (built environment, food environment); Non-academic 
+partner: AL and"
+6,burden,burden,challenge,Matched flagged term,"(426.7398986816406, 128.71937561035156, 500.14947509765625, 141.05105590820312)","siana, a majority of whom are low-income and high burden of 
+cardiometabolic disease; Study design: Hybrid"
+6,structural,structural,Consider alternative,Matched flagged term,"(60.00212097167969, 373.51507568359375, 576.0230102539062, 385.8467712402344)"," 
+• Use shared measures of psychological/physical/structural determinants of health and biologic outcomes 
+as "
+6,Cardiometabolic Risk,Cardiometabolic Risk,Cardiometabolic Health Challenges,"problem-focused language, highlights potential negative outcomes","(110.62529754638672, 78.07942199707031, 561.0968017578125, 90.41109466552734)","Extension. 
+Project 2:  Improving Weight Loss and Cardiometabolic Risk in Black Primary Care Patients with 
+Obesity and "
+6,low-income,low-income,financially underserved,"deficit-framing language, focusing on what is lacking rather than assets or potential","(226.2093048095703, 128.71937561035156, 426.7729797363281, 141.05105590820312)","patients across Louisiana, a majority of whom are low-income and high burden of 
+cardiometabolic disease; Stud"
+6,high burden,high burden,high prevalence,"deficit-framing language, implying a heavy load or negative impact","(426.7398986816406, 128.71937561035156, 500.14947509765625, 141.05105590820312)"," Louisiana, a majority of whom are low-income and high burden of 
+cardiometabolic disease; Study design: Hybrid"
+6,safety net,safety net,community-focused,"implies a reactive system for those who have fallen through, rather than a proactive system for all","(36.950599670410156, 115.99940490722656, 579.9266357421875, 128.33108520507812)"," & non-academic partner: Ochsner Health System, a safety net care provider 
+for >950,000 patients across Louis"
+6,complex,complex,multiple health conditions,"Can imply difficulty or burden associated with the patient, rather than neutrally describing their health status.","(36.950599670410156, 232.87940979003906, 507.7469787597656, 245.21109008789062)","nd Michael Hall (UMMC)] Disease focus: 
+Medically complex patients (i.e., those with DM on insulin and with"
+6,uncontrolled,uncontrolled,not yet at target,"Can imply a lack of patient agency or failure in managing their condition, rather than the disease's progression or challenges in treatment.","(123.79789733886719, 245.59938049316406, 344.5606689453125, 257.9310607910156)","Study Study 
+population: Black adults living with uncontrolled type 2 diabetes; Setting: two university health s"
+7,disparities,Disparities,Consider alternative,Matched flagged term,"(54.94580078125, 256.87750244140625, 555.702392578125, 269.2091979980469)","ll Center impact 
+The Deep South Center to Reduce Disparities in Chronic Diseases will be a transformative forc"
+7,disparities,Disparities,Consider alternative,Matched flagged term,"(54.94580078125, 256.87750244140625, 555.702392578125, 269.2091979980469)","0/year for 5 years
+UAB Minority Health and Health Disparities Research Center
+$10,000/year for 5 years
+UAB Hype"
+7,disparities,Disparities,Consider alternative,Matched flagged term,"(54.94580078125, 256.87750244140625, 555.702392578125, 269.2091979980469)","itutional Support for Deep South Center to Reduce Disparities in Chronic 
+Diseases Investigator Development Cor"
+7,minority,Minority,Consider alternative,Matched flagged term,"(44.61410140991211, 463.0025329589844, 260.7163391113281, 471.79296875)","ney Disease Research
+$20,000/year for 5 years
+UAB Minority Health and Health Disparities Research Center
+$10"
+7,vulnerable,vulnerable,individuals experiencing healthcare challenges,Matched flagged term,"(36.961639404296875, 282.07080078125, 535.9979248046875, 294.4024963378906)","metabolic diseases that disproportionately impact vulnerable 
+populations in AL, MS, and LA. Further, this wor"
+7,challenge,challenge,issue,problem-focused language,"(36.94696044921875, 572.9334716796875, 556.1323852539062, 585.26513671875)","al to meaningfully intervene upon the significant challenge of 
+cardiometabolic diseases and their multi-leve"
+7,Chronic Diseases,Chronic Diseases,Long-term health conditions,"While a standard medical term, in the context of 'reduce disparities,' it frames health conditions primarily as problems to be solved, which can contribute to a deficit-based view of health. 'Long-term health conditions' is more descriptive and less problem-focused.","(54.94580078125, 256.87750244140625, 555.702392578125, 269.2091979980469)","t 
+The Deep South Center to Reduce Disparities in Chronic Diseases will be a transformative force in the 
+region for"
+9,burden,burden,challenge,Matched flagged term,"(355.35528564453125, 110.71937561035156, 567.466796875, 123.0510482788086)"," approach across the care continuum to reduce the burden of cardiometabolic 
+diseases. The central goal of"
+9,disparities,Disparities,Consider alternative,Matched flagged term,"(49.660499572753906, 157.27943420410156, 575.1754760742188, 169.61111450195312)","istrative Core of the Deep South Center to Reduce Disparities in Chronic Diseases will assure the 
+effectivenes"
+9,disparities,disparities,Consider alternative,Matched flagged term,"(49.660499572753906, 157.27943420410156, 575.1754760742188, 169.61111450195312)","workforce committed to addressing these regional 
+disparities (through the IDC); and 3) engage academic and non"
+9,disparities,Disparities,Consider alternative,Matched flagged term,"(49.660499572753906, 157.27943420410156, 575.1754760742188, 169.61111450195312)",". 
+The mission of the Deep South Center to Reduce Disparities in Chronic Diseases is to develop a regional 
+res"
+9,suffer disproportionately,suffer disproportionately,are disproportionately affected by,Emphasizes a negative experience and can be disempowering. Focusing on 'being affected' or 'experiencing prevalence' is more neutral.,"(41.41080093383789, 85.51942443847656, 561.7153930664062, 97.8510971069336)","diabetes, and hypertension, among populations who suffer disproportionately from these 
+conditions in Alabama, Mississippi, a"
+10,disparities,Disparities,Consider alternative,Matched flagged term,"(36.846778869628906, 44.9575309753418, 569.99365234375, 57.28921127319336)","INISTRATIVE CORE 
+The Deep South Center to Reduce Disparities in Chronic Diseases Administrative Core is struct"

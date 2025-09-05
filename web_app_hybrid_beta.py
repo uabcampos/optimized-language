@@ -46,6 +46,332 @@ def get_config_files(preset: str) -> Tuple[str, str]:
     }
     return preset_mapping.get(preset, ("flagged_terms.json", "replacements.json"))
 
+def load_json_file(file_path: str) -> dict:
+    """Load JSON file safely."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        st.error(f"Error loading {file_path}: {e}")
+        return {}
+
+def load_document_analysis(outdir: str) -> dict:
+    """Load document analysis data if available."""
+    analysis_file = os.path.join(outdir, "document_analysis.json")
+    if os.path.exists(analysis_file):
+        return load_json_file(analysis_file)
+    return {}
+
+def display_document_analysis(analysis_data: dict) -> None:
+    """Display document analysis information."""
+    if not analysis_data:
+        return
+    
+    st.subheader("📋 Document Analysis")
+    
+    # NIH alignment
+    nih_alignment = analysis_data.get('nih_alignment', '')
+    if nih_alignment:
+        st.write("**🏥 NIH Alignment:**")
+        st.write(nih_alignment)
+    
+    # Policy relevance
+    policy_relevance = analysis_data.get('policy_relevance', '')
+    if policy_relevance:
+        st.write("**🏛️ Policy Relevance:**")
+        st.write(policy_relevance)
+
+def create_visualizations(hits: List[dict]) -> None:
+    """Create comprehensive visualizations for the results."""
+    if not hits:
+        st.info("ℹ️ No data available for visualization.")
+        return
+    
+    df = pd.DataFrame(hits)
+    
+    # Create tabs for different visualization categories
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Overview", "🏷️ Terms Analysis", "📄 Page Analysis", "💡 Suggestions", "📈 Trends", "🧠 Hybrid Analysis"])
+    
+    with tab1:
+        # Overview metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Flags", len(df))
+        with col2:
+            st.metric("Unique Terms", df['original_key'].nunique())
+        with col3:
+            st.metric("Pages with Flags", df['page_num'].nunique())
+        with col4:
+            st.metric("Avg Flags per Page", f"{len(df) / df['page_num'].nunique():.1f}")
+        
+        # Page distribution
+        st.subheader("📊 Flags per Page")
+        page_counts = df['page_num'].value_counts().sort_index()
+        fig_pages = px.bar(
+            x=page_counts.index, 
+            y=page_counts.values,
+            title="Distribution of Flags Across Pages",
+            labels={'x': 'Page Number', 'y': 'Number of Flags'},
+            color=page_counts.values,
+            color_continuous_scale='Blues'
+        )
+        fig_pages.update_layout(showlegend=False)
+        st.plotly_chart(fig_pages, width='stretch')
+    
+    with tab2:
+        # Top flagged terms
+        st.subheader("🏷️ Most Flagged Terms")
+        term_counts = df['original_key'].value_counts().head(15)
+        fig_terms = px.bar(
+            x=term_counts.values,
+            y=term_counts.index,
+            orientation='h',
+            title="Top 15 Flagged Terms",
+            labels={'x': 'Number of Occurrences', 'y': 'Term'},
+            color=term_counts.values,
+            color_continuous_scale='Reds'
+        )
+        fig_terms.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+        st.plotly_chart(fig_terms, width='stretch')
+        
+        # Term frequency pie chart
+        if len(term_counts) > 1:
+            st.subheader("🥧 Term Distribution")
+            fig_pie = px.pie(
+                values=term_counts.values,
+                names=term_counts.index,
+                title="Distribution of Flagged Terms"
+            )
+            st.plotly_chart(fig_pie, width='stretch')
+    
+    with tab3:
+        # Page analysis
+        st.subheader("📄 Page-by-Page Analysis")
+        
+        # Create a detailed page analysis
+        page_analysis = df.groupby('page_num').agg({
+            'original_key': 'count',
+            'matched_text': lambda x: ', '.join(x.unique()[:5])  # First 5 unique matches
+        }).rename(columns={'original_key': 'flag_count', 'matched_text': 'sample_terms'})
+        
+        st.dataframe(page_analysis, width='stretch')
+        
+        # Page heatmap
+        if len(page_counts) > 1:
+            st.subheader("🔥 Page Activity Heatmap")
+            # Create a simple heatmap representation
+            max_page = df['page_num'].max()
+            heatmap_data = []
+            for page in range(1, max_page + 1):
+                count = page_counts.get(page, 0)
+                heatmap_data.append({'Page': page, 'Flags': count})
+            
+            heatmap_df = pd.DataFrame(heatmap_data)
+            fig_heatmap = px.bar(
+                heatmap_df, 
+                x='Page', 
+                y='Flags',
+                title="Page Activity Heatmap",
+                color='Flags',
+                color_continuous_scale='Viridis'
+            )
+            st.plotly_chart(fig_heatmap, width='stretch')
+    
+    with tab4:
+        # Suggestion analysis
+        st.subheader("💡 Suggestion Analysis")
+        
+        # Most common suggestions
+        if 'suggestion' in df.columns:
+            suggestion_counts = df['suggestion'].value_counts().head(10)
+            if not suggestion_counts.empty:
+                fig_suggestions = px.bar(
+                    x=suggestion_counts.values,
+                    y=suggestion_counts.index,
+                    orientation='h',
+                    title="Top 10 Suggestions",
+                    labels={'x': 'Frequency', 'y': 'Suggestion'}
+                )
+                fig_suggestions.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+                st.plotly_chart(fig_suggestions, width='stretch')
+        
+        # Method analysis
+        if 'method' in df.columns:
+            method_counts = df['method'].value_counts()
+            fig_methods = px.pie(
+                values=method_counts.values,
+                names=method_counts.index,
+                title="Flags by Analysis Method"
+            )
+            st.plotly_chart(fig_methods, width='stretch')
+    
+    with tab5:
+        # Trends analysis
+        st.subheader("📈 Analysis Trends")
+        
+        # Flags over pages (trend)
+        page_trend = df.groupby('page_num').size().reset_index(name='flags')
+        fig_trend = px.line(
+            page_trend, 
+            x='page_num', 
+            y='flags',
+            title="Flagging Trend Across Pages",
+            labels={'page_num': 'Page Number', 'flags': 'Number of Flags'}
+        )
+        st.plotly_chart(fig_trend, width='stretch')
+        
+        # Method effectiveness over pages
+        if 'method' in df.columns:
+            method_trend = df.groupby(['page_num', 'method']).size().reset_index(name='count')
+            fig_method_trend = px.line(
+                method_trend,
+                x='page_num',
+                y='count',
+                color='method',
+                title="Method Performance Across Pages",
+                labels={'page_num': 'Page Number', 'count': 'Flags Found'}
+            )
+            st.plotly_chart(fig_method_trend, width='stretch')
+    
+    with tab6:
+        # Hybrid analysis
+        st.subheader("🧠 Hybrid Analysis")
+        
+        if 'method' in df.columns:
+            # Method comparison
+            method_counts = df['method'].value_counts()
+            
+            # Method effectiveness metrics
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                pattern_count = method_counts.get('pattern_matching', 0)
+                st.metric("Pattern Matching Only", pattern_count)
+            
+            with col2:
+                langextract_count = method_counts.get('langextract', 0)
+                st.metric("LangExtract Only", langextract_count)
+            
+            with col3:
+                both_count = method_counts.get('both_methods', 0)
+                st.metric("Found by Both", both_count)
+            
+            # Method comparison pie chart
+            st.subheader("🔍 Method Comparison")
+            fig_methods = px.pie(
+                values=method_counts.values,
+                names=method_counts.index,
+                title="Flags by Analysis Method",
+                color_discrete_sequence=px.colors.qualitative.Set3
+            )
+            st.plotly_chart(fig_methods, width='stretch')
+            
+            # Method effectiveness over pages
+            st.subheader("📊 Method Performance by Page")
+            method_page_analysis = df.groupby(['page_num', 'method']).size().unstack(fill_value=0)
+            
+            if not method_page_analysis.empty:
+                fig_method_pages = px.bar(
+                    method_page_analysis,
+                    title="Method Performance by Page",
+                    labels={'page_num': 'Page Number', 'value': 'Flags Found'},
+                    barmode='group'
+                )
+                fig_method_pages.update_layout(xaxis_title="Page Number", yaxis_title="Flags Found")
+                st.plotly_chart(fig_method_pages, width='stretch')
+            
+            # Method overlap analysis
+            st.subheader("🔄 Method Overlap Analysis")
+            
+            # Calculate overlap statistics
+            total_flags = len(df)
+            pattern_only = method_counts.get('pattern_matching', 0)
+            langextract_only = method_counts.get('langextract', 0)
+            both_methods = method_counts.get('both_methods', 0)
+            
+            overlap_stats = {
+                'Pattern Only': pattern_only,
+                'LangExtract Only': langextract_only,
+                'Both Methods': both_methods
+            }
+            
+            fig_overlap = px.bar(
+                x=list(overlap_stats.keys()),
+                y=list(overlap_stats.values()),
+                title="Method Overlap Distribution",
+                labels={'x': 'Method Category', 'y': 'Number of Flags'},
+                color=list(overlap_stats.values()),
+                color_continuous_scale='Viridis'
+            )
+            st.plotly_chart(fig_overlap, width='stretch')
+            
+            # Method effectiveness summary
+            st.subheader("📈 Method Effectiveness Summary")
+            
+            effectiveness_data = {
+                'Metric': [
+                    'Pattern Matching Coverage',
+                    'LangExtract Coverage', 
+                    'Combined Coverage',
+                    'Overlap Rate',
+                    'Unique Pattern Finds',
+                    'Unique LangExtract Finds'
+                ],
+                'Value': [
+                    f"{(pattern_only + both_methods) / total_flags * 100:.1f}%",
+                    f"{(langextract_only + both_methods) / total_flags * 100:.1f}%",
+                    f"{((pattern_only + langextract_only + both_methods) / total_flags) * 100:.1f}%",
+                    f"{both_methods / total_flags * 100:.1f}%",
+                    f"{pattern_only} ({pattern_only / total_flags * 100:.1f}%)",
+                    f"{langextract_only} ({langextract_only / total_flags * 100:.1f}%)"
+                ]
+            }
+            
+            effectiveness_df = pd.DataFrame(effectiveness_data)
+            st.dataframe(effectiveness_df, hide_index=True, use_container_width=True)
+            
+            # Method-specific term analysis
+            st.subheader("🏷️ Method-Specific Term Analysis")
+            
+            # Terms found by each method
+            pattern_terms = df[df['method'] == 'pattern_matching']['original_key'].value_counts().head(10)
+            langextract_terms = df[df['method'] == 'langextract']['original_key'].value_counts().head(10)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if not pattern_terms.empty:
+                    st.write("**Top Pattern Matching Terms:**")
+                    fig_pattern = px.bar(
+                        x=pattern_terms.values,
+                        y=pattern_terms.index,
+                        orientation='h',
+                        title="Top Pattern Matching Terms",
+                        labels={'x': 'Count', 'y': 'Term'}
+                    )
+                    fig_pattern.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+                    st.plotly_chart(fig_pattern, width='stretch')
+                else:
+                    st.info("No pattern matching terms found")
+            
+            with col2:
+                if not langextract_terms.empty:
+                    st.write("**Top LangExtract Terms:**")
+                    fig_langextract = px.bar(
+                        x=langextract_terms.values,
+                        y=langextract_terms.index,
+                        orientation='h',
+                        title="Top LangExtract Terms",
+                        labels={'x': 'Count', 'y': 'Term'}
+                    )
+                    fig_langextract.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+                    st.plotly_chart(fig_langextract, width='stretch')
+                else:
+                    st.info("No LangExtract terms found")
+        else:
+            st.info("No method information available for hybrid analysis")
+
 def main():
     """Main application function."""
     st.title("🧠 Smart PDF Language Flagger - Hybrid Beta")
@@ -347,110 +673,355 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
         os.unlink(input_file)
 
 def display_results():
-    """Display processing results."""
-    if not st.session_state.get('processing_success', False):
-        return
-    
-    st.header("📊 Analysis Results")
-    
-    hits = st.session_state.processing_hits
-    if not hits:
-        st.warning("No language issues found!")
-        return
-    
-    # Summary metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Total Flags", len(hits))
-    
-    with col2:
-        pages = len(set(hit.get('page_num', 0) for hit in hits))
-        st.metric("Pages Affected", pages)
-    
-    with col3:
-        unique_terms = len(set(hit.get('original_key', '') for hit in hits))
-        st.metric("Unique Terms", unique_terms)
-    
-    with col4:
-        duration = st.session_state.get('processing_duration', 0)
-        st.metric("Processing Time", f"{duration:.1f}s")
-    
-    # Analysis method breakdown
-    if hits:
-        methods = {}
-        for hit in hits:
-            method = hit.get('method', 'unknown')
-            methods[method] = methods.get(method, 0) + 1
+    """Display comprehensive processing results."""
+    # Display persistent results if available
+    if st.session_state.processing_success:
+        st.markdown("---")
+        st.header("📊 Processing Results")
         
-        if methods:
-            st.subheader("🔍 Analysis Method Breakdown")
-            method_df = pd.DataFrame(list(methods.items()), columns=['Method', 'Count'])
-            fig = px.pie(method_df, values='Count', names='Method', title="Flags by Analysis Method")
-            st.plotly_chart(fig, use_container_width=True)
-    
-    # Results table
-    st.subheader("📋 Detailed Results")
-    
-    if hits:
-        df = pd.DataFrame(hits)
+        # Show processing summary with enhanced metrics
+        st.subheader("📊 Processing Results")
         
-        # Add search functionality
-        search_term = st.text_input(
-            "🔍 Search results:", 
-            placeholder="Search by term, suggestion, or page...",
-            key="search_results"
-        )
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Flagged Terms Found", len(st.session_state.processing_hits))
+        with col2:
+            processing_time = st.session_state.get('processing_duration', 'Unknown')
+            st.metric("Processing Time", processing_time)
+        with col3:
+            st.metric("Output Files", "1 PDF + Reports")
+        with col4:
+            if st.session_state.processing_hits:
+                unique_terms = len(set(hit.get('original_key', '') for hit in st.session_state.processing_hits))
+                st.metric("Unique Terms", unique_terms)
+            else:
+                st.metric("Unique Terms", 0)
         
-        # Filter results
-        if search_term and search_term.strip():
-            mask = df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
-            df = df[mask]
-            st.info(f"Showing {len(df)} results matching '{search_term}'")
+        # Success indicator
+        if st.session_state.processing_hits:
+            st.success(f"✅ Successfully processed document and found {len(st.session_state.processing_hits)} flagged terms!")
+            
+            # Hybrid-specific metrics
+            if st.session_state.processing_hits:
+                methods = {}
+                for hit in st.session_state.processing_hits:
+                    method = hit.get('method', 'unknown')
+                    methods[method] = methods.get(method, 0) + 1
+                
+                if methods:
+                    st.subheader("🔍 Hybrid Analysis Breakdown")
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        pattern_count = methods.get('pattern_matching', 0)
+                        st.metric("Pattern Matching", pattern_count)
+                    
+                    with col2:
+                        langextract_count = methods.get('langextract', 0)
+                        st.metric("LangExtract", langextract_count)
+                    
+                    with col3:
+                        both_count = methods.get('both_methods', 0)
+                        st.metric("Found by Both", both_count)
+                    
+                    # Show method effectiveness
+                    total_hits = len(st.session_state.processing_hits)
+                    if total_hits > 0:
+                        st.info(f"📊 **Method Effectiveness:** Pattern matching found {pattern_count} ({pattern_count/total_hits*100:.1f}%), LangExtract found {langextract_count} ({langextract_count/total_hits*100:.1f}%), Both methods found {both_count} ({both_count/total_hits*100:.1f}%)")
+        else:
+            st.warning("⚠️ No flagged terms found in the document.")
         
-        # Display table
-        st.dataframe(
-            df,
-            column_config={
-                "page_num": st.column_config.NumberColumn("Page", help="Page number"),
-                "original_key": st.column_config.TextColumn("Original Term", help="Flagged term"),
-                "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text found"),
-                "suggestion": st.column_config.TextColumn("Suggestion", help="Recommended replacement"),
-                "reason": st.column_config.TextColumn("Reason", help="Why this was flagged"),
-                "method": st.column_config.TextColumn("Method", help="How it was found")
-            },
-            hide_index=True,
-            use_container_width=True
-        )
-    
-    # Download options
-    st.subheader("📥 Download Results")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("📊 Download CSV"):
-            csv = df.to_csv(index=False)
-            st.download_button(
-                label="Download CSV",
-                data=csv,
-                file_name=f"hybrid_analysis_{st.session_state.processing_timestamp}.csv",
-                mime="text/csv"
-            )
-    
-    with col2:
-        if st.button("📄 Download Annotated PDF"):
+        # Load and display document analysis
+        if st.session_state.processing_outdir:
+            analysis_data = load_document_analysis(st.session_state.processing_outdir)
+            if analysis_data:
+                display_document_analysis(analysis_data)
+        
+        # Try to load results directly from file if session state is empty
+        if not st.session_state.processing_hits and st.session_state.processing_outdir:
+            csv_path = os.path.join(st.session_state.processing_outdir, "flag_report.csv")
+            if os.path.exists(csv_path):
+                try:
+                    df = pd.read_csv(csv_path)
+                    hits = df.to_dict('records')
+                    st.session_state.processing_hits = hits
+                    st.success(f"✅ Loaded {len(hits)} hits directly from CSV file")
+                except Exception as e:
+                    st.error(f"Error loading CSV: {e}")
+        
+        if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
+            # Create visualizations (only if there are hits)
+            st.subheader("📈 Analytics Dashboard")
+            try:
+                create_visualizations(st.session_state.processing_hits)
+            except Exception as e:
+                st.error(f"Error creating visualizations: {e}")
+            
+            # Display hits in a detailed table
+            st.subheader("📋 Detailed Results Table")
+            try:
+                # Ensure we have valid data
+                if not st.session_state.processing_hits:
+                    st.warning("No hits data available")
+                    return
+                
+                # Create DataFrame with error handling
+                try:
+                    df = pd.DataFrame(st.session_state.processing_hits)
+                    if df.empty:
+                        st.warning("No data to display")
+                        return
+                except Exception as df_error:
+                    st.error(f"Error creating DataFrame: {df_error}")
+                    return
+                
+                st.write(f"DataFrame columns: {list(df.columns)}")
+                
+                # Add search and filter capabilities with better error handling
+                search_term = st.text_input(
+                    "🔍 Search in results:", 
+                    placeholder="Search by term, suggestion, or page...", 
+                    key="search_results",
+                    help="Search across all columns in the results table"
+                )
+                
+                # Initialize display dataframe
+                display_df = df.copy()
+                
+                # Apply search filter if provided
+                if search_term and search_term.strip():
+                    try:
+                        # Clean the search term
+                        clean_search = search_term.strip()
+                        
+                        # Create search mask with better error handling
+                        search_mask = pd.Series([False] * len(display_df), index=display_df.index)
+                        
+                        for col in display_df.columns:
+                            try:
+                                col_mask = display_df[col].astype(str).str.contains(
+                                    clean_search, 
+                                    case=False, 
+                                    na=False, 
+                                    regex=False
+                                )
+                                search_mask = search_mask | col_mask
+                            except Exception as col_error:
+                                st.warning(f"Search error in column '{col}': {col_error}")
+                                continue
+                        
+                        display_df = display_df[search_mask]
+                        st.info(f"Showing {len(display_df)} results matching '{clean_search}'")
+                        
+                    except Exception as search_error:
+                        st.warning(f"Search error: {search_error}. Showing all results.")
+                        display_df = df
+                
+                # Display the dataframe with enhanced formatting
+                try:
+                    # Ensure we have data to display
+                    if display_df.empty:
+                        st.info("No results match your search criteria.")
+                    else:
+                        st.dataframe(
+                            display_df, 
+                            width='stretch',
+                            column_config={
+                                "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
+                                "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
+                                "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
+                                "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
+                                "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
+                                "context": st.column_config.TextColumn("Context", help="Surrounding text context"),
+                                "method": st.column_config.TextColumn("Method", help="Analysis method used")
+                            },
+                            hide_index=True,
+                            use_container_width=True
+                        )
+                except Exception as display_error:
+                    st.error(f"Error displaying table: {display_error}")
+                    # Fallback: show basic table without column config
+                    try:
+                        st.dataframe(display_df, width='stretch', hide_index=True, use_container_width=True)
+                    except Exception as fallback_error:
+                        st.error(f"Fallback display also failed: {fallback_error}")
+                        st.write("Raw data preview:")
+                        st.write(display_df.head())
+            except Exception as e:
+                st.error(f"Error creating table: {e}")
+                st.write("Raw hits data:")
+                st.write(st.session_state.processing_hits[:5])  # Show first 5 hits
+        else:
+            st.warning("⚠️ No hits data available in session state")
+            st.info("ℹ️ No flagged terms found in the document.")
+            st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
+        
+        # Debug information (collapsed by default)
+        with st.expander("🔍 Debug Information", expanded=False):
+            st.write(f"**Session State Debug:**")
+            st.write(f"- Processing Success: {st.session_state.processing_success}")
+            st.write(f"- Number of Hits: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
+            st.write(f"- Processing Output Length: {len(st.session_state.processing_output) if st.session_state.processing_output else 0}")
+            st.write(f"- Output Directory: {st.session_state.processing_outdir}")
+            st.write(f"- Hits Type: {type(st.session_state.processing_hits)}")
+            st.write(f"- Hits is None: {st.session_state.processing_hits is None}")
+            st.write(f"- Hits is Empty: {len(st.session_state.processing_hits) == 0 if st.session_state.processing_hits else 'N/A'}")
+            
+            if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
+                st.write(f"**Sample Hit:**")
+                st.json(st.session_state.processing_hits[0])
+                st.write(f"**Hit Keys:** {list(st.session_state.processing_hits[0].keys()) if st.session_state.processing_hits[0] else 'No keys'}")
+            else:
+                st.write("**No hits data available**")
+            
+            # Recovery options
+            st.write("**Recovery Options:**")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🔄 Reset Session State", help="Clear all session data and start fresh"):
+                    st.session_state.clear()
+                    st.rerun()
+            with col2:
+                if st.button("🔄 Reload Page", help="Refresh the page to recover from errors"):
+                    st.rerun()
+        
+        # Display processing output if available
+        if st.session_state.processing_output:
+            with st.expander("📋 Processing Log", expanded=False):
+                st.text_area("Processing Output", value=st.session_state.processing_output, height=300, help="Detailed processing log from the language flagging script")
+        
+        # Download options with enhanced UI
+        st.subheader("📥 Download Results")
+        st.markdown("Download your processed results in various formats:")
+        
+        # Create download buttons in a more organized layout
+        download_col1, download_col2 = st.columns(2)
+        
+        with download_col1:
+            st.markdown("#### 📊 Data Reports")
+            
+            if st.session_state.processing_hits:
+                df = pd.DataFrame(st.session_state.processing_hits)
+                
+                # CSV download
+                csv_data = df.to_csv(index=False)
+                st.download_button(
+                    label="📊 Download CSV Report",
+                    data=csv_data,
+                    file_name=f"flag_report_{st.session_state.processing_timestamp}.csv",
+                    mime="text/csv",
+                    help="Download results as a CSV spreadsheet"
+                )
+                
+                # JSON download
+                json_data = df.to_json(orient='records', indent=2)
+                st.download_button(
+                    label="📋 Download JSON Report",
+                    data=json_data,
+                    file_name=f"flag_report_{st.session_state.processing_timestamp}.json",
+                    mime="application/json",
+                    help="Download results as a JSON file for programmatic use"
+                )
+            else:
+                st.info("No data available for download")
+        
+        with download_col2:
+            st.markdown("#### 📄 Documents")
+            
+            # PDF Report Generation
+            if PDF_REPORT_AVAILABLE:
+                if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
+                    if st.button("📊 Generate PDF Report", help="Generate a comprehensive PDF report with summaries and visualizations"):
+                        try:
+                            # Load document analysis if available
+                            document_analysis = {}
+                            if st.session_state.processing_outdir:
+                                analysis_file = os.path.join(st.session_state.processing_outdir, "document_analysis.json")
+                                if os.path.exists(analysis_file):
+                                    with open(analysis_file, 'r', encoding='utf-8') as f:
+                                        document_analysis = json.load(f)
+                            
+                            # Generate PDF report
+                            with st.spinner("Generating PDF report..."):
+                                report_path = generate_pdf_report(
+                                    st.session_state.processing_hits,
+                                    document_analysis,
+                                    st.session_state.processing_outdir or tempfile.gettempdir()
+                                )
+                            
+                            # Provide download link
+                            if os.path.exists(report_path):
+                                with open(report_path, 'rb') as f:
+                                    report_data = f.read()
+                                
+                                st.download_button(
+                                    label="📊 Download PDF Report",
+                                    data=report_data,
+                                    file_name=os.path.basename(report_path),
+                                    mime="application/pdf",
+                                    help="Download the comprehensive PDF report with summaries and visualizations"
+                                )
+                                
+                                st.success("✅ PDF report generated successfully!")
+                            else:
+                                st.error("Failed to generate PDF report")
+                                
+                        except Exception as e:
+                            st.error(f"Error generating PDF report: {e}")
+                            st.exception(e)
+                else:
+                    st.info("No data available for PDF report generation")
+            else:
+                st.info("📊 PDF Report generation not available in this environment")
+            
+            # Annotated PDF download
             if st.session_state.processing_outdir:
-                pdf_path = os.path.join(st.session_state.processing_outdir, "flagged_output.pdf")
-                if os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
+                annotated_pdf_path = os.path.join(st.session_state.processing_outdir, "flagged_output.pdf")
+                if os.path.exists(annotated_pdf_path):
+                    with open(annotated_pdf_path, 'rb') as f:
                         pdf_data = f.read()
                     st.download_button(
-                        label="Download PDF",
+                        label="📄 Download Annotated PDF",
                         data=pdf_data,
-                        file_name=f"hybrid_flagged_{st.session_state.processing_timestamp}.pdf",
-                        mime="application/pdf"
+                        file_name=f"flagged_output_{st.session_state.processing_timestamp}.pdf",
+                        mime="application/pdf",
+                        help="Download the PDF with highlighted flagged terms"
                     )
+                else:
+                    st.warning("Annotated PDF not found")
+            else:
+                st.info("No output directory available")
+        
+        # ZIP download (full width)
+        st.markdown("#### 📦 Complete Package")
+        if st.session_state.processing_outdir and os.path.exists(st.session_state.processing_outdir):
+            try:
+                zip_path = f"results_{st.session_state.processing_timestamp}.zip"
+                with zipfile.ZipFile(zip_path, 'w') as zipf:
+                    for root, dirs, files in os.walk(st.session_state.processing_outdir):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            arcname = os.path.relpath(file_path, st.session_state.processing_outdir)
+                            zipf.write(file_path, arcname)
+                
+                with open(zip_path, 'rb') as f:
+                    zip_data = f.read()
+                
+                st.download_button(
+                    label="📦 Download Complete Package",
+                    data=zip_data,
+                    file_name=zip_path,
+                    mime="application/zip",
+                    help="Download all output files as a ZIP archive"
+                )
+                
+                # Clean up the zip file
+                os.remove(zip_path)
+                
+            except Exception as e:
+                st.error(f"Error creating ZIP file: {e}")
+        else:
+            st.info("No output directory available for ZIP download")
 
 if __name__ == "__main__":
     main()
