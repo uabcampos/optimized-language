@@ -180,6 +180,67 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
     except Exception as e:
         return False, str(e), []
 
+def load_document_analysis(outdir: str) -> dict:
+    """Load document analysis results from JSON file."""
+    try:
+        analysis_file = os.path.join(outdir, "document_analysis.json")
+        if os.path.exists(analysis_file):
+            with open(analysis_file, 'r') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error loading document analysis: {e}")
+    return None
+
+def display_document_analysis(analysis_data: dict) -> None:
+    """Display document analysis results in the UI."""
+    if not analysis_data:
+        return
+    
+    st.subheader("📊 Document Analysis")
+    
+    # Key metrics in columns
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Document Type", analysis_data.get('document_type', 'Unknown'))
+    with col2:
+        st.metric("NIH Alignment", f"{analysis_data.get('nih_alignment_score', 0):.1f}%")
+    with col3:
+        st.metric("Project 2025", f"{analysis_data.get('project_2025_score', 0):.1f}%")
+    with col4:
+        st.metric("Alabama SB 129", f"{analysis_data.get('alabama_sb129_score', 0):.1f}%")
+    
+    # Main themes and focus
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**🎯 Key Themes:**")
+        themes = analysis_data.get('main_themes', [])
+        for theme in themes[:5]:  # Show top 5 themes
+            st.write(f"• {theme}")
+    
+    with col2:
+        st.write("**🔬 Scientific Focus:**")
+        st.write(analysis_data.get('scientific_focus', 'Not specified'))
+    
+    # NIH Priorities
+    nih_priorities = analysis_data.get('nih_priority_alignment', [])
+    if nih_priorities:
+        st.write("**🏥 NIH Priority Alignment:**")
+        for priority in nih_priorities[:3]:  # Show top 3 priorities
+            st.write(f"• {priority}")
+    
+    # Strategic recommendations
+    recommendations = analysis_data.get('strategic_recommendations', [])
+    if recommendations:
+        st.write("**💡 Strategic Recommendations:**")
+        for i, rec in enumerate(recommendations[:3], 1):  # Show top 3 recommendations
+            st.write(f"{i}. {rec}")
+    
+    # Policy relevance
+    policy_relevance = analysis_data.get('policy_relevance', '')
+    if policy_relevance:
+        st.write("**🏛️ Policy Relevance:**")
+        st.write(policy_relevance)
+
 def create_visualizations(hits: List[dict]) -> None:
     """Create comprehensive visualizations for the results."""
     if not hits:
@@ -526,15 +587,14 @@ def main():
         else:
             st.warning("⚠️ No flagged terms found in the document.")
         
-        # Force display results for debugging
-        st.subheader("🔧 Debug: Force Display Results")
-        st.write(f"Processing hits length: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
-        st.write(f"Processing hits type: {type(st.session_state.processing_hits)}")
-        st.write(f"Processing hits is None: {st.session_state.processing_hits is None}")
+        # Load and display document analysis
+        if st.session_state.processing_outdir:
+            analysis_data = load_document_analysis(st.session_state.processing_outdir)
+            if analysis_data:
+                display_document_analysis(analysis_data)
         
         # Try to load results directly from file if session state is empty
         if not st.session_state.processing_hits and st.session_state.processing_outdir:
-            st.write("🔄 Attempting to load results directly from file...")
             csv_path = os.path.join(st.session_state.processing_outdir, "flag_report.csv")
             if os.path.exists(csv_path):
                 try:
@@ -546,22 +606,17 @@ def main():
                     st.error(f"Error loading CSV: {e}")
         
         if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
-            st.write("✅ Hits data is available, attempting to display...")
-            
             # Create visualizations (only if there are hits)
             st.subheader("📈 Analytics Dashboard")
             try:
                 create_visualizations(st.session_state.processing_hits)
             except Exception as e:
                 st.error(f"Error creating visualizations: {e}")
-                st.write("Raw hits data:")
-                st.write(st.session_state.processing_hits[:3])  # Show first 3 hits
             
             # Display hits in a detailed table
             st.subheader("📋 Detailed Results Table")
             try:
                 df = pd.DataFrame(st.session_state.processing_hits)
-                st.write(f"DataFrame created with {len(df)} rows and {len(df.columns)} columns")
                 st.write(f"DataFrame columns: {list(df.columns)}")
                 
                 # Add search and filter capabilities
