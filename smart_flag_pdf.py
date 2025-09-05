@@ -1408,6 +1408,8 @@ def process_pdf(input_pdf: str,
     
     if skip_terms:
         print(f"🚫 Skip terms: {skip_terms}")
+        print(f"DEBUG: Skip terms type: {type(skip_terms)}")
+        print(f"DEBUG: Skip terms length: {len(skip_terms)}")
     else:
         print("🚫 No skip terms specified")
 

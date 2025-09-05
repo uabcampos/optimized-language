@@ -77,6 +77,9 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
         # Add skip terms if provided
         if skip_terms:
             cmd.extend(["--skip-terms"] + skip_terms)
+            print(f"DEBUG: Adding skip terms to command: {skip_terms}")
+        else:
+            print("DEBUG: No skip terms provided")
         
         # Use Popen for real-time output capture
         process = subprocess.Popen(
