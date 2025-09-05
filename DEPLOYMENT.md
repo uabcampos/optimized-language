@@ -36,7 +36,22 @@
 
 ## Environment Variables Required
 
-- `OPENAI_API_KEY`: Your OpenAI API key for language processing
+### Required (at least one):
+- `GEMINI_API_KEY`: Your Google Gemini API key (recommended - faster & cheaper)
+- `OPENAI_API_KEY`: Your OpenAI API key (backup option)
+
+### Streamlit Cloud Secrets Format:
+In your Streamlit Cloud app settings, add these secrets:
+
+```toml
+GEMINI_API_KEY = "your_gemini_api_key_here"
+OPENAI_API_KEY = "your_openai_api_key_here"
+```
+
+### API Selection:
+- **Auto mode** (default): Uses Gemini if available, falls back to OpenAI
+- **Gemini**: Uses Google Gemini 1.5 Flash (faster, cheaper)
+- **OpenAI**: Uses specified OpenAI model
 
 ## Notes
 

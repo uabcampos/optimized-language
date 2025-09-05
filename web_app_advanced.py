@@ -48,7 +48,7 @@ def save_json_file(file_path: str, data: dict) -> bool:
         return False
 
 def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict[str, str], 
-                  outdir: str, style: str, model: str, temperature: float, progress_container=None) -> Tuple[bool, str, List[dict]]:
+                  outdir: str, style: str, model: str, temperature: float, api_type: str = "auto", progress_container=None) -> Tuple[bool, str, List[dict]]:
     """Run the processing script and return results with real-time progress updates."""
     try:
         # Create temporary JSON files
@@ -69,7 +69,8 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
             "--outdir", outdir,
             "--style", style,
             "--model", model,
-            "--temperature", str(temperature)
+            "--temperature", str(temperature),
+            "--api", api_type
         ]
         
         # Use Popen for real-time output capture
@@ -224,12 +225,40 @@ def main():
     with st.sidebar:
         st.header("⚙️ Configuration")
         
+        # API Key Setup
+        st.subheader("🔑 API Configuration")
+        
+        # Set up API keys from Streamlit secrets
+        try:
+            if "GEMINI_API_KEY" in st.secrets:
+                os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+                st.success("✅ Gemini API key loaded from secrets")
+            else:
+                st.warning("⚠️ Gemini API key not found in secrets")
+                
+            if "OPENAI_API_KEY" in st.secrets:
+                os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+                st.success("✅ OpenAI API key loaded from secrets")
+            else:
+                st.warning("⚠️ OpenAI API key not found in secrets")
+        except Exception as e:
+            st.error(f"Error loading API keys: {e}")
+        
+        # API Selection
+        api_type = st.selectbox(
+            "API Provider",
+            ["auto", "gemini", "openai"],
+            index=0,
+            help="Auto: Prefers Gemini if available, otherwise OpenAI"
+        )
+        
         # Model settings
         st.subheader("LLM Settings")
         model = st.selectbox(
             "Model",
             ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"],
-            index=0
+            index=0,
+            help="OpenAI model (ignored if using Gemini)"
         )
         temperature = st.slider("Temperature", 0.0, 1.0, 0.2, 0.1)
         
@@ -431,7 +460,7 @@ def main():
                         
                         success, output, hits = run_processing(
                             tmp_file_path, flagged_terms, replacements, 
-                            outdir, style, model, temperature, progress_container
+                            outdir, style, model, temperature, api_type, progress_container
                         )
                         
                         # Step 5: Processing complete
