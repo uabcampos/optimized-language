@@ -280,7 +280,7 @@ def create_visualizations(hits: List[dict]) -> None:
             color_continuous_scale='Blues'
         )
         fig_pages.update_layout(showlegend=False)
-        st.plotly_chart(fig_pages, use_container_width=True)
+        st.plotly_chart(fig_pages, width='stretch')
     
     with tab2:
         # Top flagged terms
@@ -296,7 +296,7 @@ def create_visualizations(hits: List[dict]) -> None:
             color_continuous_scale='Reds'
         )
         fig_terms.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
-        st.plotly_chart(fig_terms, use_container_width=True)
+        st.plotly_chart(fig_terms, width='stretch')
         
         # Term frequency pie chart
         if len(term_counts) > 1:
@@ -306,7 +306,7 @@ def create_visualizations(hits: List[dict]) -> None:
                 names=term_counts.index,
                 title="Distribution of Flagged Terms"
             )
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.plotly_chart(fig_pie, width='stretch')
     
     with tab3:
         # Page analysis
@@ -318,7 +318,7 @@ def create_visualizations(hits: List[dict]) -> None:
             'matched_text': lambda x: ', '.join(x.unique()[:5])  # First 5 unique matches
         }).rename(columns={'original_key': 'flag_count', 'matched_text': 'sample_terms'})
         
-        st.dataframe(page_analysis, use_container_width=True)
+        st.dataframe(page_analysis, width='stretch')
         
         # Page heatmap
         if len(page_counts) > 1:
@@ -339,7 +339,7 @@ def create_visualizations(hits: List[dict]) -> None:
                 color='Flags',
                 color_continuous_scale='Viridis'
             )
-            st.plotly_chart(fig_heatmap, use_container_width=True)
+            st.plotly_chart(fig_heatmap, width='stretch')
     
     with tab4:
         # Suggestion analysis
@@ -360,7 +360,7 @@ def create_visualizations(hits: List[dict]) -> None:
                     color_continuous_scale='Greens'
                 )
                 fig_suggestions.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
-                st.plotly_chart(fig_suggestions, use_container_width=True)
+                st.plotly_chart(fig_suggestions, width='stretch')
             
             # Suggestion length analysis
             st.subheader("📏 Suggestion Length Analysis")
@@ -372,7 +372,7 @@ def create_visualizations(hits: List[dict]) -> None:
                 labels={'x': 'Character Count', 'y': 'Frequency'},
                 nbins=20
             )
-            st.plotly_chart(fig_length, use_container_width=True)
+            st.plotly_chart(fig_length, width='stretch')
         else:
             st.info("No suggestion data available for analysis.")
     
@@ -388,7 +388,7 @@ def create_visualizations(hits: List[dict]) -> None:
             labels={'x': 'Page Number', 'y': 'Number of Flags'},
             markers=True
         )
-        st.plotly_chart(fig_trend, use_container_width=True)
+        st.plotly_chart(fig_trend, width='stretch')
         
         # Cumulative flags
         cumulative_flags = page_counts.cumsum()
@@ -399,7 +399,7 @@ def create_visualizations(hits: List[dict]) -> None:
             labels={'x': 'Page Number', 'y': 'Cumulative Flags'},
             markers=True
         )
-        st.plotly_chart(fig_cumulative, use_container_width=True)
+        st.plotly_chart(fig_cumulative, width='stretch')
 
 def main():
     st.title("📝 Smart PDF Language Flagger - Advanced")
@@ -633,7 +633,7 @@ def main():
                 # Display the dataframe with enhanced formatting
                 st.dataframe(
                     df, 
-                    use_container_width=True,
+                    width='stretch',
                     column_config={
                         "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
                         "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
@@ -888,7 +888,7 @@ def main():
             if st.session_state.processing_success:
                 st.markdown("---")
                 st.subheader("🔄 Session Management")
-                if st.button("🗑️ Start Over / Process New Document", type="secondary", use_container_width=True):
+                if st.button("🗑️ Start Over / Process New Document", type="secondary", width='stretch'):
                     # Clear all session state
                     st.session_state.processing_results = None
                     st.session_state.processing_success = False
@@ -901,7 +901,7 @@ def main():
             
             # Process button
             if flagged_terms and replacements:
-                if st.button("🚀 Process Document", type="primary", use_container_width=True):
+                if st.button("🚀 Process Document", type="primary", width='stretch'):
                     # Create progress containers
                     progress_container = st.container()
                     status_container = st.container()
