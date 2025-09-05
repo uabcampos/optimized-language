@@ -160,22 +160,62 @@ def should_skip_term(term: str, skip_terms: List[str]) -> bool:
         if term_lower == skip_lower:
             return True
         
-        # Check for word variations (more precise matching)
-        # Only match if the term is a variation of the skip term, not just starts with it
-        common_suffixes = ['s', 'es', 'ed', 'ing', 'ly', 'tion', 'sion', 'ness', 'ment', 'able', 'ible', 'ful', 'less']
+        # Check for word variations using a more comprehensive approach
+        # Handle common English word transformations
         
-        # Check if term is skip_term + suffix
-        for suffix in common_suffixes:
+        # Simple suffix additions
+        simple_suffixes = ['s', 'ed', 'ing', 'ly', 'ness', 'ment', 'able', 'ible', 'ful', 'less']
+        for suffix in simple_suffixes:
             if term_lower == skip_lower + suffix:
                 return True
-        
-        # Check if skip_term is term + suffix
-        for suffix in common_suffixes:
             if skip_lower == term_lower + suffix:
                 return True
         
-        # Check if they share the same root (both have suffixes)
-        for suffix in common_suffixes:
+        # Handle -es suffix (including y->ies transformation)
+        if term_lower.endswith('es') and skip_lower.endswith('y'):
+            # Check if term is skip_term with y->ies transformation
+            if term_lower == skip_lower[:-1] + 'ies':
+                return True
+        if skip_lower.endswith('es') and term_lower.endswith('y'):
+            # Check if skip_term is term with y->ies transformation
+            if skip_lower == term_lower[:-1] + 'ies':
+                return True
+        
+        # Handle -ies suffix (y->ies transformation)
+        if term_lower.endswith('ies') and skip_lower.endswith('y'):
+            if term_lower == skip_lower[:-1] + 'ies':
+                return True
+        if skip_lower.endswith('ies') and term_lower.endswith('y'):
+            if skip_lower == term_lower[:-1] + 'ies':
+                return True
+        
+        # Handle -ied suffix (y->ied transformation)
+        if term_lower.endswith('ied') and skip_lower.endswith('y'):
+            if term_lower == skip_lower[:-1] + 'ied':
+                return True
+        if skip_lower.endswith('ied') and term_lower.endswith('y'):
+            if skip_lower == term_lower[:-1] + 'ied':
+                return True
+        
+        # Handle -ier suffix (y->ier transformation)
+        if term_lower.endswith('ier') and skip_lower.endswith('y'):
+            if term_lower == skip_lower[:-1] + 'ier':
+                return True
+        if skip_lower.endswith('ier') and term_lower.endswith('y'):
+            if skip_lower == term_lower[:-1] + 'ier':
+                return True
+        
+        # Handle -iest suffix (y->iest transformation)
+        if term_lower.endswith('iest') and skip_lower.endswith('y'):
+            if term_lower == skip_lower[:-1] + 'iest':
+                return True
+        if skip_lower.endswith('iest') and term_lower.endswith('y'):
+            if skip_lower == term_lower[:-1] + 'iest':
+                return True
+        
+        # Handle -tion and -sion suffixes
+        tion_suffixes = ['tion', 'sion']
+        for suffix in tion_suffixes:
             if term_lower.endswith(suffix) and skip_lower.endswith(suffix):
                 term_root = term_lower[:-len(suffix)]
                 skip_root = skip_lower[:-len(suffix)]
@@ -1309,6 +1349,15 @@ def process_pdf(input_pdf: str,
     # Build search index
     all_terms = build_match_list(flagged_terms, repl_map)
     phrase_tokens = build_phrase_tokens(all_terms)
+    
+    print(f"📋 Loaded {len(flagged_terms)} flagged terms")
+    print(f"📋 Built {len(all_terms)} search terms")
+    print(f"📋 Created {len(phrase_tokens)} phrase tokens")
+    
+    if skip_terms:
+        print(f"🚫 Skip terms: {skip_terms}")
+    else:
+        print("🚫 No skip terms specified")
 
     # Determine API type and print info
     if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
@@ -1328,6 +1377,10 @@ def process_pdf(input_pdf: str,
     with fitz.open(input_pdf) as doc:
         total_pages = len(doc)
         print(f"Processing {total_pages} pages with Overkill preset...")
+        
+        if total_pages == 0:
+            print("❌ Error: PDF has no pages!")
+            return out_pdf, []
         
         # Extract all page text and words first
         page_texts = []
@@ -1377,7 +1430,16 @@ def process_pdf(input_pdf: str,
             # Use the proper bounding box calculated during matching
             annotate_hit(page, hit, style=style)
         
-        doc.save(out_pdf, deflate=True, garbage=4)
+        # Only save if there are pages to save
+        if len(doc) > 0:
+            doc.save(out_pdf, deflate=True, garbage=4)
+        else:
+            print("⚠️  Warning: No pages to save, creating empty output file")
+            # Create a minimal PDF with one empty page
+            new_doc = fitz.open()
+            new_doc.new_page()
+            new_doc.save(out_pdf)
+            new_doc.close()
 
     return out_pdf, all_hits
 
