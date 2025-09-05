@@ -231,7 +231,7 @@ def display_document_analysis(analysis_data: dict) -> None:
     # Strategic recommendations
     recommendations = analysis_data.get('strategic_recommendations', [])
     if recommendations:
-        st.write("**💡 Strategic Recommendations:**")
+        st.write("**💡 Language & Communication Recommendations:**")
         for i, rec in enumerate(recommendations[:3], 1):  # Show top 3 recommendations
             st.write(f"{i}. {rec}")
     

@@ -590,7 +590,7 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
         "policy_relevance": ["policy_theme1", "policy_theme2"],
         "nih_priority_alignment": ["priority1", "priority2", "priority3"],
         "alignment_opportunities": ["opportunity1", "opportunity2"],
-        "strategic_recommendations": ["recommendation1", "recommendation2"],
+        "strategic_recommendations": ["language_framing_recommendation1", "communication_improvement_recommendation2"],
         "nih_alignment_score": 75.5,
         "project_2025_score": 68.2,
         "alabama_sb129_score": 72.1
@@ -615,10 +615,12 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
     4. Identifying policy-relevant themes
     5. Evaluating alignment with specific NIH priorities listed above
     6. Suggesting alignment opportunities with NIH priorities
-    7. Providing strategic recommendations for improvement
+    7. Providing strategic recommendations for language and communication improvement
     8. Scoring alignment (0-100) with NIH priorities
     9. Scoring alignment (0-100) with Project 2025 healthcare principles
     10. Scoring compliance (0-100) with Alabama State Bill 129
+
+    IMPORTANT: For strategic_recommendations, focus ONLY on language framing, word choice, and communication improvements that would better align the document with NIH priorities, Project 2025, and Alabama SB 129. Do NOT provide grant management, data management, or project implementation advice. Focus on how to reframe language, improve terminology, or enhance communication clarity.
 
     Respond with valid JSON only.
     """
