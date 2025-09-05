@@ -39,97 +39,104 @@ class HybridLanguageFlagger:
         print(f"   - Skip terms: {len(self.skip_terms)}")
     
     def _setup_langextract_examples(self) -> List[Any]:
-        """Setup few-shot examples for LangExtract."""
+        """Setup few-shot examples for LangExtract, focusing on semantic issues not covered by pattern matching."""
         if not LANGEXTRACT_AVAILABLE:
             return []
         
-        return [
+        # Create comprehensive skip list to avoid conflicts with pattern matching
+        skip_terms_comprehensive = set(self.skip_terms)
+        skip_terms_comprehensive.update(self.flagged_terms)
+        skip_terms_comprehensive.update(self.replacement_map.keys())
+        skip_terms_comprehensive.update(self.replacement_map.values())
+        
+        # Focus on semantic issues that pattern matching might miss
+        examples = [
             lx.data.ExampleData(
-                text="The burden of disease affects vulnerable populations in rural communities",
+                text="The program targets at-risk youth who are struggling with addiction",
                 extractions=[
                     lx.data.Extraction(
                         extraction_class="deficit_language",
-                        extraction_text="burden",
+                        extraction_text="at-risk youth",
                         attributes={
-                            "suggestion": "challenge",
-                            "reason": "deficit-framing language",
+                            "suggestion": "youth facing challenges",
+                            "reason": "Deficit-framing language, focuses on problems rather than potential",
                             "severity": "medium",
-                            "category": "burden_terms"
+                            "category": "deficit_framing"
                         }
                     ),
                     lx.data.Extraction(
-                        extraction_class="deficit_language",
-                        extraction_text="vulnerable",
+                        extraction_class="stigmatizing_language",
+                        extraction_text="struggling with addiction",
                         attributes={
-                            "suggestion": "underserved",
-                            "reason": "deficit-framing language",
+                            "suggestion": "experiencing substance use challenges",
+                            "reason": "More person-centered language that reduces stigma",
                             "severity": "high",
-                            "category": "vulnerability_terms"
+                            "category": "stigmatizing_language"
                         }
                     )
                 ]
             ),
             lx.data.ExampleData(
-                text="These disadvantaged groups face significant barriers to healthcare access",
+                text="The intervention addresses the needs of marginalized communities",
                 extractions=[
                     lx.data.Extraction(
                         extraction_class="deficit_language",
-                        extraction_text="disadvantaged",
+                        extraction_text="marginalized communities",
                         attributes={
-                            "suggestion": "underserved",
-                            "reason": "deficit-framing language",
-                            "severity": "high",
-                            "category": "vulnerability_terms"
-                        }
-                    ),
-                    lx.data.Extraction(
-                        extraction_class="deficit_language",
-                        extraction_text="barriers",
-                        attributes={
-                            "suggestion": "challenges",
-                            "reason": "deficit-framing language",
+                            "suggestion": "underserved communities",
+                            "reason": "More empowering language that focuses on service gaps rather than marginalization",
                             "severity": "medium",
-                            "category": "obstacle_terms"
+                            "category": "deficit_framing"
                         }
                     )
                 ]
             ),
             lx.data.ExampleData(
-                text="The problem is compounded by limited resources and inadequate infrastructure",
+                text="The study examines the impact on hard-to-reach populations",
                 extractions=[
                     lx.data.Extraction(
-                        extraction_class="problem_language",
-                        extraction_text="problem",
+                        extraction_class="deficit_language",
+                        extraction_text="hard-to-reach populations",
                         attributes={
-                            "suggestion": "challenge",
-                            "reason": "problem-focused language",
-                            "severity": "medium",
-                            "category": "problem_terms"
-                        }
-                    ),
-                    lx.data.Extraction(
-                        extraction_class="problem_language",
-                        extraction_text="limited",
-                        attributes={
-                            "suggestion": "constrained",
-                            "reason": "deficit-framing language",
+                            "suggestion": "populations with limited access",
+                            "reason": "Less deficit-framing language that focuses on systemic barriers rather than population characteristics",
                             "severity": "low",
-                            "category": "limitation_terms"
+                            "category": "deficit_framing"
                         }
-                    ),
+                    )
+                ]
+            ),
+            lx.data.ExampleData(
+                text="The program serves low-income families and their children",
+                extractions=[
                     lx.data.Extraction(
-                        extraction_class="problem_language",
-                        extraction_text="inadequate",
+                        extraction_class="deficit_language",
+                        extraction_text="low-income families",
                         attributes={
-                            "suggestion": "developing",
-                            "reason": "deficit-framing language",
-                            "severity": "medium",
-                            "category": "limitation_terms"
+                            "suggestion": "families experiencing economic challenges",
+                            "reason": "More person-centered language that focuses on circumstances rather than defining characteristics",
+                            "severity": "low",
+                            "category": "deficit_framing"
                         }
                     )
                 ]
             )
         ]
+        
+        # Only add examples that don't conflict with our flagged terms
+        filtered_examples = []
+        for example in examples:
+            # Check if any extraction text conflicts with our flagged terms
+            has_conflict = False
+            for extraction in example.extractions:
+                if any(term.lower() in extraction.extraction_text.lower() for term in skip_terms_comprehensive):
+                    has_conflict = True
+                    break
+            
+            if not has_conflict:
+                filtered_examples.append(example)
+        
+        return filtered_examples
     
     def _pattern_match_analysis(self, text: str) -> List[Dict[str, Any]]:
         """Traditional pattern matching analysis."""
@@ -179,10 +186,16 @@ class HybridLanguageFlagger:
         try:
             print(f"      📝 Preparing LangExtract prompt...")
             prompt = textwrap.dedent("""
-            Extract instances of deficit-framing language, bias, or non-inclusive terminology.
-            Focus on terms that emphasize problems, weaknesses, or negative aspects.
+            Extract instances of deficit-framing language, bias, or non-inclusive terminology that may not be caught by traditional pattern matching.
+            Focus on semantic issues like:
+            - Deficit-framing language that emphasizes problems over potential
+            - Stigmatizing language that reduces people to their circumstances
+            - Problem-focused language that emphasizes obstacles over solutions
+            - Language that implies helplessness or lack of agency
+            
             Use exact text for extractions. Do not paraphrase or overlap entities.
             Provide meaningful attributes including suggestions and reasoning.
+            Avoid terms that are already covered by traditional flagged term lists.
             """)
             
             print(f"      🚀 Calling LangExtract API...")
@@ -388,3 +401,4 @@ if __name__ == "__main__":
         print("   Set LANGEXTRACT_API_KEY to enable full hybrid functionality.")
     
     test_hybrid_system()
+
