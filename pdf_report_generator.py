@@ -178,7 +178,7 @@ class PDFReportGenerator:
         
         # Convert to base64
         buffer = io.BytesIO()
-        renderPDF.drawToFile(buffer, d, "PNG")
+        renderPDF.drawToFile(d, buffer, "PNG")
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode()
         
