@@ -175,7 +175,153 @@ class HybridLanguageFlagger:
                 return "Consider alternative phrasing", f"Suggestion contained flagged term '{term}'"
         
         return suggestion, "Validated suggestion"
-
+    
+    def _extract_span_info(self, extraction, text: str) -> Dict[str, Any]:
+        """Extract precise span information for LangExtract extraction."""
+        extraction_text = extraction.extraction_text
+        
+        # Try multiple methods to find the span
+        span_info = {
+            "found": False,
+            "start": 0,
+            "end": 0,
+            "grounding_method": "none"
+        }
+        
+        # Method 1: Check if LangExtract provides direct span information
+        if hasattr(extraction, 'start') and hasattr(extraction, 'end'):
+            span_info.update({
+                "found": True,
+                "start": extraction.start,
+                "end": extraction.end,
+                "grounding_method": "langextract_direct"
+            })
+            return span_info
+        
+        # Method 2: Check attributes for span information
+        span_attrs = ['start', 'end', 'span', 'position', 'offset', 'start_char', 'end_char', 'char_start', 'char_end']
+        for attr in span_attrs:
+            if attr in extraction.attributes:
+                value = extraction.attributes[attr]
+                if isinstance(value, (list, tuple)) and len(value) >= 2:
+                    span_info.update({
+                        "found": True,
+                        "start": value[0],
+                        "end": value[1],
+                        "grounding_method": f"langextract_attr_{attr}"
+                    })
+                    return span_info
+                elif isinstance(value, dict) and 'start' in value and 'end' in value:
+                    span_info.update({
+                        "found": True,
+                        "start": value['start'],
+                        "end": value['end'],
+                        "grounding_method": f"langextract_attr_{attr}_dict"
+                    })
+                    return span_info
+        
+        # Method 3: Check metadata for span information
+        if hasattr(extraction, 'metadata') and extraction.metadata:
+            for key, value in extraction.metadata.items():
+                if any(span_term in key.lower() for span_term in ['span', 'position', 'offset', 'start', 'end']):
+                    if isinstance(value, (list, tuple)) and len(value) >= 2:
+                        span_info.update({
+                            "found": True,
+                            "start": value[0],
+                            "end": value[1],
+                            "grounding_method": f"langextract_metadata_{key}"
+                        })
+                        return span_info
+        
+        # Method 4: Enhanced text matching with fuzzy search
+        span_info = self._fuzzy_span_search(extraction_text, text)
+        if span_info["found"]:
+            return span_info
+        
+        # Method 5: Fallback to simple find
+        pos = text.lower().find(extraction_text.lower())
+        if pos != -1:
+            span_info.update({
+                "found": True,
+                "start": pos,
+                "end": pos + len(extraction_text),
+                "grounding_method": "simple_find"
+            })
+        
+        return span_info
+    
+    def _fuzzy_span_search(self, extraction_text: str, text: str) -> Dict[str, Any]:
+        """Enhanced fuzzy search for finding text spans with better accuracy."""
+        import re
+        
+        # Clean the extraction text for better matching
+        clean_extraction = re.sub(r'\s+', ' ', extraction_text.strip())
+        clean_text = re.sub(r'\s+', ' ', text)
+        
+        # Try exact match first
+        pos = clean_text.lower().find(clean_extraction.lower())
+        if pos != -1:
+            return {
+                "found": True,
+                "start": pos,
+                "end": pos + len(clean_extraction),
+                "grounding_method": "fuzzy_exact"
+            }
+        
+        # Try word-by-word matching for better accuracy
+        extraction_words = clean_extraction.lower().split()
+        text_words = clean_text.lower().split()
+        
+        for i in range(len(text_words) - len(extraction_words) + 1):
+            window = text_words[i:i + len(extraction_words)]
+            if window == extraction_words:
+                # Calculate character positions
+                start_char = len(' '.join(text_words[:i]))
+                if i > 0:
+                    start_char += 1  # Account for space
+                end_char = start_char + len(clean_extraction)
+                
+                return {
+                    "found": True,
+                    "start": start_char,
+                    "end": end_char,
+                    "grounding_method": "fuzzy_word_match"
+                }
+        
+        # Try partial matching for cases with slight variations
+        for i in range(len(text_words)):
+            for j in range(i + 1, min(i + len(extraction_words) + 2, len(text_words) + 1)):
+                window_text = ' '.join(text_words[i:j])
+                if self._text_similarity(clean_extraction, window_text) > 0.8:
+                    start_char = len(' '.join(text_words[:i]))
+                    if i > 0:
+                        start_char += 1
+                    end_char = start_char + len(window_text)
+                    
+                    return {
+                        "found": True,
+                        "start": start_char,
+                        "end": end_char,
+                        "grounding_method": "fuzzy_partial_match"
+                    }
+        
+        return {"found": False, "start": 0, "end": 0, "grounding_method": "none"}
+    
+    def _text_similarity(self, text1: str, text2: str) -> float:
+        """Calculate similarity between two text strings."""
+        if not text1 or not text2:
+            return 0.0
+        
+        # Simple character-based similarity
+        longer = text1 if len(text1) > len(text2) else text2
+        shorter = text2 if len(text1) > len(text2) else text1
+        
+        if len(longer) == 0:
+            return 1.0
+        
+        matches = sum(1 for a, b in zip(shorter, longer) if a == b)
+        return matches / len(longer)
+    
     def _pattern_match_analysis(self, text: str) -> List[Dict[str, Any]]:
         """Traditional pattern matching analysis."""
         hits = []
@@ -209,11 +355,15 @@ class HybridLanguageFlagger:
                         "matched_text": matched_text,
                         "context": context,
                         "position": pos,
+                        "char_start": pos,
+                        "char_end": pos + len(term),
+                        "span_length": len(term),
                         "method": "pattern_matching",
                         "suggestion": self.replacement_map.get(term, "Consider alternative"),
                         "reason": "Matched flagged term",
                         "severity": "medium",
-                        "confidence": confidence
+                        "confidence": confidence,
+                        "span_grounding": "pattern_matching_exact"
                     })
                     
                     start = pos + 1
@@ -251,11 +401,13 @@ class HybridLanguageFlagger:
             print(f"      🔄 Processing LangExtract results...")
             hits = []
             for i, extraction in enumerate(result.extractions):
-                # Get context around the extraction
-                pos = text.lower().find(extraction.extraction_text.lower())
-                if pos != -1:
-                    context_start = max(0, pos - 50)
-                    context_end = min(len(text), pos + len(extraction.extraction_text) + 50)
+                # Get precise span information
+                span_info = self._extract_span_info(extraction, text)
+                
+                if span_info["found"]:
+                    # Get context around the extraction
+                    context_start = max(0, span_info["start"] - 50)
+                    context_end = min(len(text), span_info["end"] + 50)
                     context = text[context_start:context_end]
                     
                     # Validate the suggestion
@@ -275,13 +427,17 @@ class HybridLanguageFlagger:
                         "original_key": extraction.extraction_text,
                         "matched_text": extraction.extraction_text,
                         "context": context,
-                        "position": pos,
+                        "position": span_info["start"],
+                        "char_start": span_info["start"],
+                        "char_end": span_info["end"],
+                        "span_length": span_info["end"] - span_info["start"],
                         "method": "langextract",
                         "suggestion": validated_suggestion,
                         "reason": f"{extraction.attributes.get('reason', 'Semantic analysis')} ({validation_reason})",
                         "severity": extraction.attributes.get("severity", "medium"),
                         "category": extraction.attributes.get("category", "unknown"),
-                        "confidence": confidence
+                        "confidence": confidence,
+                        "span_grounding": span_info["grounding_method"]
                     })
                 
                 if (i + 1) % 5 == 0:  # Progress update every 5 extractions

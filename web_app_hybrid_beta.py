@@ -306,6 +306,38 @@ def create_visualizations(hits: List[dict]) -> None:
             )
             st.plotly_chart(fig_overlap, width='stretch')
             
+            # Span grounding analysis
+            if 'span_grounding' in df.columns:
+                st.subheader("🎯 Span Grounding Analysis")
+                
+                grounding_counts = df['span_grounding'].value_counts()
+                
+                # Grounding method distribution
+                fig_grounding = px.pie(
+                    values=grounding_counts.values,
+                    names=grounding_counts.index,
+                    title="Span Grounding Methods Distribution",
+                    color_discrete_sequence=px.colors.qualitative.Set2
+                )
+                st.plotly_chart(fig_grounding, width='stretch')
+                
+                # Grounding accuracy by method
+                if 'confidence' in df.columns:
+                    grounding_confidence = df.groupby('span_grounding')['confidence'].agg(['mean', 'count']).reset_index()
+                    grounding_confidence = grounding_confidence[grounding_confidence['count'] > 0]
+                    
+                    fig_grounding_conf = px.bar(
+                        grounding_confidence,
+                        x='span_grounding',
+                        y='mean',
+                        title="Average Confidence by Grounding Method",
+                        labels={'mean': 'Average Confidence', 'span_grounding': 'Grounding Method'},
+                        color='mean',
+                        color_continuous_scale='RdYlGn'
+                    )
+                    fig_grounding_conf.update_layout(xaxis_tickangle=-45)
+                    st.plotly_chart(fig_grounding_conf, width='stretch')
+            
             # Method effectiveness summary
             st.subheader("📈 Method Effectiveness Summary")
             
@@ -933,6 +965,21 @@ def display_results():
                                 st.metric("Medium Confidence (0.5-0.8)", medium_conf)
                             with col4:
                                 st.metric("Low Confidence (<0.5)", low_conf)
+                            
+                            # Show span grounding statistics
+                            if 'span_grounding' in df.columns:
+                                grounding_counts = df['span_grounding'].value_counts()
+                                st.subheader("🎯 Span Grounding Methods")
+                                col1, col2, col3, col4 = st.columns(4)
+                                
+                                with col1:
+                                    st.metric("Direct LangExtract", grounding_counts.get('langextract_direct', 0))
+                                with col2:
+                                    st.metric("Fuzzy Matching", grounding_counts.get('fuzzy_exact', 0) + grounding_counts.get('fuzzy_word_match', 0))
+                                with col3:
+                                    st.metric("Pattern Matching", grounding_counts.get('pattern_matching_exact', 0))
+                                with col4:
+                                    st.metric("Simple Find", grounding_counts.get('simple_find', 0))
         else:
             st.warning("⚠️ No flagged terms found in the document.")
         
@@ -1039,7 +1086,11 @@ def display_results():
                                 "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
                                 "context": st.column_config.TextColumn("Context", help="Surrounding text context"),
                                 "method": st.column_config.TextColumn("Method", help="Analysis method used"),
-                                "confidence": st.column_config.NumberColumn("Confidence", help="Confidence score (0.0-1.0)", format="%.2f")
+                                "confidence": st.column_config.NumberColumn("Confidence", help="Confidence score (0.0-1.0)", format="%.2f"),
+                                "char_start": st.column_config.NumberColumn("Start", help="Character start position"),
+                                "char_end": st.column_config.NumberColumn("End", help="Character end position"),
+                                "span_length": st.column_config.NumberColumn("Length", help="Span length in characters"),
+                                "span_grounding": st.column_config.TextColumn("Grounding", help="Method used for span detection")
                             },
                             hide_index=True,
                             use_container_width=True
