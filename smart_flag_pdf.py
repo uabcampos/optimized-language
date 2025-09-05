@@ -475,6 +475,16 @@ Do not include any other text, explanations, or formatting outside the JSON."""
                 max_output_tokens=500,
             )
         )
+        # Check if response has valid content
+        if not response.text or response.candidates[0].finish_reason != 1:
+            # Handle empty or filtered responses
+            finish_reason = response.candidates[0].finish_reason if response.candidates else "unknown"
+            if finish_reason == 2:
+                # Content was filtered by safety settings
+                return static_suggestion or "Consider alternative phrasing", "Content filtered by safety settings"
+            else:
+                return static_suggestion or "Consider alternative phrasing", f"Empty response (finish_reason: {finish_reason})"
+        
         content = response.text.strip()
         
         # Clean up the response to extract JSON
@@ -490,7 +500,11 @@ Do not include any other text, explanations, or formatting outside the JSON."""
             content = content[start:end]
             
     except Exception as e:
-        raise RuntimeError(f"Gemini API error: {e}")
+        # If it's a safety/content filtering error, return fallback suggestion
+        if "finish_reason" in str(e) or "safety" in str(e).lower():
+            return static_suggestion or "Consider alternative phrasing", "Content filtered by safety settings"
+        else:
+            raise RuntimeError(f"Gemini API error: {e}")
 
     try:
         data = json.loads(content)
@@ -1591,8 +1605,20 @@ def process_pdf(input_pdf: str,
                 print(f"🔄 Page {page_num + 1}: Starting multiprocessing with {len(chunk_args)} chunks...")
                 mp_start_time = time.time()
                 
-                with mp.Pool(processes=num_processes) as pool:
-                    chunk_results = pool.map(process_terms_chunk, chunk_args)
+                try:
+                    with mp.Pool(processes=num_processes) as pool:
+                        chunk_results = pool.map(process_terms_chunk, chunk_args)
+                except Exception as e:
+                    print(f"⚠️ Multiprocessing failed: {e}, falling back to single-threaded processing")
+                    # Fallback to single-threaded processing
+                    chunk_results = []
+                    for args in chunk_args:
+                        try:
+                            result = process_terms_chunk(args)
+                            chunk_results.append(result)
+                        except Exception as chunk_error:
+                            print(f"⚠️ Chunk processing failed: {chunk_error}")
+                            chunk_results.append([])
                 
                 mp_time = time.time() - mp_start_time
                 print(f"⏱️ Page {page_num + 1}: Multiprocessing completed in {mp_time:.2f}s")
