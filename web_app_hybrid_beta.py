@@ -512,8 +512,12 @@ def main():
             "API Provider:",
             ["OpenAI", "Gemini", "Auto"],
             index=1,  # Default to Gemini
+            key="api_provider_select",
             help="Choose which API to use for language processing"
         )
+        
+        # Debug: Show current selection
+        st.write(f"🔍 Currently selected: {api_provider}")
         
         # Model selection based on API
         if api_provider == "OpenAI":
