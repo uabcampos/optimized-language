@@ -372,14 +372,18 @@ def find_text_bbox_hybrid(page, text, start_pos):
                             if text_lower in span_lower:
                                 # Found the span containing our text
                                 bbox = span["bbox"]
-                                # Validate bbox
-                                if len(bbox) == 4 and all(isinstance(x, (int, float)) for x in bbox):
+                                # Validate bbox more thoroughly
+                                if (len(bbox) == 4 and 
+                                    all(isinstance(x, (int, float)) for x in bbox) and
+                                    bbox[0] < bbox[2] and bbox[1] < bbox[3] and  # x0 < x1 and y0 < y1
+                                    bbox[0] >= 0 and bbox[1] >= 0):  # Non-negative coordinates
                                     return bbox
                                     
-        return (0, 0, 0, 0)
+        # Fallback to simple search if hybrid detection fails
+        return find_text_bbox_simple(page, text)
     except Exception as e:
         print(f"      ⚠️  Hybrid bbox detection error: {e}")
-        return (0, 0, 0, 0)
+        return find_text_bbox_simple(page, text)
 
 def find_text_bbox_simple(page, text):
     """Simple bbox detection using search_for method as fallback."""
@@ -391,7 +395,16 @@ def find_text_bbox_simple(page, text):
             rect = text_instances[0]
             # Convert rect to bbox format (x0, y0, x1, y1)
             bbox = (rect.x0, rect.y0, rect.x1, rect.y1)
-            return bbox
+            
+            # Validate the bbox
+            if (isinstance(bbox[0], (int, float)) and isinstance(bbox[1], (int, float)) and
+                isinstance(bbox[2], (int, float)) and isinstance(bbox[3], (int, float)) and
+                bbox[0] < bbox[2] and bbox[1] < bbox[3] and
+                bbox[0] >= 0 and bbox[1] >= 0):
+                return bbox
+            else:
+                print(f"      ⚠️  Invalid bbox from search_for: {bbox}")
+                return (0, 0, 0, 0)
         return (0, 0, 0, 0)
     except Exception as e:
         print(f"      ⚠️  Simple bbox detection error: {e}")
@@ -992,33 +1005,69 @@ def find_hits_on_page(page: fitz.Page,
     return hits
 
 def annotate_hit(page: fitz.Page, hit: Hit, style: str = "highlight"):
-    # Build quads for the match to handle line wraps
-    hb = fitz.Rect(*hit.bbox)
-    page_words = words_by_order(page)
-    quads = []
-    for w in page_words:
-        # Validate rectangle coordinates before creating rect
-        x0, y0, x1, y1 = w[0], w[1], w[2], w[3]
-        if x0 < x1 and y0 < y1 and x0 >= 0 and y0 >= 0:  # Valid rectangle
-            try:
-                rect = fitz.Rect(x0, y0, x1, y1)
-                if rect.intersects(hb):
-                    quad = fitz.Quad(rect)
-                    quads.append(quad)
-            except (ValueError, TypeError) as e:
-                # Skip invalid rectangles
-                continue
+    """Annotate a hit with proper validation of bounding box coordinates."""
+    try:
+        # Validate hit bbox before proceeding
+        bbox = hit.bbox
+        if not bbox or len(bbox) != 4:
+            print(f"      ⚠️  Invalid bbox for hit '{hit.matched_text}': {bbox}")
+            return
+        
+        x0, y0, x1, y1 = bbox
+        
+        # Check if bbox is valid
+        if not (isinstance(x0, (int, float)) and isinstance(y0, (int, float)) and 
+                isinstance(x1, (int, float)) and isinstance(y1, (int, float))):
+            print(f"      ⚠️  Non-numeric bbox for hit '{hit.matched_text}': {bbox}")
+            return
+            
+        if x0 >= x1 or y0 >= y1 or x0 < 0 or y0 < 0:
+            print(f"      ⚠️  Invalid bbox coordinates for hit '{hit.matched_text}': {bbox}")
+            return
+        
+        # Create rectangle with validation
+        try:
+            hb = fitz.Rect(x0, y0, x1, y1)
+        except (ValueError, TypeError) as e:
+            print(f"      ⚠️  Cannot create Rect from bbox {bbox}: {e}")
+            return
+        
+        # Build quads for the match to handle line wraps
+        page_words = words_by_order(page)
+        quads = []
+        for w in page_words:
+            # Validate rectangle coordinates before creating rect
+            wx0, wy0, wx1, wy1 = w[0], w[1], w[2], w[3]
+            if wx0 < wx1 and wy0 < wy1 and wx0 >= 0 and wy0 >= 0:  # Valid rectangle
+                try:
+                    rect = fitz.Rect(wx0, wy0, wx1, wy1)
+                    if rect.intersects(hb):
+                        quad = fitz.Quad(rect)
+                        quads.append(quad)
+                except (ValueError, TypeError) as e:
+                    # Skip invalid rectangles
+                    continue
 
-    # Fall back to bbox if no quads are picked up
-    if not quads:
-        target = hb
-    else:
-        target = quads
+        # Fall back to bbox if no quads are picked up
+        if not quads:
+            target = hb
+        else:
+            target = quads
 
-    if style == "underline":
-        annot = page.add_underline_annot(target)
-    else:
-        annot = page.add_highlight_annot(target)
+        # Add annotation with error handling
+        try:
+            if style == "underline":
+                annot = page.add_underline_annot(target)
+            else:
+                annot = page.add_highlight_annot(target)
+        except ValueError as e:
+            print(f"      ⚠️  Cannot add annotation for hit '{hit.matched_text}': {e}")
+            print(f"         Target: {target}")
+            return
+            
+    except Exception as e:
+        print(f"      ⚠️  Annotation failed for hit '{hit.matched_text}': {e}")
+        return
 
     # Set tooltip information
     annot.set_info({
@@ -1605,9 +1654,18 @@ def process_pdf(input_pdf: str,
                             bbox = find_text_bbox_hybrid(page, matched_text, text_pos)
                             if bbox == (0, 0, 0, 0):  # If bbox detection failed, try alternative method
                                 bbox = find_text_bbox_simple(page, matched_text)
+                            
+                            # If still no valid bbox, create a minimal fallback
+                            if bbox == (0, 0, 0, 0):
+                                print(f"      ⚠️  All bbox detection methods failed for '{matched_text}', using fallback")
+                                # Create a minimal bbox at the top of the page as fallback
+                                page_rect = page.rect
+                                bbox = (10, 10, min(100, page_rect.width - 10), 30)
                         except Exception as e:
                             print(f"      ⚠️  Bbox detection failed for '{matched_text}': {e}")
-                            bbox = (0, 0, 0, 0)  # Fallback
+                            # Create a minimal bbox as fallback
+                            page_rect = page.rect
+                            bbox = (10, 10, min(100, page_rect.width - 10), 30)
                     else:
                         bbox = (0, 0, 0, 0)  # Fallback
                     
