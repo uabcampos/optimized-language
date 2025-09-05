@@ -511,6 +511,7 @@ def main():
         api_provider = st.selectbox(
             "API Provider:",
             ["OpenAI", "Gemini", "Auto"],
+            index=1,  # Default to Gemini
             help="Choose which API to use for language processing"
         )
         
