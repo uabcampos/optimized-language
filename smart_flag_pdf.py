@@ -167,6 +167,43 @@ class Hit:
     bbox: Tuple[float, float, float, float]  # union of matched words
     context: str
 
+@dataclass
+class DocumentAnalysis:
+    """Comprehensive analysis of a document's themes, objectives, and strategic alignment."""
+    document_type: str  # "research", "clinical", "community_health", "policy", "other"
+    main_themes: List[str]  # Key themes and topics
+    scientific_focus: List[str]  # Scientific concepts and methodologies
+    target_population: str  # Primary target population
+    intervention_approach: str  # Type of intervention or approach
+    key_objectives: List[str]  # Main objectives and goals
+    methodology: str  # Research or implementation methodology
+    policy_relevance: List[str]  # Policy-relevant themes
+    alignment_opportunities: List[str]  # Areas for Project 2025/Bill 129 alignment
+    strategic_recommendations: List[str]  # High-level recommendations
+    alignment_score: float  # 0-100% alignment with Project 2025/Bill 129
+    compliance_score: float  # 0-100% compliance with Bill 129 requirements
+
+@dataclass
+class StrategicRecommendation:
+    """Individual strategic recommendation for document improvement."""
+    category: str  # "reframing", "language", "content", "structure"
+    priority: str  # "high", "medium", "low"
+    title: str  # Brief title of the recommendation
+    description: str  # Detailed description
+    rationale: str  # Why this recommendation matters
+    implementation: str  # How to implement the recommendation
+    expected_impact: str  # Expected impact on alignment/compliance
+
+@dataclass
+class AlignmentSuggestion:
+    """Specific suggestion for aligning with Project 2025 or Alabama Bill 129."""
+    policy_source: str  # "Project 2025" or "Alabama Bill 129"
+    principle: str  # Specific principle or requirement
+    current_state: str  # How the document currently addresses this
+    suggested_improvement: str  # Specific improvement suggestion
+    implementation_guidance: str  # How to implement the improvement
+    priority: str  # "critical", "important", "nice_to_have"
+
 # -----------------------------
 # Helpers
 # -----------------------------
@@ -350,6 +387,174 @@ def llm_suggest(client, model: str, term: str, static_suggestion: str, context: 
         return llm_suggest_gemini(client, term, static_suggestion, context, temperature)
     else:
         return llm_suggest_openai(client, model, term, static_suggestion, context, temperature)
+
+def analyze_document_themes(pdf_text: str = None, docx_text: str = None, 
+                          model: str = "gemini-1.5-flash", 
+                          api_type: str = "auto") -> DocumentAnalysis:
+    """
+    Analyze document themes, objectives, and strategic alignment opportunities.
+    
+    Args:
+        pdf_text: Extracted text from PDF
+        docx_text: Extracted text from DOCX
+        model: LLM model to use for analysis
+        api_type: API provider type
+        
+    Returns:
+        DocumentAnalysis object with comprehensive document insights
+    """
+    # Combine text sources
+    full_text = ""
+    if pdf_text:
+        full_text += pdf_text
+    if docx_text:
+        full_text += docx_text
+    
+    if not full_text.strip():
+        return DocumentAnalysis(
+            document_type="unknown",
+            main_themes=[],
+            scientific_focus=[],
+            target_population="unknown",
+            intervention_approach="unknown",
+            key_objectives=[],
+            methodology="unknown",
+            policy_relevance=[],
+            alignment_opportunities=[],
+            strategic_recommendations=[],
+            alignment_score=0.0,
+            compliance_score=0.0
+        )
+    
+    # Truncate text if too long (keep first 8000 characters for analysis)
+    analysis_text = full_text[:8000] if len(full_text) > 8000 else full_text
+    
+    # Create LLM client
+    try:
+        if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+            client = get_gemini_client(model)
+        else:
+            client = get_openai_client()
+    except Exception as e:
+        print(f"Error creating client for document analysis: {e}")
+        return DocumentAnalysis(
+            document_type="unknown",
+            main_themes=[],
+            scientific_focus=[],
+            target_population="unknown",
+            intervention_approach="unknown",
+            key_objectives=[],
+            methodology="unknown",
+            policy_relevance=[],
+            alignment_opportunities=[],
+            strategic_recommendations=[],
+            alignment_score=0.0,
+            compliance_score=0.0
+        )
+    
+    # Generate analysis using LLM
+    analysis_prompt = f"""
+    Analyze the following document and provide a comprehensive analysis in JSON format. Focus on understanding the document's purpose, themes, and potential alignment with healthcare policy priorities.
+
+    Document Text:
+    {analysis_text}
+
+    Please provide your analysis in this exact JSON format:
+    {{
+        "document_type": "research|clinical|community_health|policy|other",
+        "main_themes": ["theme1", "theme2", "theme3"],
+        "scientific_focus": ["concept1", "concept2", "concept3"],
+        "target_population": "description of primary target population",
+        "intervention_approach": "description of intervention or approach",
+        "key_objectives": ["objective1", "objective2", "objective3"],
+        "methodology": "description of research or implementation methodology",
+        "policy_relevance": ["policy_theme1", "policy_theme2"],
+        "alignment_opportunities": ["opportunity1", "opportunity2"],
+        "strategic_recommendations": ["recommendation1", "recommendation2"],
+        "alignment_score": 75.5,
+        "compliance_score": 68.2
+    }}
+
+    Focus on:
+    1. Identifying the document type and main purpose
+    2. Extracting key scientific themes and concepts
+    3. Understanding the target population and intervention approach
+    4. Identifying policy-relevant themes
+    5. Suggesting alignment opportunities
+    6. Providing strategic recommendations for improvement
+    7. Scoring alignment (0-100) with healthcare policy priorities
+    8. Scoring compliance (0-100) with state requirements
+
+    Respond with valid JSON only.
+    """
+    
+    try:
+        if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+            response = client.generate_content(
+                analysis_prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.3,
+                    max_output_tokens=2000,
+                )
+            )
+            content = response.text.strip()
+        else:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are an expert document analyst specializing in healthcare policy and grant writing. Provide detailed, accurate analysis in JSON format."},
+                    {"role": "user", "content": analysis_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=2000
+            )
+            content = response.choices[0].message.content.strip()
+        
+        # Parse JSON response
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        # Extract JSON
+        if "{" in content and "}" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            content = content[start:end]
+        
+        data = json.loads(content)
+        
+        return DocumentAnalysis(
+            document_type=data.get("document_type", "unknown"),
+            main_themes=data.get("main_themes", []),
+            scientific_focus=data.get("scientific_focus", []),
+            target_population=data.get("target_population", "unknown"),
+            intervention_approach=data.get("intervention_approach", "unknown"),
+            key_objectives=data.get("key_objectives", []),
+            methodology=data.get("methodology", "unknown"),
+            policy_relevance=data.get("policy_relevance", []),
+            alignment_opportunities=data.get("alignment_opportunities", []),
+            strategic_recommendations=data.get("strategic_recommendations", []),
+            alignment_score=float(data.get("alignment_score", 0.0)),
+            compliance_score=float(data.get("compliance_score", 0.0))
+        )
+        
+    except Exception as e:
+        print(f"Error in document analysis: {e}")
+        return DocumentAnalysis(
+            document_type="unknown",
+            main_themes=[],
+            scientific_focus=[],
+            target_population="unknown",
+            intervention_approach="unknown",
+            key_objectives=[],
+            methodology="unknown",
+            policy_relevance=[],
+            alignment_opportunities=[],
+            strategic_recommendations=[],
+            alignment_score=0.0,
+            compliance_score=0.0
+        )
 
 # -----------------------------
 # Core matching and annotation
@@ -912,6 +1117,52 @@ def process_file(input_file: str,
     """Process either PDF or DOCX file based on file extension."""
     file_type = detect_file_type(input_file)
     
+    # Extract text for document analysis
+    analysis_text = ""
+    if file_type == 'pdf':
+        doc = fitz.open(input_file)
+        for page in doc:
+            analysis_text += page.get_text()
+        doc.close()
+    elif file_type == 'docx':
+        doc = Document(input_file)
+        for paragraph in doc.paragraphs:
+            analysis_text += paragraph.text + "\n"
+    
+    # Perform document analysis
+    print("🔍 Analyzing document themes and strategic alignment...")
+    document_analysis = analyze_document_themes(
+        pdf_text=analysis_text if file_type == 'pdf' else None,
+        docx_text=analysis_text if file_type == 'docx' else None,
+        model=model,
+        api_type=api_type
+    )
+    
+    # Save document analysis
+    analysis_file = os.path.join(outdir, "document_analysis.json")
+    with open(analysis_file, 'w', encoding='utf-8') as f:
+        json.dump({
+            "document_type": document_analysis.document_type,
+            "main_themes": document_analysis.main_themes,
+            "scientific_focus": document_analysis.scientific_focus,
+            "target_population": document_analysis.target_population,
+            "intervention_approach": document_analysis.intervention_approach,
+            "key_objectives": document_analysis.key_objectives,
+            "methodology": document_analysis.methodology,
+            "policy_relevance": document_analysis.policy_relevance,
+            "alignment_opportunities": document_analysis.alignment_opportunities,
+            "strategic_recommendations": document_analysis.strategic_recommendations,
+            "alignment_score": document_analysis.alignment_score,
+            "compliance_score": document_analysis.compliance_score
+        }, f, indent=2, ensure_ascii=False)
+    
+    print(f"📊 Document Analysis Complete:")
+    print(f"   Type: {document_analysis.document_type}")
+    print(f"   Alignment Score: {document_analysis.alignment_score:.1f}%")
+    print(f"   Compliance Score: {document_analysis.compliance_score:.1f}%")
+    print(f"   Key Themes: {', '.join(document_analysis.main_themes[:3])}")
+    
+    # Continue with existing processing
     if file_type == 'pdf':
         return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type)
     elif file_type == 'docx':
