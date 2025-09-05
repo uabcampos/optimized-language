@@ -475,10 +475,32 @@ def main():
                 "advanced": "Merge overlaps, semantic similarity, and text containment - most comprehensive"
             }
             st.info(f"📋 {strategy_descriptions[hybrid_strategy]}")
+            
+            # Chunking settings for large documents
+            st.subheader("📄 Document Chunking")
+            chunk_size = st.slider(
+                "Chunk Size (characters)",
+                min_value=5000,
+                max_value=20000,
+                value=10000,
+                step=1000,
+                help="Size of text chunks for processing large documents"
+            )
+            chunk_overlap = st.slider(
+                "Chunk Overlap (characters)",
+                min_value=100,
+                max_value=1000,
+                value=500,
+                step=50,
+                help="Overlap between chunks to prevent missing hits at boundaries"
+            )
+            st.info(f"📄 Chunks: {chunk_size} chars with {chunk_overlap} overlap")
         else:
             st.info("🔍 Standard pattern matching mode")
             confidence_threshold = 0.5  # Default value
             hybrid_strategy = "basic"  # Default value
+            chunk_size = 10000  # Default value
+            chunk_overlap = 500  # Default value
         
         # API configuration
         st.subheader("🔑 API Configuration")
@@ -652,7 +674,7 @@ def main():
             # Process Button
             st.markdown("---")
             if st.button("🚀 Process Document", type="primary", help="Begin document analysis with current configuration"):
-                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold, hybrid_strategy)
+                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold, hybrid_strategy, chunk_size, chunk_overlap)
     
     with col2:
         st.header("📊 Quick Stats")
@@ -680,7 +702,8 @@ def main():
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
                     temperature: float, skip_terms: List[str], config_preset: str, 
                     flagged_terms: List[str] = None, replacements: Dict[str, str] = None,
-                    confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced"):
+                    confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced",
+                    chunk_size: int = 10000, chunk_overlap: int = 500):
     """Process the uploaded document."""
     
     # Initialize session state

@@ -24,13 +24,16 @@ class HybridLanguageFlagger:
     
     def __init__(self, flagged_terms: List[str], replacement_map: Dict[str, str], 
                  skip_terms: List[str] = None, use_langextract: bool = True,
-                 confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced"):
+                 confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced",
+                 chunk_size: int = 10000, chunk_overlap: int = 500):
         self.flagged_terms = flagged_terms
         self.replacement_map = replacement_map
         self.skip_terms = skip_terms or []
         self.use_langextract = use_langextract and LANGEXTRACT_AVAILABLE
         self.confidence_threshold = confidence_threshold
         self.hybrid_strategy = hybrid_strategy  # "basic", "advanced", "conservative"
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
         
         # LangExtract examples for different types of problematic language
         self.langextract_examples = self._setup_langextract_examples()
@@ -42,6 +45,8 @@ class HybridLanguageFlagger:
         print(f"   - Skip terms: {len(self.skip_terms)}")
         print(f"   - Confidence threshold: {self.confidence_threshold}")
         print(f"   - Hybrid strategy: {self.hybrid_strategy}")
+        print(f"   - Chunk size: {self.chunk_size} characters")
+        print(f"   - Chunk overlap: {self.chunk_overlap} characters")
     
     def _setup_langextract_examples(self) -> List[Any]:
         """Setup few-shot examples for LangExtract, focusing on semantic issues not covered by pattern matching."""
@@ -144,39 +149,134 @@ class HybridLanguageFlagger:
         return filtered_examples
     
     def _validate_suggestion(self, suggestion: str) -> Tuple[str, str]:
-        """Validate suggestion to ensure it doesn't contain flagged terms."""
+        """Validate suggestion to ensure it doesn't contain flagged terms. Iteratively improves until clean."""
         if not suggestion:
             return "Consider alternative phrasing", "No suggestion provided"
         
-        # Create skip list for flagged terms only (not replacements)
+        # Create skip list for flagged terms and their replacements
         skip_terms_comprehensive = set(self.skip_terms)
         skip_terms_comprehensive.update(self.flagged_terms)
-        skip_terms_comprehensive.update(self.replacement_map.keys())  # Only original flagged terms
+        skip_terms_comprehensive.update(self.replacement_map.keys())  # Original flagged terms
+        skip_terms_comprehensive.update(self.replacement_map.values())  # Replacement terms (like "underserved")
         
-        # Check if suggestion contains any flagged terms (word boundary matching)
-        suggestion_lower = suggestion.lower()
+        # Also check for common problematic terms that should be avoided
+        problematic_terms = [
+            "underserved", "marginalized", "vulnerable", "disadvantaged", "at-risk",
+            "burden", "struggling", "hard-to-reach", "low-income"
+        ]
+        skip_terms_comprehensive.update(problematic_terms)
+        
+        # Iteratively validate and improve the suggestion
+        current_suggestion = suggestion
+        max_iterations = 5  # Prevent infinite loops
+        iteration = 0
+        validation_history = []
+        
+        while iteration < max_iterations:
+            iteration += 1
+            current_suggestion_lower = current_suggestion.lower()
+            import re
+            
+            # Check if current suggestion contains any flagged terms
+            flagged_term_found = None
+            for term in skip_terms_comprehensive:
+                term_lower = term.lower()
+                if re.search(r'\b' + re.escape(term_lower) + r'\b', current_suggestion_lower):
+                    flagged_term_found = term
+                    break
+            
+            if not flagged_term_found:
+                # No flagged terms found - suggestion is clean
+                if iteration == 1:
+                    return current_suggestion, "Validated suggestion"
+                else:
+                    return current_suggestion, f"Validated after {iteration} improvements: {' → '.join(validation_history)}"
+            
+            # Try to find a better suggestion from replacement map first
+            improved = False
+            for original, replacement in self.replacement_map.items():
+                if re.search(r'\b' + re.escape(original.lower()) + r'\b', current_suggestion_lower):
+                    # Replace the flagged term with its approved alternative
+                    current_suggestion = re.sub(
+                        r'\b' + re.escape(original.lower()) + r'\b', 
+                        replacement, 
+                        current_suggestion_lower, 
+                        flags=re.IGNORECASE
+                    )
+                    validation_history.append(f"replaced '{original}' with '{replacement}'")
+                    improved = True
+                    break
+            
+            if not improved:
+                # Generate a better alternative
+                previous_suggestion = current_suggestion
+                current_suggestion = self._generate_alternative_suggestion(current_suggestion, flagged_term_found)
+                validation_history.append(f"improved '{previous_suggestion}' to '{current_suggestion}'")
+        
+        # If we've reached max iterations, return the best we have
+        return current_suggestion, f"Validated after {max_iterations} improvements (max reached): {' → '.join(validation_history)}"
+    
+    def _generate_alternative_suggestion(self, suggestion: str, flagged_term: str) -> str:
+        """Generate a better alternative suggestion when the original contains flagged terms."""
         import re
         
-        for term in skip_terms_comprehensive:
-            term_lower = term.lower()
-            # Use word boundary matching to avoid partial matches
-            if re.search(r'\b' + re.escape(term_lower) + r'\b', suggestion_lower):
-                # Try to find a better suggestion from replacement map
-                for original, replacement in self.replacement_map.items():
-                    if re.search(r'\b' + re.escape(original.lower()) + r'\b', suggestion_lower):
-                        # Replace the flagged term with its approved alternative
-                        updated_suggestion = re.sub(
-                            r'\b' + re.escape(original.lower()) + r'\b', 
-                            replacement, 
-                            suggestion_lower, 
-                            flags=re.IGNORECASE
-                        )
-                        return updated_suggestion, f"Replaced flagged term '{original}' with approved alternative"
-                
-                # If no direct replacement, provide a generic alternative
-                return "Consider alternative phrasing", f"Suggestion contained flagged term '{term}'"
+        suggestion_lower = suggestion.lower()
         
-        return suggestion, "Validated suggestion"
+        # Specific replacements for common problematic phrases
+        phrase_replacements = {
+            "underserved communities": "communities with limited access",
+            "marginalized communities": "communities with limited access", 
+            "vulnerable communities": "communities facing challenges",
+            "disadvantaged communities": "communities with limited resources",
+            "underserved populations": "populations with limited access",
+            "marginalized populations": "populations with limited access",
+            "vulnerable populations": "populations facing challenges",
+            "disadvantaged populations": "populations with limited resources",
+            "hard-to-reach populations": "populations with limited access",
+            "hard-to-reach communities": "communities with limited access",
+            "low-income families": "families experiencing economic challenges",
+            "at-risk youth": "youth facing challenges",
+            "struggling with addiction": "experiencing substance use challenges"
+        }
+        
+        # Check for exact phrase matches first
+        for phrase, replacement in phrase_replacements.items():
+            if phrase in suggestion_lower:
+                return replacement
+        
+        # If no exact match, try word-by-word replacement
+        word_replacements = {
+            "underserved": "with limited access",
+            "marginalized": "with limited access",
+            "vulnerable": "facing challenges", 
+            "disadvantaged": "with limited resources",
+            "at-risk": "facing challenges",
+            "burden": "challenge",
+            "struggling": "experiencing",
+            "hard-to-reach": "with limited access",
+            "low-income": "experiencing economic challenges"
+        }
+        
+        better_suggestion = suggestion_lower
+        for word, replacement in word_replacements.items():
+            if word in better_suggestion:
+                better_suggestion = re.sub(
+                    r'\b' + re.escape(word) + r'\b',
+                    replacement,
+                    better_suggestion,
+                    flags=re.IGNORECASE
+                )
+        
+        # Clean up any double words or awkward phrasing
+        better_suggestion = re.sub(r'\bwith limited access with limited access\b', 'with limited access', better_suggestion)
+        better_suggestion = re.sub(r'\bfacing challenges facing challenges\b', 'facing challenges', better_suggestion)
+        better_suggestion = re.sub(r'\bcommunities communities\b', 'communities', better_suggestion)
+        better_suggestion = re.sub(r'\bpopulations populations\b', 'populations', better_suggestion)
+        
+        # Capitalize first letter
+        better_suggestion = better_suggestion.capitalize()
+        
+        return better_suggestion
     
     def _extract_span_info(self, extraction, text: str) -> Dict[str, Any]:
         """Extract precise span information for LangExtract extraction."""
@@ -452,66 +552,6 @@ class HybridLanguageFlagger:
             print(f"      ❌ LangExtract analysis failed: {e}")
             return []
     
-    def analyze_text(self, text: str) -> Dict[str, Any]:
-        """Analyze text using hybrid approach."""
-        print(f"🔍 Analyzing text with hybrid approach...")
-        print(f"   Text length: {len(text)} characters")
-        
-        # Pattern matching analysis
-        print(f"   🔧 Running pattern matching analysis...")
-        pattern_hits = self._pattern_match_analysis(text)
-        print(f"   ✅ Pattern matching found: {len(pattern_hits)} hits")
-        
-        # LangExtract analysis
-        langextract_hits = []
-        if self.use_langextract:
-            print(f"   🧠 Running LangExtract semantic analysis...")
-            print(f"   ⏳ This may take 10-30 seconds for complex text...")
-            langextract_hits = self._langextract_analysis(text)
-            print(f"   ✅ LangExtract found: {len(langextract_hits)} hits")
-        else:
-            print(f"   ⏭️  Skipping LangExtract (not available)")
-        
-        # Combine and deduplicate results
-        print(f"   🔄 Combining and deduplicating results...")
-        all_hits = pattern_hits + langextract_hits
-        deduplicated_hits = self._deduplicate_hits(all_hits)
-        
-        # Analysis summary
-        pattern_count = len([h for h in deduplicated_hits if h["method"] == "pattern_matching"])
-        langextract_count = len([h for h in deduplicated_hits if h["method"] == "langextract"])
-        both_count = len([h for h in deduplicated_hits if "both" in h.get("method", "")])
-        
-        print(f"   📊 Final results: {len(deduplicated_hits)} unique hits")
-        print(f"      - Pattern matching only: {pattern_count}")
-        print(f"      - LangExtract only: {langextract_count}")
-        print(f"      - Found by both: {both_count}")
-        
-        # Calculate confidence statistics
-        confidences = [h.get("confidence", 0.0) for h in deduplicated_hits]
-        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
-        high_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) >= 0.8])
-        medium_confidence_hits = len([h for h in deduplicated_hits if 0.5 <= h.get("confidence", 0.0) < 0.8])
-        low_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) < 0.5])
-        
-        return {
-            "hits": deduplicated_hits,
-            "summary": {
-                "total_hits": len(deduplicated_hits),
-                "pattern_matching_hits": pattern_count,
-                "langextract_hits": langextract_count,
-                "both_methods_hits": both_count,
-                "text_length": len(text),
-                "analysis_method": "hybrid",
-                "confidence_stats": {
-                    "average_confidence": round(avg_confidence, 3),
-                    "high_confidence_hits": high_confidence_hits,
-                    "medium_confidence_hits": medium_confidence_hits,
-                    "low_confidence_hits": low_confidence_hits
-                }
-            }
-        }
-    
     def _deduplicate_hits(self, hits: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Advanced deduplication using hybrid match strategy."""
         if not hits:
@@ -657,6 +697,221 @@ class HybridLanguageFlagger:
         merged["span_grounding"] = f"hybrid_{base_hit.get('span_grounding', 'unknown')}_{other_hit.get('span_grounding', 'unknown')}"
         
         return merged
+    
+    def _chunk_text(self, text: str) -> List[Dict[str, Any]]:
+        """Split text into overlapping chunks for processing large documents."""
+        if len(text) <= self.chunk_size:
+            return [{
+                "text": text,
+                "start": 0,
+                "end": len(text),
+                "chunk_id": 0,
+                "is_last": True
+            }]
+        
+        chunks = []
+        start = 0
+        chunk_id = 0
+        
+        while start < len(text):
+            # Calculate end position
+            end = min(start + self.chunk_size, len(text))
+            
+            # Try to break at sentence boundaries for better context
+            if end < len(text):
+                # Look for sentence endings within the last 200 characters
+                search_start = max(start + self.chunk_size - 200, start)
+                sentence_end = text.rfind('.', search_start, end)
+                if sentence_end > search_start:
+                    end = sentence_end + 1
+                else:
+                    # Look for paragraph breaks
+                    para_end = text.rfind('\n\n', search_start, end)
+                    if para_end > search_start:
+                        end = para_end + 2
+                    else:
+                        # Look for word boundaries
+                        word_end = text.rfind(' ', search_start, end)
+                        if word_end > search_start:
+                            end = word_end
+            
+            chunk_text = text[start:end].strip()
+            if chunk_text:  # Only add non-empty chunks
+                chunks.append({
+                    "text": chunk_text,
+                    "start": start,
+                    "end": end,
+                    "chunk_id": chunk_id,
+                    "is_last": end >= len(text)
+                })
+                chunk_id += 1
+            
+            # Move start position with overlap
+            start = end - self.chunk_overlap
+            if start >= len(text):
+                break
+            
+            # Prevent infinite loop: ensure we always move forward
+            if start <= chunks[-1]["start"] if chunks else 0:
+                start = end
+        
+        print(f"   📄 Text chunking: {len(text)} chars → {len(chunks)} chunks")
+        return chunks
+    
+    def _adjust_hit_positions(self, hits: List[Dict[str, Any]], chunk_offset: int) -> List[Dict[str, Any]]:
+        """Adjust hit positions to account for chunk offset in original text."""
+        adjusted_hits = []
+        for hit in hits:
+            adjusted_hit = hit.copy()
+            adjusted_hit["position"] = hit.get("position", 0) + chunk_offset
+            adjusted_hit["char_start"] = hit.get("char_start", 0) + chunk_offset
+            adjusted_hit["char_end"] = hit.get("char_end", 0) + chunk_offset
+            adjusted_hits.append(adjusted_hit)
+        return adjusted_hits
+    
+    def _merge_chunk_results(self, all_chunk_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Merge results from multiple chunks into a single result."""
+        if not all_chunk_results:
+            return {"hits": [], "summary": {"total_hits": 0}}
+        
+        # Combine all hits
+        all_hits = []
+        for chunk_result in all_chunk_results:
+            all_hits.extend(chunk_result.get("hits", []))
+        
+        # Deduplicate hits that might span chunk boundaries
+        deduplicated_hits = self._deduplicate_hits(all_hits)
+        
+        # Calculate combined summary
+        total_hits = len(deduplicated_hits)
+        pattern_count = len([h for h in deduplicated_hits if h["method"] == "pattern_matching"])
+        langextract_count = len([h for h in deduplicated_hits if h["method"] == "langextract"])
+        both_count = len([h for h in deduplicated_hits if "both" in h.get("method", "")])
+        
+        # Calculate confidence statistics
+        confidences = [h.get("confidence", 0.0) for h in deduplicated_hits]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
+        high_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) >= 0.8])
+        medium_confidence_hits = len([h for h in deduplicated_hits if 0.5 <= h.get("confidence", 0.0) < 0.8])
+        low_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) < 0.5])
+        
+        return {
+            "hits": deduplicated_hits,
+            "summary": {
+                "total_hits": total_hits,
+                "pattern_matching_hits": pattern_count,
+                "langextract_hits": langextract_count,
+                "both_methods_hits": both_count,
+                "text_length": sum(chunk_result.get("summary", {}).get("text_length", 0) for chunk_result in all_chunk_results),
+                "analysis_method": "hybrid_chunked",
+                "chunks_processed": len(all_chunk_results),
+                "confidence_stats": {
+                    "average_confidence": round(avg_confidence, 3),
+                    "high_confidence_hits": high_confidence_hits,
+                    "medium_confidence_hits": medium_confidence_hits,
+                    "low_confidence_hits": low_confidence_hits
+                }
+            }
+        }
+    
+    def analyze_text(self, text: str) -> Dict[str, Any]:
+        """Analyze text using hybrid approach with chunking for large documents."""
+        print(f"🔍 Analyzing text with hybrid approach...")
+        print(f"   Text length: {len(text)} characters")
+        
+        # Check if text needs chunking
+        if len(text) <= self.chunk_size:
+            return self._analyze_text_single(text)
+        
+        print(f"   📄 Large document detected, using chunking strategy...")
+        print(f"   Chunk size: {self.chunk_size} chars, overlap: {self.chunk_overlap} chars")
+        
+        # Split text into chunks
+        chunks = self._chunk_text(text)
+        print(f"   Created {len(chunks)} chunks for processing")
+        
+        # Process each chunk
+        all_chunk_results = []
+        for i, chunk in enumerate(chunks):
+            print(f"   🔄 Processing chunk {i+1}/{len(chunks)} ({chunk['start']}-{chunk['end']})")
+            
+            # Analyze this chunk
+            chunk_result = self._analyze_text_single(chunk["text"])
+            
+            # Adjust hit positions to account for chunk offset
+            if chunk_result["hits"]:
+                chunk_result["hits"] = self._adjust_hit_positions(chunk_result["hits"], chunk["start"])
+            
+            all_chunk_results.append(chunk_result)
+        
+        # Merge results from all chunks
+        print(f"   🔄 Merging results from {len(chunks)} chunks...")
+        merged_result = self._merge_chunk_results(all_chunk_results)
+        
+        print(f"   📊 Final results: {merged_result['summary']['total_hits']} unique hits")
+        print(f"      - Pattern matching only: {merged_result['summary']['pattern_matching_hits']}")
+        print(f"      - LangExtract only: {merged_result['summary']['langextract_hits']}")
+        print(f"      - Found by both: {merged_result['summary']['both_methods_hits']}")
+        print(f"      - Chunks processed: {merged_result['summary']['chunks_processed']}")
+        
+        return merged_result
+    
+    def _analyze_text_single(self, text: str) -> Dict[str, Any]:
+        """Analyze a single text chunk (original analyze_text logic)."""
+        # Pattern matching analysis
+        print(f"   🔧 Running pattern matching analysis...")
+        pattern_hits = self._pattern_match_analysis(text)
+        print(f"   ✅ Pattern matching found: {len(pattern_hits)} hits")
+        
+        # LangExtract analysis
+        langextract_hits = []
+        if self.use_langextract:
+            print(f"   🧠 Running LangExtract semantic analysis...")
+            print(f"   ⏳ This may take 10-30 seconds for complex text...")
+            langextract_hits = self._langextract_analysis(text)
+            print(f"   ✅ LangExtract found: {len(langextract_hits)} hits")
+        else:
+            print(f"   ⏭️  Skipping LangExtract (not available)")
+        
+        # Combine and deduplicate results
+        print(f"   🔄 Combining and deduplicating results...")
+        all_hits = pattern_hits + langextract_hits
+        deduplicated_hits = self._deduplicate_hits(all_hits)
+        
+        # Analysis summary
+        pattern_count = len([h for h in deduplicated_hits if h["method"] == "pattern_matching"])
+        langextract_count = len([h for h in deduplicated_hits if h["method"] == "langextract"])
+        both_count = len([h for h in deduplicated_hits if "both" in h.get("method", "")])
+        
+        print(f"   📊 Chunk results: {len(deduplicated_hits)} unique hits")
+        print(f"      - Pattern matching only: {pattern_count}")
+        print(f"      - LangExtract only: {langextract_count}")
+        print(f"      - Found by both: {both_count}")
+        
+        # Calculate confidence statistics
+        confidences = [h.get("confidence", 0.0) for h in deduplicated_hits]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
+        high_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) >= 0.8])
+        medium_confidence_hits = len([h for h in deduplicated_hits if 0.5 <= h.get("confidence", 0.0) < 0.8])
+        low_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) < 0.5])
+        
+        return {
+            "hits": deduplicated_hits,
+            "summary": {
+                "total_hits": len(deduplicated_hits),
+                "pattern_matching_hits": pattern_count,
+                "langextract_hits": langextract_count,
+                "both_methods_hits": both_count,
+                "text_length": len(text),
+                "analysis_method": "hybrid",
+                "confidence_stats": {
+                    "average_confidence": round(avg_confidence, 3),
+                    "high_confidence_hits": high_confidence_hits,
+                    "medium_confidence_hits": medium_confidence_hits,
+                    "low_confidence_hits": low_confidence_hits
+                }
+            }
+        }
     
     def analyze_hybrid_effectiveness(self, hits: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze the effectiveness of the hybrid matching strategy."""

@@ -1410,7 +1410,9 @@ def process_file(input_file: str,
                 temperature: float,
                 api_type: str = "auto",
                 skip_terms: List[str] = None,
-                use_hybrid: bool = False) -> Tuple[str, List[Hit]]:
+                use_hybrid: bool = False,
+                chunk_size: int = 10000,
+                chunk_overlap: int = 500) -> Tuple[str, List[Hit]]:
     """Process either PDF or DOCX file based on file extension."""
     file_type = detect_file_type(input_file)
     
@@ -1467,7 +1469,7 @@ def process_file(input_file: str,
     
     # Continue with existing processing
     if file_type == 'pdf':
-        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type, skip_terms, use_hybrid)
+        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type, skip_terms, use_hybrid, chunk_size, chunk_overlap)
     elif file_type == 'docx':
         return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature, api_type, skip_terms)
     else:
@@ -1482,7 +1484,9 @@ def process_pdf(input_pdf: str,
                 temperature: float,
                 api_type: str = "auto",
                 skip_terms: List[str] = None,
-                use_hybrid: bool = False) -> Tuple[str, List[Hit]]:
+                use_hybrid: bool = False,
+                chunk_size: int = 10000,
+                chunk_overlap: int = 500) -> Tuple[str, List[Hit]]:
     os.makedirs(outdir, exist_ok=True)
     out_pdf = os.path.join(outdir, "flagged_output.pdf")
 
@@ -1502,7 +1506,9 @@ def process_pdf(input_pdf: str,
             flagged_terms=flagged_terms,
             replacement_map=repl_map,
             skip_terms=skip_terms or [],
-            use_langextract=True
+            use_langextract=True,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap
         )
         print(f"✅ Hybrid system ready")
     elif use_hybrid and not _HYBRID_AVAILABLE:
@@ -1747,7 +1753,10 @@ def process_batch(input_files: List[str],
                   model: str, 
                   temperature: float,
                   api_type: str = "auto",
-                  skip_terms: List[str] = None) -> Dict[str, Tuple[str, List[Hit]]]:
+                  skip_terms: List[str] = None,
+                  use_hybrid: bool = False,
+                  chunk_size: int = 10000,
+                  chunk_overlap: int = 500) -> Dict[str, Tuple[str, List[Hit]]]:
     """Process multiple files in batch."""
     results = {}
     
@@ -1764,7 +1773,9 @@ def process_batch(input_files: List[str],
                 temperature=temperature,
                 api_type=api_type,
                 skip_terms=skip_terms,
-                use_hybrid=args.hybrid
+                use_hybrid=use_hybrid,
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap
             )
             results[input_file] = (out_file, hits)
             print(f"✅ Completed: {input_file} ({len(hits)} flags found)")
@@ -1786,6 +1797,8 @@ def main():
     parser.add_argument("--api", choices=["openai", "gemini", "auto"], default="auto", help="API to use: openai, gemini, or auto (default: auto)")
     parser.add_argument("--skip-terms", nargs="*", default=[], help="Terms to skip during processing (will detect variations)")
     parser.add_argument("--hybrid", action="store_true", help="Use hybrid language flagging (combines pattern matching with LangExtract)")
+    parser.add_argument("--chunk-size", type=int, default=10000, help="Chunk size for processing large documents (default: 10000)")
+    parser.add_argument("--chunk-overlap", type=int, default=500, help="Chunk overlap to prevent missing hits at boundaries (default: 500)")
     parser.add_argument("--env-file", default=None, help="Path to a .env file containing API keys (optional)")
     args = parser.parse_args()
 
@@ -1812,7 +1825,10 @@ def main():
             model=args.model,
             temperature=args.temperature,
             api_type=args.api,
-            skip_terms=args.skip_terms
+            skip_terms=args.skip_terms,
+            use_hybrid=args.hybrid,
+            chunk_size=args.chunk_size,
+            chunk_overlap=args.chunk_overlap
         )
         
         # Summary
@@ -1834,7 +1850,9 @@ def main():
             temperature=args.temperature,
             api_type=args.api,
             skip_terms=args.skip_terms,
-            use_hybrid=args.hybrid
+            use_hybrid=args.hybrid,
+            chunk_size=args.chunk_size,
+            chunk_overlap=args.chunk_overlap
         )
 
         # Export reports
@@ -1846,7 +1864,7 @@ def main():
         print(f"Total flags:    {len(hits)}")
         
         # Add hybrid analysis breakdown if using hybrid mode
-        if use_hybrid and hits:
+        if args.hybrid and hits:
             # Count hits by method
             pattern_count = len([h for h in hits if h.method == "pattern_matching"])
             langextract_count = len([h for h in hits if h.method == "langextract"])
