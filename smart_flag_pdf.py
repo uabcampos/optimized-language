@@ -146,6 +146,45 @@ def load_env(env_path: Optional[str] = None) -> None:
 # Data classes
 # -----------------------------
 
+def should_skip_term(term: str, skip_terms: List[str]) -> bool:
+    """Check if a term should be skipped based on skip terms list and their variations."""
+    if not skip_terms:
+        return False
+    
+    term_lower = term.lower()
+    
+    for skip_term in skip_terms:
+        skip_lower = skip_term.lower()
+        
+        # Exact match
+        if term_lower == skip_lower:
+            return True
+        
+        # Check if term starts with skip term (for variations like disparity -> disparities)
+        if term_lower.startswith(skip_lower):
+            return True
+        
+        # Check if skip term starts with term (for root forms)
+        if skip_lower.startswith(term_lower):
+            return True
+        
+        # Check for common word variations
+        # Remove common suffixes and check root
+        common_suffixes = ['s', 'es', 'ed', 'ing', 'ly', 'tion', 'sion', 'ness', 'ment', 'able', 'ible', 'ful', 'less']
+        
+        for suffix in common_suffixes:
+            if term_lower.endswith(suffix):
+                root = term_lower[:-len(suffix)]
+                if root == skip_lower or skip_lower.startswith(root):
+                    return True
+            
+            if skip_lower.endswith(suffix):
+                root = skip_lower[:-len(suffix)]
+                if root == term_lower or term_lower.startswith(root):
+                    return True
+    
+    return False
+
 def is_proper_noun_context(text: str, match_start: int, match_end: int) -> bool:
     """Check if the matched term is part of a proper noun (like department names, titles, grants, publications)."""
     # Get context around the match
@@ -628,7 +667,7 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
 
 def process_terms_chunk(args) -> List[Hit]:
     """Worker function for processing a chunk of terms with proper text matching and bbox calculation."""
-    page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words, api_type = args
+    page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words, api_type, skip_terms = args
     
     # Create a new client for this process
     try:
@@ -669,6 +708,11 @@ def process_terms_chunk(args) -> List[Hit]:
                 
                 # Check if this is part of a proper noun context
                 if is_proper_noun_context(context, 0, len(matched_text)):
+                    i += 1
+                    continue
+                
+                # Check if this term should be skipped
+                if should_skip_term(phrase, skip_terms):
                     i += 1
                     continue
                 
@@ -1128,7 +1172,8 @@ def process_docx_file(input_docx: str,
                      outdir: str,
                      model: str,
                      temperature: float,
-                     api_type: str = "auto") -> Tuple[str, List[Hit]]:
+                     api_type: str = "auto",
+                     skip_terms: List[str] = None) -> Tuple[str, List[Hit]]:
     """Process DOCX file with Python-Redlines tracked changes and highlighting."""
     os.makedirs(outdir, exist_ok=True)
     
@@ -1179,7 +1224,8 @@ def process_file(input_file: str,
                 style: str,
                 model: str,
                 temperature: float,
-                api_type: str = "auto") -> Tuple[str, List[Hit]]:
+                api_type: str = "auto",
+                skip_terms: List[str] = None) -> Tuple[str, List[Hit]]:
     """Process either PDF or DOCX file based on file extension."""
     file_type = detect_file_type(input_file)
     
@@ -1235,9 +1281,9 @@ def process_file(input_file: str,
     
     # Continue with existing processing
     if file_type == 'pdf':
-        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type)
+        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type, skip_terms)
     elif file_type == 'docx':
-        return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature, api_type)
+        return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature, api_type, skip_terms)
     else:
         raise ValueError(f"Unsupported file type: {file_type}")
 
@@ -1248,7 +1294,8 @@ def process_pdf(input_pdf: str,
                 style: str,
                 model: str,
                 temperature: float,
-                api_type: str = "auto") -> Tuple[str, List[Hit]]:
+                api_type: str = "auto",
+                skip_terms: List[str] = None) -> Tuple[str, List[Hit]]:
     os.makedirs(outdir, exist_ok=True)
     out_pdf = os.path.join(outdir, "flagged_output.pdf")
 
@@ -1299,7 +1346,7 @@ def process_pdf(input_pdf: str,
             for chunk_start in range(0, total_terms, chunk_size):
                 chunk_end = min(chunk_start + chunk_size, total_terms)
                 chunk_phrase_tokens = phrase_tokens[chunk_start:chunk_end]
-                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words, api_type))
+                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words, api_type, skip_terms or []))
             
             # Process chunks in parallel
             with mp.Pool(processes=num_processes) as pool:
@@ -1344,7 +1391,8 @@ def process_batch(input_files: List[str],
                   style: str, 
                   model: str, 
                   temperature: float,
-                  api_type: str = "auto") -> Dict[str, Tuple[str, List[Hit]]]:
+                  api_type: str = "auto",
+                  skip_terms: List[str] = None) -> Dict[str, Tuple[str, List[Hit]]]:
     """Process multiple files in batch."""
     results = {}
     
@@ -1359,7 +1407,8 @@ def process_batch(input_files: List[str],
                 style=style,
                 model=model,
                 temperature=temperature,
-                api_type=api_type
+                api_type=api_type,
+                skip_terms=skip_terms
             )
             results[input_file] = (out_file, hits)
             print(f"✅ Completed: {input_file} ({len(hits)} flags found)")
@@ -1379,6 +1428,7 @@ def main():
     parser.add_argument("--model", default="gpt-4.1-mini", help="OpenAI model to use (ignored if using Gemini)")
     parser.add_argument("--temperature", type=float, default=0.2, help="LLM temperature")
     parser.add_argument("--api", choices=["openai", "gemini", "auto"], default="auto", help="API to use: openai, gemini, or auto (default: auto)")
+    parser.add_argument("--skip-terms", nargs="*", default=[], help="Terms to skip during processing (will detect variations)")
     parser.add_argument("--env-file", default=None, help="Path to a .env file containing API keys (optional)")
     args = parser.parse_args()
 
@@ -1404,7 +1454,8 @@ def main():
             style=args.style,
             model=args.model,
             temperature=args.temperature,
-            api_type=args.api
+            api_type=args.api,
+            skip_terms=args.skip_terms
         )
         
         # Summary
@@ -1424,7 +1475,8 @@ def main():
             style=args.style,
             model=args.model,
             temperature=args.temperature,
-            api_type=args.api
+            api_type=args.api,
+            skip_terms=args.skip_terms
         )
 
         # Export reports

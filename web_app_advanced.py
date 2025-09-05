@@ -48,7 +48,8 @@ def save_json_file(file_path: str, data: dict) -> bool:
         return False
 
 def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict[str, str], 
-                  outdir: str, style: str, model: str, temperature: float, api_type: str = "auto", progress_container=None) -> Tuple[bool, str, List[dict]]:
+                  outdir: str, style: str, model: str, temperature: float, api_type: str = "auto", 
+                  skip_terms: List[str] = None, progress_container=None) -> Tuple[bool, str, List[dict]]:
     """Run the processing script and return results with real-time progress updates."""
     try:
         # Create temporary JSON files
@@ -72,6 +73,10 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
             "--temperature", str(temperature),
             "--api", api_type
         ]
+        
+        # Add skip terms if provided
+        if skip_terms:
+            cmd.extend(["--skip-terms"] + skip_terms)
         
         # Use Popen for real-time output capture
         process = subprocess.Popen(
@@ -314,6 +319,21 @@ def main():
         # Processing settings
         st.subheader("Processing Settings")
         style = st.selectbox("Annotation Style", ["highlight", "underline"], index=0)
+        
+        # Skip terms configuration
+        st.subheader("🚫 Skip Terms")
+        skip_terms_text = st.text_area(
+            "Terms to Skip (one per line)",
+            value="disparity\n",
+            height=100,
+            help="Enter terms to skip during processing. The system will automatically detect variations (e.g., 'disparity' will skip 'disparities', 'disparate', etc.)"
+        )
+        
+        # Parse skip terms
+        skip_terms = [term.strip().lower() for term in skip_terms_text.split('\n') if term.strip()]
+        
+        if skip_terms:
+            st.info(f"📝 Will skip {len(skip_terms)} term(s) and their variations")
         
         # Configuration presets
         st.subheader("🎛️ Configuration Presets")
@@ -638,7 +658,7 @@ def main():
                         
                         success, output, hits = run_processing(
                             tmp_file_path, flagged_terms, replacements, 
-                            outdir, style, model, temperature, api_type, progress_container
+                            outdir, style, model, temperature, api_type, skip_terms, progress_container
                         )
                         
                         # Step 5: Processing complete
