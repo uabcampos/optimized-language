@@ -571,7 +571,8 @@ def main():
         with col1:
             st.metric("Flagged Terms Found", len(st.session_state.processing_hits))
         with col2:
-            st.metric("Processing Time", st.session_state.processing_timestamp)
+            processing_time = st.session_state.get('processing_duration', 'Unknown')
+            st.metric("Processing Time", processing_time)
         with col3:
             st.metric("Output Files", "1 PDF + Reports")
         with col4:
@@ -891,6 +892,7 @@ def main():
                     st.session_state.processing_hits = []
                     st.session_state.processing_output = ""
                     st.session_state.processing_timestamp = None
+                    st.session_state.processing_duration = None
                     st.session_state.processing_outdir = None
                     st.rerun()
             
@@ -948,10 +950,18 @@ def main():
                             st.text("⏱️ Elapsed: 0m | ETA: Calculating...")
                             st.text("🎯 Confidence: Low (initializing)")
                         
+                        # Start timing the processing
+                        processing_start_time = datetime.now()
+                        
                         success, output, hits = run_processing(
                             tmp_file_path, flagged_terms, replacements, 
                             outdir, style, model, temperature, api_type, skip_terms, progress_container
                         )
+                        
+                        # Calculate processing duration
+                        processing_end_time = datetime.now()
+                        processing_duration = processing_end_time - processing_start_time
+                        processing_duration_str = str(processing_duration).split('.')[0]  # Remove microseconds
                         
                         # Step 5: Processing complete
                         status_text.text("✅ Processing complete!")
@@ -969,6 +979,7 @@ def main():
                             st.session_state.processing_hits = hits if hits else []
                             st.session_state.processing_output = output if output else ""
                             st.session_state.processing_timestamp = timestamp
+                            st.session_state.processing_duration = processing_duration_str
                             st.session_state.processing_outdir = outdir
                             
                             
@@ -984,7 +995,7 @@ def main():
                                 st.metric("Flagged Terms Found", len(hits) if hits else 0)
                             
                             with col2:
-                                st.metric("Processing Time", f"{datetime.now().strftime('%H:%M:%S')}")
+                                st.metric("Processing Time", processing_duration_str)
                             with col3:
                                 st.metric("Output Files", "1 PDF + Reports")
                             
