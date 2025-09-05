@@ -284,27 +284,51 @@ class HybridLanguageFlagger:
             "burden": "challenge",
             "struggling": "experiencing",
             "hard-to-reach": "with limited access",
-            "low-income": "experiencing economic challenges"
+            "low-income": "experiencing economic challenges",
+            "health equity": "health fairness",
+            "inequities": "disparities",
+            "equity": "fairness"
         }
         
         better_suggestion = suggestion_lower
+        changes_made = False
+        
         for word, replacement in word_replacements.items():
             if word in better_suggestion:
+                old_suggestion = better_suggestion
                 better_suggestion = re.sub(
                     r'\b' + re.escape(word) + r'\b',
                     replacement,
                     better_suggestion,
                     flags=re.IGNORECASE
                 )
+                if better_suggestion != old_suggestion:
+                    changes_made = True
         
-        # Clean up any double words or awkward phrasing
-        better_suggestion = re.sub(r'\bwith limited access with limited access\b', 'with limited access', better_suggestion)
-        better_suggestion = re.sub(r'\bfacing challenges facing challenges\b', 'facing challenges', better_suggestion)
-        better_suggestion = re.sub(r'\bcommunities communities\b', 'communities', better_suggestion)
-        better_suggestion = re.sub(r'\bpopulations populations\b', 'populations', better_suggestion)
+        # If no changes were made, try to remove the flagged term entirely
+        if not changes_made and flagged_term:
+            better_suggestion = re.sub(
+                r'\b' + re.escape(flagged_term.lower()) + r'\b',
+                '',
+                better_suggestion,
+                flags=re.IGNORECASE
+            )
+            # Clean up extra spaces
+            better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
+            changes_made = True
         
-        # Capitalize first letter
-        better_suggestion = better_suggestion.capitalize()
+        # If still no changes, provide a generic alternative
+        if not changes_made:
+            better_suggestion = "Consider alternative phrasing"
+        else:
+            # Clean up any double words or awkward phrasing
+            better_suggestion = re.sub(r'\bwith limited access with limited access\b', 'with limited access', better_suggestion)
+            better_suggestion = re.sub(r'\bfacing challenges facing challenges\b', 'facing challenges', better_suggestion)
+            better_suggestion = re.sub(r'\bcommunities communities\b', 'communities', better_suggestion)
+            better_suggestion = re.sub(r'\bpopulations populations\b', 'populations', better_suggestion)
+            
+            # Capitalize first letter
+            better_suggestion = better_suggestion.capitalize()
         
         return better_suggestion
     
