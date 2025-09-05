@@ -138,6 +138,30 @@ class HybridLanguageFlagger:
         
         return filtered_examples
     
+    def _validate_suggestion(self, suggestion: str) -> Tuple[str, str]:
+        """Validate suggestion to ensure it doesn't contain flagged terms."""
+        if not suggestion:
+            return "Consider alternative phrasing", "No suggestion provided"
+        
+        # Create skip list for flagged terms only (not replacements)
+        skip_terms_comprehensive = set(self.skip_terms)
+        skip_terms_comprehensive.update(self.flagged_terms)
+        skip_terms_comprehensive.update(self.replacement_map.keys())  # Only original flagged terms
+        
+        # Check if suggestion contains any flagged terms
+        suggestion_lower = suggestion.lower()
+        for term in skip_terms_comprehensive:
+            if term.lower() in suggestion_lower:
+                # Try to find a better suggestion from replacement map
+                for original, replacement in self.replacement_map.items():
+                    if original.lower() in suggestion_lower:
+                        return replacement, f"Replaced flagged term '{original}' with approved alternative"
+                
+                # If no direct replacement, provide a generic alternative
+                return "Consider alternative phrasing", f"Suggestion contained flagged term '{term}'"
+        
+        return suggestion, "Validated suggestion"
+
     def _pattern_match_analysis(self, text: str) -> List[Dict[str, Any]]:
         """Traditional pattern matching analysis."""
         hits = []
@@ -216,14 +240,18 @@ class HybridLanguageFlagger:
                     context_end = min(len(text), pos + len(extraction.extraction_text) + 50)
                     context = text[context_start:context_end]
                     
+                    # Validate the suggestion
+                    original_suggestion = extraction.attributes.get("suggestion", "Consider alternative")
+                    validated_suggestion, validation_reason = self._validate_suggestion(original_suggestion)
+                    
                     hits.append({
                         "original_key": extraction.extraction_text,
                         "matched_text": extraction.extraction_text,
                         "context": context,
                         "position": pos,
                         "method": "langextract",
-                        "suggestion": extraction.attributes.get("suggestion", "Consider alternative"),
-                        "reason": extraction.attributes.get("reason", "Semantic analysis"),
+                        "suggestion": validated_suggestion,
+                        "reason": f"{extraction.attributes.get('reason', 'Semantic analysis')} ({validation_reason})",
                         "severity": extraction.attributes.get("severity", "medium"),
                         "category": extraction.attributes.get("category", "unknown")
                     })
