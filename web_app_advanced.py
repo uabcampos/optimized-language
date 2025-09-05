@@ -165,8 +165,12 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
             if os.path.exists(csv_path):
                 df = pd.read_csv(csv_path)
                 hits = df.to_dict('records')
+                print(f"DEBUG: Loaded {len(hits)} hits from CSV")
+                if hits:
+                    print(f"DEBUG: Sample hit keys: {list(hits[0].keys())}")
             else:
                 hits = []
+                print("DEBUG: CSV file not found")
             
             return True, full_output, hits
         else:
@@ -526,6 +530,19 @@ def main():
         st.write(f"Processing hits length: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
         st.write(f"Processing hits type: {type(st.session_state.processing_hits)}")
         st.write(f"Processing hits is None: {st.session_state.processing_hits is None}")
+        
+        # Try to load results directly from file if session state is empty
+        if not st.session_state.processing_hits and st.session_state.processing_outdir:
+            st.write("🔄 Attempting to load results directly from file...")
+            csv_path = os.path.join(st.session_state.processing_outdir, "flag_report.csv")
+            if os.path.exists(csv_path):
+                try:
+                    df = pd.read_csv(csv_path)
+                    hits = df.to_dict('records')
+                    st.session_state.processing_hits = hits
+                    st.success(f"✅ Loaded {len(hits)} hits directly from CSV file")
+                except Exception as e:
+                    st.error(f"Error loading CSV: {e}")
         
         if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
             st.write("✅ Hits data is available, attempting to display...")
@@ -897,6 +914,12 @@ def main():
                             st.session_state.processing_output = output if output else ""
                             st.session_state.processing_timestamp = timestamp
                             st.session_state.processing_outdir = outdir
+                            
+                            # Debug session state storage
+                            print(f"DEBUG: Stored {len(st.session_state.processing_hits)} hits in session state")
+                            print(f"DEBUG: Session state hits type: {type(st.session_state.processing_hits)}")
+                            if st.session_state.processing_hits:
+                                print(f"DEBUG: First hit keys: {list(st.session_state.processing_hits[0].keys())}")
                             
                             # Clear progress indicators
                             progress_container.empty()
