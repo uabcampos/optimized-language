@@ -34,6 +34,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+def get_config_files(preset: str) -> Tuple[str, str]:
+    """Get flagged terms and replacements file names based on preset selection."""
+    preset_mapping = {
+        "Standard (flagged_terms.json)": ("flagged_terms.json", "replacements.json"),
+        "Overkill (flagged_terms_overkill.json)": ("flagged_terms_overkill.json", "replacements_overkill.json"),
+        "Overkill Lite (flagged_terms_overkill_lite.json)": ("flagged_terms_overkill_lite.json", "replacements_overkill_lite.json"),
+        "Grant (flagged_terms_grant.json)": ("flagged_terms_grant.json", "replacements_grant.json"),
+        "Grant Enhanced (flagged_terms_grant_enhanced.json)": ("flagged_terms_grant_enhanced.json", "replacements_grant_enhanced.json")
+    }
+    return preset_mapping.get(preset, ("flagged_terms.json", "replacements.json"))
+
 def main():
     """Main application function."""
     st.title("🧠 Smart PDF Language Flagger - Hybrid Beta")
@@ -42,6 +53,20 @@ def main():
     # Sidebar configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
+        
+        # Configuration preset selection
+        st.subheader("📋 Configuration Preset")
+        config_preset = st.selectbox(
+            "Choose flagged terms configuration:",
+            [
+                "Standard (flagged_terms.json)",
+                "Overkill (flagged_terms_overkill.json)", 
+                "Overkill Lite (flagged_terms_overkill_lite.json)",
+                "Grant (flagged_terms_grant.json)",
+                "Grant Enhanced (flagged_terms_grant_enhanced.json)"
+            ],
+            help="Select which set of flagged terms and replacements to use"
+        )
         
         # Analysis mode selection
         st.subheader("🔧 Analysis Mode")
@@ -54,6 +79,10 @@ def main():
         # Convert to flags
         use_hybrid = analysis_mode in ["Hybrid (Pattern + LangExtract)", "LangExtract Only"]
         use_langextract_only = analysis_mode == "LangExtract Only"
+        
+        # Show selected configuration
+        flagged_file, replacements_file = get_config_files(config_preset)
+        st.info(f"📋 Using: {flagged_file}")
         
         if use_hybrid:
             st.success("✅ Hybrid mode enabled")
@@ -161,6 +190,9 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     if 'processing_duration' not in st.session_state:
         st.session_state.processing_duration = None
     
+    # Get configuration files based on preset
+    flagged_file, replacements_file = get_config_files(config_preset)
+    
     # Create output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     outdir = f"hybrid_output_{timestamp}"
@@ -170,8 +202,8 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     cmd = [
         sys.executable, "smart_flag_pdf.py",
         input_file,  # Positional argument, not --input
-        "--flagged", "flagged_terms.json",
-        "--map", "replacements.json", 
+        "--flagged", flagged_file,
+        "--map", replacements_file, 
         "--outdir", outdir,
         "--model", model,
         "--temperature", str(temperature),
@@ -185,6 +217,7 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     # Show command for debugging
     with st.expander("🔧 Debug: Command", expanded=False):
         st.code(" ".join(cmd))
+        st.info(f"Configuration: {flagged_file} + {replacements_file}")
     
     # Process with progress bar
     progress_bar = st.progress(0)
