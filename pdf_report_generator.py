@@ -135,14 +135,25 @@ class PDFReportGenerator:
             
             plt.tight_layout()
             
-            # Convert to base64
-            buffer = io.BytesIO()
-            plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
-            buffer.seek(0)
-            image_base64 = base64.b64encode(buffer.getvalue()).decode()
-            plt.close()
-            
-            return image_base64
+            # Convert to base64 using temporary file (more reliable in cloud environments)
+            try:
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+                    plt.savefig(tmp_file.name, format='png', dpi=300, bbox_inches='tight')
+                    
+                    # Read the file and convert to base64
+                    with open(tmp_file.name, 'rb') as f:
+                        image_data = f.read()
+                        image_base64 = base64.b64encode(image_data).decode()
+                    
+                    # Clean up temporary file
+                    os.unlink(tmp_file.name)
+                    
+                    plt.close()
+                    return image_base64
+            except Exception as file_error:
+                print(f"Error saving chart to file: {file_error}")
+                plt.close()
+                return self.create_text_placeholder(title, data)
         except Exception as e:
             print(f"Error creating chart: {e}")
             return self.create_text_placeholder(title, data)
