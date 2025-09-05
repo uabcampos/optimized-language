@@ -334,6 +334,11 @@ def main():
         
         if skip_terms:
             st.info(f"📝 Will skip {len(skip_terms)} term(s) and their variations")
+            with st.expander("🔍 Skip Terms Details", expanded=False):
+                st.write("**Skip Terms:**")
+                for i, term in enumerate(skip_terms, 1):
+                    st.write(f"{i}. {term}")
+                st.write("**Note:** The system will automatically detect variations (e.g., 'disparity' will skip 'disparities', 'disparate', etc.)")
         
         # Configuration presets
         st.subheader("🎛️ Configuration Presets")
@@ -379,7 +384,7 @@ def main():
     )
     
     # Display persistent results if available
-    if st.session_state.processing_success and st.session_state.processing_hits:
+    if st.session_state.processing_success:
         st.markdown("---")
         st.header("📊 Processing Results")
         
@@ -392,43 +397,67 @@ def main():
         with col3:
             st.metric("Output Files", "1 PDF + Reports")
         
+        # Debug information
+        with st.expander("🔍 Debug Information", expanded=False):
+            st.write(f"**Session State Debug:**")
+            st.write(f"- Processing Success: {st.session_state.processing_success}")
+            st.write(f"- Number of Hits: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
+            st.write(f"- Processing Output Length: {len(st.session_state.processing_output) if st.session_state.processing_output else 0}")
+            st.write(f"- Output Directory: {st.session_state.processing_outdir}")
+            
+            if st.session_state.processing_hits:
+                st.write(f"**Sample Hit:**")
+                st.json(st.session_state.processing_hits[0] if st.session_state.processing_hits else {})
+        
         # Display processing output if available
         if st.session_state.processing_output:
             with st.expander("📋 Processing Log", expanded=False):
                 st.text_area("Processing Output", value=st.session_state.processing_output, height=300, help="Detailed processing log from the language flagging script")
         
-        # Create visualizations
-        create_visualizations(st.session_state.processing_hits)
-        
-        # Display hits in a table
-        st.subheader("📋 Detailed Results")
-        df = pd.DataFrame(st.session_state.processing_hits)
-        st.dataframe(df, use_container_width=True)
+        # Create visualizations (only if there are hits)
+        if st.session_state.processing_hits:
+            create_visualizations(st.session_state.processing_hits)
+            
+            # Display hits in a table
+            st.subheader("📋 Detailed Results")
+            df = pd.DataFrame(st.session_state.processing_hits)
+            st.dataframe(df, use_container_width=True)
+        else:
+            st.info("ℹ️ No flagged terms found in the document.")
+            st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
         
         # Download options
         st.subheader("📥 Download Results")
         
         col1, col2, col3, col4 = st.columns(4)
         
-        with col1:
-            # CSV download
-            csv_data = df.to_csv(index=False)
-            st.download_button(
-                label="📊 Download CSV Report",
-                data=csv_data,
-                file_name=f"flag_report_{st.session_state.processing_timestamp}.csv",
-                mime="text/csv"
-            )
-        
-        with col2:
-            # JSON download
-            json_data = df.to_json(orient='records', indent=2)
-            st.download_button(
-                label="📋 Download JSON Report",
-                data=json_data,
-                file_name=f"flag_report_{st.session_state.processing_timestamp}.json",
-                mime="application/json"
-            )
+        if st.session_state.processing_hits:
+            df = pd.DataFrame(st.session_state.processing_hits)
+            
+            with col1:
+                # CSV download
+                csv_data = df.to_csv(index=False)
+                st.download_button(
+                    label="📊 Download CSV Report",
+                    data=csv_data,
+                    file_name=f"flag_report_{st.session_state.processing_timestamp}.csv",
+                    mime="text/csv"
+                )
+            
+            with col2:
+                # JSON download
+                json_data = df.to_json(orient='records', indent=2)
+                st.download_button(
+                    label="📋 Download JSON Report",
+                    data=json_data,
+                    file_name=f"flag_report_{st.session_state.processing_timestamp}.json",
+                    mime="application/json"
+                )
+        else:
+            with col1:
+                st.info("No data to download")
+            with col2:
+                st.info("No data to download")
         
         with col3:
             # Annotated PDF download
