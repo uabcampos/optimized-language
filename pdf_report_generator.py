@@ -175,13 +175,38 @@ class PDFReportGenerator:
             d.add(String(50, y_pos, text, fontSize=10, fillColor=black))
             y_pos -= 20
         
-        # Convert to base64
-        buffer = io.BytesIO()
-        renderPDF.drawToFile(d, buffer, "PNG")
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode()
+        # Convert to base64 using temporary file (more reliable in cloud environments)
+        try:
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+                renderPDF.drawToFile(d, tmp_file.name, "PNG")
+                
+                # Read the file and convert to base64
+                with open(tmp_file.name, 'rb') as f:
+                    image_data = f.read()
+                    image_base64 = base64.b64encode(image_data).decode()
+                
+                # Clean up temporary file
+                os.unlink(tmp_file.name)
+                
+                return image_base64
+        except Exception as e:
+            print(f"Error creating text placeholder image: {e}")
+            # Fallback: return a simple text representation
+            return self.create_simple_text_fallback(title, data)
+    
+    def create_simple_text_fallback(self, title: str, data: Dict) -> str:
+        """Create a simple text fallback when image generation fails."""
+        text_content = f"{title}\n\n"
         
-        return image_base64
+        if len(data) > 0:
+            sorted_items = sorted(data.items(), key=lambda x: x[1], reverse=True)
+            for i, (key, value) in enumerate(sorted_items[:8]):
+                text_content += f"{i+1}. {key}: {value}\n"
+        else:
+            text_content += "No data available"
+        
+        # Return a simple base64 encoded text representation
+        return base64.b64encode(text_content.encode()).decode()
     
     def create_cover_page(self, doc, hits: List[Dict], document_analysis: Dict) -> None:
         """Create the cover page of the report."""
