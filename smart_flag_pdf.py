@@ -218,10 +218,12 @@ class DocumentAnalysis:
     key_objectives: List[str]  # Main objectives and goals
     methodology: str  # Research or implementation methodology
     policy_relevance: List[str]  # Policy-relevant themes
+    nih_priority_alignment: List[str]  # Alignment with current NIH Director priorities
     alignment_opportunities: List[str]  # Areas for Project 2025/Bill 129 alignment
     strategic_recommendations: List[str]  # High-level recommendations
-    alignment_score: float  # 0-100% alignment with Project 2025/Bill 129
-    compliance_score: float  # 0-100% compliance with Bill 129 requirements
+    nih_alignment_score: float  # 0-100% alignment with NIH priorities
+    project_2025_score: float  # 0-100% alignment with Project 2025
+    alabama_sb129_score: float  # 0-100% compliance with Alabama SB 129
 
 @dataclass
 class StrategicRecommendation:
@@ -460,10 +462,12 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
             key_objectives=[],
             methodology="unknown",
             policy_relevance=[],
+            nih_priority_alignment=[],
             alignment_opportunities=[],
             strategic_recommendations=[],
-            alignment_score=0.0,
-            compliance_score=0.0
+            nih_alignment_score=0.0,
+            project_2025_score=0.0,
+            alabama_sb129_score=0.0
         )
     
     # Truncate text if too long (keep first 8000 characters for analysis)
@@ -486,15 +490,17 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
             key_objectives=[],
             methodology="unknown",
             policy_relevance=[],
+            nih_priority_alignment=[],
             alignment_opportunities=[],
             strategic_recommendations=[],
-            alignment_score=0.0,
-            compliance_score=0.0
+            nih_alignment_score=0.0,
+            project_2025_score=0.0,
+            alabama_sb129_score=0.0
         )
     
     # Generate analysis using LLM
     analysis_prompt = f"""
-    Analyze the following document and provide a comprehensive analysis in JSON format. Focus on understanding the document's purpose, themes, and potential alignment with healthcare policy priorities.
+    Analyze the following document and provide a comprehensive analysis in JSON format. Focus on understanding the document's purpose, themes, and potential alignment with current NIH priorities and healthcare policy.
 
     Document Text:
     {analysis_text}
@@ -509,21 +515,37 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
         "key_objectives": ["objective1", "objective2", "objective3"],
         "methodology": "description of research or implementation methodology",
         "policy_relevance": ["policy_theme1", "policy_theme2"],
+        "nih_priority_alignment": ["priority1", "priority2", "priority3"],
         "alignment_opportunities": ["opportunity1", "opportunity2"],
         "strategic_recommendations": ["recommendation1", "recommendation2"],
-        "alignment_score": 75.5,
-        "compliance_score": 68.2
+        "nih_alignment_score": 75.5,
+        "project_2025_score": 68.2,
+        "alabama_sb129_score": 72.1
     }}
+
+    Current NIH Director Priorities (August 2024) - Evaluate alignment with:
+    1. **Chronic Disease and Nutrition**: Research on poor diets causing chronic conditions, healthy diet prevention/management, childhood obesity, insulin resistance
+    2. **Replication and Reproducibility**: Robust, reproducible results, replication studies, negative findings publication
+    3. **Real-World Data Platform**: Secure national infrastructure, data integration, privacy-focused computational analysis
+    4. **Artificial Intelligence (AI)**: AI Strategic Plan, transparency, replication standards, patient benefit translation
+    5. **Autism**: Etiology, treatment, care needs, data science initiatives, data gap identification
+    6. **Alternative Testing Models**: Move away from animal testing, pharmaceutical alternative models
+    7. **Health Outcomes and Disparities**: Scientifically valid, measurable outcomes, solution-oriented approaches, measurable factors (redlining, housing discrimination)
+    8. **Training Future Biomedical Scientists**: Merit-based programs, American biomedical research leadership
+    9. **HIV/AIDS Research**: Implementation science, reaching at-risk communities
+    10. **Foreign Research Oversight**: Responsible use of taxpayer dollars, improved oversight
 
     Focus on:
     1. Identifying the document type and main purpose
     2. Extracting key scientific themes and concepts
     3. Understanding the target population and intervention approach
     4. Identifying policy-relevant themes
-    5. Suggesting alignment opportunities
-    6. Providing strategic recommendations for improvement
-    7. Scoring alignment (0-100) with healthcare policy priorities
-    8. Scoring compliance (0-100) with state requirements
+    5. Evaluating alignment with specific NIH priorities listed above
+    6. Suggesting alignment opportunities with NIH priorities
+    7. Providing strategic recommendations for improvement
+    8. Scoring alignment (0-100) with NIH priorities
+    9. Scoring alignment (0-100) with Project 2025 healthcare principles
+    10. Scoring compliance (0-100) with Alabama State Bill 129
 
     Respond with valid JSON only.
     """
@@ -573,10 +595,12 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
             key_objectives=data.get("key_objectives", []),
             methodology=data.get("methodology", "unknown"),
             policy_relevance=data.get("policy_relevance", []),
+            nih_priority_alignment=data.get("nih_priority_alignment", []),
             alignment_opportunities=data.get("alignment_opportunities", []),
             strategic_recommendations=data.get("strategic_recommendations", []),
-            alignment_score=float(data.get("alignment_score", 0.0)),
-            compliance_score=float(data.get("compliance_score", 0.0))
+            nih_alignment_score=float(data.get("nih_alignment_score", 0.0)),
+            project_2025_score=float(data.get("project_2025_score", 0.0)),
+            alabama_sb129_score=float(data.get("alabama_sb129_score", 0.0))
         )
         
     except Exception as e:
@@ -590,10 +614,12 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
             key_objectives=[],
             methodology="unknown",
             policy_relevance=[],
+            nih_priority_alignment=[],
             alignment_opportunities=[],
             strategic_recommendations=[],
-            alignment_score=0.0,
-            compliance_score=0.0
+            nih_alignment_score=0.0,
+            project_2025_score=0.0,
+            alabama_sb129_score=0.0
         )
 
 # -----------------------------
@@ -1190,17 +1216,22 @@ def process_file(input_file: str,
             "key_objectives": document_analysis.key_objectives,
             "methodology": document_analysis.methodology,
             "policy_relevance": document_analysis.policy_relevance,
+            "nih_priority_alignment": document_analysis.nih_priority_alignment,
             "alignment_opportunities": document_analysis.alignment_opportunities,
             "strategic_recommendations": document_analysis.strategic_recommendations,
-            "alignment_score": document_analysis.alignment_score,
-            "compliance_score": document_analysis.compliance_score
+            "nih_alignment_score": document_analysis.nih_alignment_score,
+            "project_2025_score": document_analysis.project_2025_score,
+            "alabama_sb129_score": document_analysis.alabama_sb129_score
         }, f, indent=2, ensure_ascii=False)
     
     print(f"📊 Document Analysis Complete:")
     print(f"   Type: {document_analysis.document_type}")
-    print(f"   Alignment Score: {document_analysis.alignment_score:.1f}%")
-    print(f"   Compliance Score: {document_analysis.compliance_score:.1f}%")
+    print(f"   NIH Alignment Score: {document_analysis.nih_alignment_score:.1f}%")
+    print(f"   Project 2025 Score: {document_analysis.project_2025_score:.1f}%")
+    print(f"   Alabama SB 129 Score: {document_analysis.alabama_sb129_score:.1f}%")
     print(f"   Key Themes: {', '.join(document_analysis.main_themes[:3])}")
+    if document_analysis.nih_priority_alignment:
+        print(f"   NIH Priorities: {', '.join(document_analysis.nih_priority_alignment[:3])}")
     
     # Continue with existing processing
     if file_type == 'pdf':
