@@ -828,7 +828,8 @@ def find_hits_on_page(page: fitz.Page,
                       model: str,
                       temperature: float,
                       cache: Dict[str, Tuple[str, str]],
-                      api_type: str = "auto") -> List[Hit]:
+                      api_type: str = "auto",
+                      skip_terms: List[str] = None) -> List[Hit]:
     hits: List[Hit] = []
     words = words_by_order(page)
     norm_tokens = [normalize_token(w[4]) for w in words]
@@ -844,6 +845,11 @@ def find_hits_on_page(page: fitz.Page,
         n = len(toks)
         if n == 0:
             continue
+        
+        # Check if this term should be skipped
+        if should_skip_term(phrase, skip_terms or []):
+            continue
+            
         i = 0
         while i <= len(norm_tokens) - n:
             window = norm_tokens[i:i+n]
@@ -1493,7 +1499,8 @@ def process_pdf(input_pdf: str,
                         model=model,
                         temperature=temperature,
                         cache={},
-                        api_type=api_type
+                        api_type=api_type,
+                        skip_terms=skip_terms
                     )
                     fallback_time = time.time() - fallback_start
                     print(f"✅ Page {page_num + 1}: Fallback completed in {fallback_time:.2f}s, found {len(page_hits)} hits")
@@ -1515,7 +1522,8 @@ def process_pdf(input_pdf: str,
                     model=model,
                     temperature=temperature,
                     cache={},
-                    api_type=api_type
+                    api_type=api_type,
+                    skip_terms=skip_terms
                 )
             
             # Collect hits (annotation will be done later)

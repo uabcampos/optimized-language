@@ -19,6 +19,7 @@ import zipfile
 from datetime import datetime
 import plotly.express as px
 import plotly.graph_objects as go
+from pdf_report_generator import generate_pdf_report
 
 # Set page config
 st.set_page_config(
@@ -799,6 +800,49 @@ def main():
         
         with download_col2:
             st.markdown("#### 📄 Documents")
+            
+            # PDF Report Generation
+            if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
+                if st.button("📊 Generate PDF Report", help="Generate a comprehensive PDF report with summaries and visualizations"):
+                    try:
+                        # Load document analysis if available
+                        document_analysis = {}
+                        if st.session_state.processing_outdir:
+                            analysis_file = os.path.join(st.session_state.processing_outdir, "document_analysis.json")
+                            if os.path.exists(analysis_file):
+                                with open(analysis_file, 'r', encoding='utf-8') as f:
+                                    document_analysis = json.load(f)
+                        
+                        # Generate PDF report
+                        with st.spinner("Generating PDF report..."):
+                            report_path = generate_pdf_report(
+                                st.session_state.processing_hits,
+                                document_analysis,
+                                st.session_state.processing_outdir or tempfile.gettempdir()
+                            )
+                        
+                        # Provide download link
+                        if os.path.exists(report_path):
+                            with open(report_path, 'rb') as f:
+                                report_data = f.read()
+                            
+                            st.download_button(
+                                label="📊 Download PDF Report",
+                                data=report_data,
+                                file_name=os.path.basename(report_path),
+                                mime="application/pdf",
+                                help="Download the comprehensive PDF report with summaries and visualizations"
+                            )
+                            
+                            st.success("✅ PDF report generated successfully!")
+                        else:
+                            st.error("Failed to generate PDF report")
+                            
+                    except Exception as e:
+                        st.error(f"Error generating PDF report: {e}")
+                        st.exception(e)
+            else:
+                st.info("No data available for PDF report generation")
             
             # Annotated PDF download
             if st.session_state.processing_outdir:
