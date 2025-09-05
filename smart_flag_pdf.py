@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 import re
 import time
 import multiprocessing as mp
@@ -49,6 +50,13 @@ try:
     _PYLIGHTER_AVAILABLE = True
 except ImportError:
     _PYLIGHTER_AVAILABLE = False
+
+# Hybrid language flagging support (optional)
+try:
+    from hybrid_language_flagger import HybridLanguageFlagger
+    _HYBRID_AVAILABLE = True
+except ImportError:
+    _HYBRID_AVAILABLE = False
 
 # Python-Redlines support for proper tracked changes
 try:
@@ -342,6 +350,51 @@ def get_union_bbox(words):
     x1 = max(w[2] for w in words)
     y1 = max(w[3] for w in words)
     return (x0, y0, x1, y1)
+
+def find_text_bbox_hybrid(page, text, start_pos):
+    """Enhanced bbox detection for hybrid mode with better text matching."""
+    try:
+        # Get text instances with their positions
+        text_dict = page.get_text("dict")
+        text_lower = text.lower()
+        
+        # Search through all text spans
+        for block in text_dict["blocks"]:
+            if "lines" in block:
+                for line in block["lines"]:
+                    if "spans" in line:
+                        for span in line["spans"]:
+                            span_text = span["text"]
+                            span_lower = span_text.lower()
+                            
+                            # Check if our text is in this span
+                            if text_lower in span_lower:
+                                # Found the span containing our text
+                                bbox = span["bbox"]
+                                # Validate bbox
+                                if len(bbox) == 4 and all(isinstance(x, (int, float)) for x in bbox):
+                                    return bbox
+                                    
+        return (0, 0, 0, 0)
+    except Exception as e:
+        print(f"      ⚠️  Hybrid bbox detection error: {e}")
+        return (0, 0, 0, 0)
+
+def find_text_bbox_simple(page, text):
+    """Simple bbox detection using search_for method as fallback."""
+    try:
+        # Use PyMuPDF's search_for method as a fallback
+        text_instances = page.search_for(text)
+        if text_instances:
+            # Use the first instance found
+            rect = text_instances[0]
+            # Convert rect to bbox format (x0, y0, x1, y1)
+            bbox = (rect.x0, rect.y0, rect.x1, rect.y1)
+            return bbox
+        return (0, 0, 0, 0)
+    except Exception as e:
+        print(f"      ⚠️  Simple bbox detection error: {e}")
+        return (0, 0, 0, 0)
 
 def join_words(words):
     return " ".join(w[4] for w in words)
@@ -1311,7 +1364,8 @@ def process_file(input_file: str,
                 model: str,
                 temperature: float,
                 api_type: str = "auto",
-                skip_terms: List[str] = None) -> Tuple[str, List[Hit]]:
+                skip_terms: List[str] = None,
+                use_hybrid: bool = False) -> Tuple[str, List[Hit]]:
     """Process either PDF or DOCX file based on file extension."""
     file_type = detect_file_type(input_file)
     
@@ -1368,7 +1422,7 @@ def process_file(input_file: str,
     
     # Continue with existing processing
     if file_type == 'pdf':
-        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type, skip_terms)
+        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type, skip_terms, use_hybrid)
     elif file_type == 'docx':
         return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature, api_type, skip_terms)
     else:
@@ -1382,7 +1436,8 @@ def process_pdf(input_pdf: str,
                 model: str,
                 temperature: float,
                 api_type: str = "auto",
-                skip_terms: List[str] = None) -> Tuple[str, List[Hit]]:
+                skip_terms: List[str] = None,
+                use_hybrid: bool = False) -> Tuple[str, List[Hit]]:
     os.makedirs(outdir, exist_ok=True)
     out_pdf = os.path.join(outdir, "flagged_output.pdf")
 
@@ -1393,6 +1448,21 @@ def process_pdf(input_pdf: str,
     print(f"📋 Loaded {len(flagged_terms)} flagged terms")
     print(f"📋 Built {len(all_terms)} search terms")
     print(f"📋 Created {len(phrase_tokens)} phrase tokens")
+    
+    # Initialize hybrid system if requested
+    hybrid_flagger = None
+    if use_hybrid and _HYBRID_AVAILABLE:
+        print(f"🔧 Initializing hybrid language flagging system...")
+        hybrid_flagger = HybridLanguageFlagger(
+            flagged_terms=flagged_terms,
+            replacement_map=repl_map,
+            skip_terms=skip_terms or [],
+            use_langextract=True
+        )
+        print(f"✅ Hybrid system ready")
+    elif use_hybrid and not _HYBRID_AVAILABLE:
+        print(f"⚠️ Hybrid mode requested but not available. Falling back to standard processing.")
+        use_hybrid = False
     
     # Create LLM client for fallback mode with fallback logic
     client = None
@@ -1461,6 +1531,54 @@ def process_pdf(input_pdf: str,
             # Prepare arguments for parallel processing
             page_text = page_texts[page_num]
             page_words = page_words_list[page_num]
+            
+            # Use hybrid analysis if enabled
+            if use_hybrid and hybrid_flagger:
+                print(f"🔧 Page {page_num + 1}: Using hybrid analysis...")
+                print(f"   📄 Page text length: {len(page_text)} characters")
+                sys.stdout.flush()  # Force output to appear immediately
+                hybrid_results = hybrid_flagger.analyze_text(page_text)
+                print(f"   ✅ Hybrid analysis complete for page {page_num + 1}")
+                sys.stdout.flush()
+                
+                # Convert hybrid results to Hit format
+                page_hits = []
+                for hit_data in hybrid_results["hits"]:
+                    # Find the position of the matched text in the page
+                    matched_text = hit_data["matched_text"]
+                    text_pos = page_text.lower().find(matched_text.lower())
+                    
+                    if text_pos != -1:
+                        # Try to find the bounding box for this text position
+                        try:
+                            bbox = find_text_bbox_hybrid(page, matched_text, text_pos)
+                            if bbox == (0, 0, 0, 0):  # If bbox detection failed, try alternative method
+                                bbox = find_text_bbox_simple(page, matched_text)
+                        except Exception as e:
+                            print(f"      ⚠️  Bbox detection failed for '{matched_text}': {e}")
+                            bbox = (0, 0, 0, 0)  # Fallback
+                    else:
+                        bbox = (0, 0, 0, 0)  # Fallback
+                    
+                    # Create Hit object
+                    hit = Hit(
+                        page_num=page_num + 1,
+                        original_key=hit_data["original_key"],
+                        matched_text=hit_data["matched_text"],
+                        suggestion=hit_data["suggestion"],
+                        reason=hit_data["reason"],
+                        bbox=bbox,
+                        context=hit_data["context"]
+                    )
+                    page_hits.append(hit)
+                
+                print(f"✅ Page {page_num + 1}: Hybrid analysis found {len(page_hits)} hits")
+                
+                # Add hits to all_hits
+                all_hits.extend(page_hits)
+                continue
+            
+            # Standard processing
             chunk_args = []
             
             for chunk_start in range(0, total_terms, chunk_size):
@@ -1533,6 +1651,7 @@ def process_pdf(input_pdf: str,
                 print(f"  Page {page_num + 1} complete: {len(page_hits)} total matches found")
         
         # Now annotate all hits found
+        # Annotate hits in PDF
         print(f"Annotating {len(all_hits)} hits found...")
         for hit in all_hits:
             page = doc[hit.page_num - 1]  # Convert to 0-based index
@@ -1586,7 +1705,8 @@ def process_batch(input_files: List[str],
                 model=model,
                 temperature=temperature,
                 api_type=api_type,
-                skip_terms=skip_terms
+                skip_terms=skip_terms,
+                use_hybrid=args.hybrid
             )
             results[input_file] = (out_file, hits)
             print(f"✅ Completed: {input_file} ({len(hits)} flags found)")
@@ -1607,6 +1727,7 @@ def main():
     parser.add_argument("--temperature", type=float, default=0.2, help="LLM temperature")
     parser.add_argument("--api", choices=["openai", "gemini", "auto"], default="auto", help="API to use: openai, gemini, or auto (default: auto)")
     parser.add_argument("--skip-terms", nargs="*", default=[], help="Terms to skip during processing (will detect variations)")
+    parser.add_argument("--hybrid", action="store_true", help="Use hybrid language flagging (combines pattern matching with LangExtract)")
     parser.add_argument("--env-file", default=None, help="Path to a .env file containing API keys (optional)")
     args = parser.parse_args()
 
@@ -1654,7 +1775,8 @@ def main():
             model=args.model,
             temperature=args.temperature,
             api_type=args.api,
-            skip_terms=args.skip_terms
+            skip_terms=args.skip_terms,
+            use_hybrid=args.hybrid
         )
 
         # Export reports
