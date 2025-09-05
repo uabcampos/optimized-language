@@ -538,7 +538,7 @@ def main():
         skip_terms = [term.strip() for term in skip_terms_input.split('\n') if term.strip()]
     
     # Main content area
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([3, 2])
     
     with col1:
         st.header("📄 Upload Document")
@@ -685,23 +685,29 @@ def main():
         
         # Display session state stats
         if 'processing_success' in st.session_state and st.session_state.processing_success:
-            st.metric("Total Flags", len(st.session_state.processing_hits))
-            st.metric("Pages Processed", len(set(hit.get('page_num', 0) for hit in st.session_state.processing_hits)))
-            st.metric("Processing Time", f"{st.session_state.processing_duration:.1f}s" if st.session_state.processing_duration else "N/A")
+            # Main metrics in a more compact layout
+            col2a, col2b = st.columns(2)
             
-            if st.session_state.processing_hits:
-                # Analysis method breakdown
-                methods = {}
-                for hit in st.session_state.processing_hits:
-                    method = hit.get('method', 'unknown')
-                    methods[method] = methods.get(method, 0) + 1
+            with col2a:
+                st.metric("Total Flags", len(st.session_state.processing_hits))
+                st.metric("Pages Processed", len(set(hit.get('page_num', 0) for hit in st.session_state.processing_hits)))
+            
+            with col2b:
+                st.metric("Processing Time", f"{st.session_state.processing_duration:.1f}s" if st.session_state.processing_duration else "N/A")
                 
-                if methods:
-                    st.subheader("🔍 Analysis Methods")
-                    for method, count in methods.items():
-                        st.metric(method.replace('_', ' ').title(), count)
+                if st.session_state.processing_hits:
+                    # Analysis method breakdown
+                    methods = {}
+                    for hit in st.session_state.processing_hits:
+                        method = hit.get('method', 'unknown')
+                        methods[method] = methods.get(method, 0) + 1
+                    
+                    if methods:
+                        st.markdown("**Analysis Methods:**")
+                        for method, count in methods.items():
+                            st.write(f"• {method.replace('_', ' ').title()}: {count}")
         else:
-            st.info("Upload and process a document to see statistics")
+            st.info("📄 Upload and process a document to see statistics")
 
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
                     temperature: float, skip_terms: List[str], config_preset: str, 
