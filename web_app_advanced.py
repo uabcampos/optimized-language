@@ -521,50 +521,77 @@ def main():
         else:
             st.warning("⚠️ No flagged terms found in the document.")
         
-        # Create visualizations (only if there are hits)
-        if st.session_state.processing_hits:
+        # Force display results for debugging
+        st.subheader("🔧 Debug: Force Display Results")
+        st.write(f"Processing hits length: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
+        st.write(f"Processing hits type: {type(st.session_state.processing_hits)}")
+        st.write(f"Processing hits is None: {st.session_state.processing_hits is None}")
+        
+        if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
+            st.write("✅ Hits data is available, attempting to display...")
+            
+            # Create visualizations (only if there are hits)
             st.subheader("📈 Analytics Dashboard")
-            create_visualizations(st.session_state.processing_hits)
+            try:
+                create_visualizations(st.session_state.processing_hits)
+            except Exception as e:
+                st.error(f"Error creating visualizations: {e}")
+                st.write("Raw hits data:")
+                st.write(st.session_state.processing_hits[:3])  # Show first 3 hits
             
             # Display hits in a detailed table
             st.subheader("📋 Detailed Results Table")
-            df = pd.DataFrame(st.session_state.processing_hits)
-            
-            # Add search and filter capabilities
-            search_term = st.text_input("🔍 Search in results:", placeholder="Search by term, suggestion, or page...")
-            if search_term:
-                mask = df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
-                df = df[mask]
-                st.info(f"Showing {len(df)} results matching '{search_term}'")
-            
-            # Display the dataframe with enhanced formatting
-            st.dataframe(
-                df, 
-                use_container_width=True,
-                column_config={
-                    "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
-                    "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
-                    "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
-                    "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
-                    "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
-                    "context": st.column_config.TextColumn("Context", help="Surrounding text context")
-                }
-            )
+            try:
+                df = pd.DataFrame(st.session_state.processing_hits)
+                st.write(f"DataFrame created with {len(df)} rows and {len(df.columns)} columns")
+                st.write(f"DataFrame columns: {list(df.columns)}")
+                
+                # Add search and filter capabilities
+                search_term = st.text_input("🔍 Search in results:", placeholder="Search by term, suggestion, or page...")
+                if search_term:
+                    mask = df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
+                    df = df[mask]
+                    st.info(f"Showing {len(df)} results matching '{search_term}'")
+                
+                # Display the dataframe with enhanced formatting
+                st.dataframe(
+                    df, 
+                    use_container_width=True,
+                    column_config={
+                        "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
+                        "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
+                        "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
+                        "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
+                        "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
+                        "context": st.column_config.TextColumn("Context", help="Surrounding text context")
+                    }
+                )
+            except Exception as e:
+                st.error(f"Error creating table: {e}")
+                st.write("Raw hits data:")
+                st.write(st.session_state.processing_hits[:5])  # Show first 5 hits
         else:
+            st.warning("⚠️ No hits data available in session state")
             st.info("ℹ️ No flagged terms found in the document.")
             st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
         
-        # Debug information (collapsed by default)
-        with st.expander("🔍 Debug Information", expanded=False):
+        # Debug information (expanded by default for troubleshooting)
+        with st.expander("🔍 Debug Information", expanded=True):
             st.write(f"**Session State Debug:**")
             st.write(f"- Processing Success: {st.session_state.processing_success}")
             st.write(f"- Number of Hits: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
             st.write(f"- Processing Output Length: {len(st.session_state.processing_output) if st.session_state.processing_output else 0}")
             st.write(f"- Output Directory: {st.session_state.processing_outdir}")
+            st.write(f"- Hits Type: {type(st.session_state.processing_hits)}")
+            st.write(f"- Hits is None: {st.session_state.processing_hits is None}")
+            st.write(f"- Hits is Empty: {len(st.session_state.processing_hits) == 0 if st.session_state.processing_hits else 'N/A'}")
             
-            if st.session_state.processing_hits:
+            if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
                 st.write(f"**Sample Hit:**")
-                st.json(st.session_state.processing_hits[0] if st.session_state.processing_hits else {})
+                st.json(st.session_state.processing_hits[0])
+                st.write(f"**Hit Keys:** {list(st.session_state.processing_hits[0].keys()) if st.session_state.processing_hits[0] else 'No keys'}")
+            else:
+                st.write("**No hits data available**")
         
         # Display processing output if available
         if st.session_state.processing_output:
