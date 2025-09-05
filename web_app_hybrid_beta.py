@@ -508,16 +508,25 @@ def main():
         
         # API configuration
         st.subheader("🔑 API Configuration")
+        
+        # Initialize session state for API provider if not set
+        if 'api_provider' not in st.session_state:
+            st.session_state.api_provider = "Gemini"
+        
         api_provider = st.selectbox(
             "API Provider:",
             ["OpenAI", "Gemini", "Auto"],
-            index=1,  # Default to Gemini
+            index=["OpenAI", "Gemini", "Auto"].index(st.session_state.api_provider),
             key="api_provider_select",
             help="Choose which API to use for language processing"
         )
         
+        # Update session state
+        st.session_state.api_provider = api_provider
+        
         # Debug: Show current selection
         st.write(f"🔍 Currently selected: {api_provider}")
+        st.write(f"🔍 Session state: {st.session_state.api_provider}")
         
         # Model selection based on API
         if api_provider == "OpenAI":
