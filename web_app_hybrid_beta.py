@@ -558,101 +558,109 @@ def main():
                 tmp_file.write(uploaded_file.getvalue())
                 input_file = tmp_file.name
             
-            # Configuration Review Section
-            st.markdown("---")
-            st.header("📋 Configuration Review & Edit")
-            st.markdown("Review and edit your flagged terms and replacement maps before processing:")
-            
             # Get configuration files based on preset
             flagged_file, replacements_file = get_config_files(config_preset)
             
-            # Use the main column structure for configuration review
-            st.subheader("📝 Flagged Terms Configuration")
+            # Show a compact configuration summary
+            st.info(f"📋 Using configuration: {config_preset}")
             
-            # Load flagged terms based on preset
+            # Load and show counts
             if config_preset != "Custom" and os.path.exists(flagged_file):
                 with open(flagged_file, 'r') as f:
                     default_flagged_terms = json.load(f)
             else:
                 default_flagged_terms = []
-            
-            # Flagged terms as editable text area
-            st.markdown("**Terms to Flag** (one per line):")
-            
-            flagged_terms_text = st.text_area(
-                "Flagged Terms",
-                value="\n".join(default_flagged_terms),
-                height=200,
-                help="Enter terms to flag, one per line",
-                key="flagged_terms_edit"
-            )
-            
-            # Parse the terms
-            flagged_terms = [term.strip() for term in flagged_terms_text.split('\n') if term.strip()]
-            
-            # Show count and preview
-            st.info(f"📊 Total flagged terms: {len(flagged_terms)}")
-            
-            if flagged_terms:
-                st.markdown("**Preview (first 10 terms):**")
-                for i, term in enumerate(flagged_terms[:10]):
-                    st.write(f"{i+1}. {term}")
-                if len(flagged_terms) > 10:
-                    st.write(f"... and {len(flagged_terms) - 10} more")
-            
-            st.subheader("🔄 Replacement Map Configuration")
-            
-            # Load replacements based on preset
+                
             if config_preset != "Custom" and os.path.exists(replacements_file):
                 with open(replacements_file, 'r') as f:
                     default_replacements = json.load(f)
             else:
                 default_replacements = {}
             
-            # Replacements as editable text area
-            st.markdown("**Term Replacements** (JSON format):")
+            col1a, col1b = st.columns(2)
+            with col1a:
+                st.metric("Flagged Terms", len(default_flagged_terms))
+            with col1b:
+                st.metric("Replacements", len(default_replacements))
             
-            replacements_text = st.text_area(
-                "Replacements JSON",
-                value=json.dumps(default_replacements, indent=2),
-                height=200,
-                help="Enter replacements as JSON object (term: replacement)",
-                key="replacements_edit"
-            )
-            
-            # Parse the replacements
-            try:
-                replacements = json.loads(replacements_text)
-                if not isinstance(replacements, dict):
-                    st.error("❌ Replacements must be a JSON object")
+            # Collapsible configuration editor
+            with st.expander("🔧 Edit Configuration", expanded=False):
+                st.subheader("📝 Flagged Terms Configuration")
+                
+                # Flagged terms as editable text area
+                st.markdown("**Terms to Flag** (one per line):")
+                
+                flagged_terms_text = st.text_area(
+                    "Flagged Terms",
+                    value="\n".join(default_flagged_terms),
+                    height=200,
+                    help="Enter terms to flag, one per line",
+                    key="flagged_terms_edit"
+                )
+                
+                # Parse the terms
+                flagged_terms = [term.strip() for term in flagged_terms_text.split('\n') if term.strip()]
+                
+                # Show count and preview
+                st.info(f"📊 Total flagged terms: {len(flagged_terms)}")
+                
+                if flagged_terms:
+                    st.markdown("**Preview (first 10 terms):**")
+                    for i, term in enumerate(flagged_terms[:10]):
+                        st.write(f"{i+1}. {term}")
+                    if len(flagged_terms) > 10:
+                        st.write(f"... and {len(flagged_terms) - 10} more")
+                
+                st.subheader("🔄 Replacement Map Configuration")
+                
+                # Replacements as editable text area
+                st.markdown("**Term Replacements** (JSON format):")
+                
+                replacements_text = st.text_area(
+                    "Replacements JSON",
+                    value=json.dumps(default_replacements, indent=2),
+                    height=200,
+                    help="Enter replacements as JSON object (term: replacement)",
+                    key="replacements_edit"
+                )
+                
+                # Parse the replacements
+                try:
+                    replacements = json.loads(replacements_text)
+                    if not isinstance(replacements, dict):
+                        st.error("❌ Replacements must be a JSON object")
+                        replacements = default_replacements
+                except json.JSONDecodeError as e:
+                    st.error(f"❌ Invalid JSON: {e}")
                     replacements = default_replacements
-            except json.JSONDecodeError as e:
-                st.error(f"❌ Invalid JSON: {e}")
-                replacements = default_replacements
+                
+                # Show count and preview
+                st.info(f"📊 Total replacements: {len(replacements)}")
+                
+                if replacements:
+                    st.markdown("**Preview (first 10 replacements):**")
+                    for i, (term, replacement) in enumerate(list(replacements.items())[:10]):
+                        st.write(f"{i+1}. '{term}' → '{replacement}'")
+                    if len(replacements) > 10:
+                        st.write(f"... and {len(replacements) - 10} more")
+                
+                # Skip Terms Configuration
+                st.subheader("⏭️ Skip Terms Configuration")
+                skip_terms_text = st.text_area(
+                    "Skip Terms",
+                    value="\n".join(skip_terms),
+                    height=100,
+                    help="Enter terms to skip during analysis, one per line",
+                    key="skip_terms_edit"
+                )
+                
+                # Parse skip terms
+                skip_terms = [term.strip() for term in skip_terms_text.split('\n') if term.strip()]
+                st.info(f"📊 Total skip terms: {len(skip_terms)}")
             
-            # Show count and preview
-            st.info(f"📊 Total replacements: {len(replacements)}")
-            
-            if replacements:
-                st.markdown("**Preview (first 10 replacements):**")
-                for i, (term, replacement) in enumerate(list(replacements.items())[:10]):
-                    st.write(f"{i+1}. '{term}' → '{replacement}'")
-                if len(replacements) > 10:
-                    st.write(f"... and {len(replacements) - 10} more")
-            
-            # Skip Terms Configuration
-            st.subheader("⏭️ Skip Terms Configuration")
-            skip_terms_text = st.text_area(
-                "Skip Terms",
-                value="\n".join(skip_terms),
-                height=100,
-                help="Enter terms to skip during analysis, one per line",
-                key="skip_terms_edit"
-            )
-            
-            # Parse skip terms
-            skip_terms = [term.strip() for term in skip_terms_text.split('\n') if term.strip()]
-            st.info(f"📊 Total skip terms: {len(skip_terms)}")
+            # Use default values for processing
+            flagged_terms = default_flagged_terms
+            replacements = default_replacements
             
             # Processing Options Summary
             st.markdown("---")
@@ -678,10 +686,10 @@ def main():
                 process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold, hybrid_strategy, chunk_size, chunk_overlap)
     
     with col2:
-        st.header("📊 Quick Stats")
-        
-        # Display session state stats
+        # Only show Quick Stats if there are results
         if 'processing_success' in st.session_state and st.session_state.processing_success:
+            st.header("📊 Quick Stats")
+            
             # Main metrics in a more compact layout
             col2a, col2b = st.columns(2)
             
@@ -704,7 +712,17 @@ def main():
                         for method, count in methods.items():
                             st.write(f"• {method.replace('_', ' ').title()}: {count}")
         else:
-            st.info("📄 Upload and process a document to see statistics")
+            # Show upload instructions when no results
+            st.header("📄 Upload Document")
+            st.info("Upload a PDF or DOCX file to begin analysis")
+            st.markdown("""
+            **Supported Features:**
+            - Hybrid analysis (Pattern + LangExtract)
+            - Standard pattern matching
+            - LangExtract-only analysis
+            - Custom configuration editing
+            - PDF annotation and export
+            """)
 
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
                     temperature: float, skip_terms: List[str], config_preset: str, 
