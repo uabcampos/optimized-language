@@ -252,7 +252,36 @@ class HybridLanguageFlagger:
         
         suggestion_lower = suggestion.lower()
         
-        # Specific replacements for common problematic phrases
+        # First, try to use the actual replacement map
+        for original, replacement in self.replacement_map.items():
+            if re.search(r'\b' + re.escape(original.lower()) + r'\b', suggestion_lower):
+                # Replace the flagged term with its approved alternative
+                better_suggestion = re.sub(
+                    r'\b' + re.escape(original.lower()) + r'\b', 
+                    replacement, 
+                    suggestion_lower, 
+                    flags=re.IGNORECASE
+                )
+                # Clean up and capitalize
+                better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
+                return better_suggestion.capitalize()
+        
+        # If no replacement map match, try to find a replacement for the specific flagged term
+        if flagged_term and flagged_term.lower() in suggestion_lower:
+            # Try to find a replacement for this specific term
+            for original, replacement in self.replacement_map.items():
+                if original.lower() == flagged_term.lower():
+                    better_suggestion = re.sub(
+                        r'\b' + re.escape(flagged_term.lower()) + r'\b',
+                        replacement,
+                        suggestion_lower,
+                        flags=re.IGNORECASE
+                    )
+                    # Clean up and capitalize
+                    better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
+                    return better_suggestion.capitalize()
+        
+        # Fallback to hardcoded replacements for common problematic phrases
         phrase_replacements = {
             "underserved communities": "communities with limited access",
             "marginalized communities": "communities with limited access", 
@@ -274,7 +303,7 @@ class HybridLanguageFlagger:
             if phrase in suggestion_lower:
                 return replacement
         
-        # If no exact match, try word-by-word replacement
+        # If no exact match, try word-by-word replacement with fallback terms
         word_replacements = {
             "underserved": "with limited access",
             "marginalized": "with limited access",
