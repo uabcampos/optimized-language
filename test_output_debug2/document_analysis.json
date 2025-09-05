@@ -1,0 +1,41 @@
+{
+  "document_type": "research",
+  "main_themes": [
+    "Chronic Disease Disparities",
+    "Precision Public Health",
+    "Community Engagement"
+  ],
+  "scientific_focus": [
+    "Cardiometabolic Health",
+    "Obesity",
+    "Diabetes"
+  ],
+  "target_population": "Primarily Black Americans and low-income populations in Alabama, Mississippi, and Louisiana who suffer disproportionately from cardiometabolic diseases.",
+  "intervention_approach": "A precision public health approach that provides tailored interventions at multiple levels of influence across the care continuum, including prevention, treatment, and management of chronic diseases.",
+  "key_objectives": [
+    "Create intellectual synergy among regional investigators.",
+    "Expand the workforce of investigators focused on translational research.",
+    "Promote bi-directional collaborations between researchers and community partners."
+  ],
+  "methodology": "Utilizes a multi-level, multi-domain intervention framework that includes rigorous research projects and community engagement to evaluate and implement evidence-based interventions.",
+  "policy_relevance": [
+    "Health Disparities",
+    "Chronic Disease Management"
+  ],
+  "nih_priority_alignment": [
+    "Chronic Disease and Nutrition",
+    "Health Outcomes and Disparities",
+    "Training Future Biomedical Scientists"
+  ],
+  "alignment_opportunities": [
+    "Integrate AI for data analysis in chronic disease research.",
+    "Leverage real-world data platforms for community health assessments."
+  ],
+  "strategic_recommendations": [
+    "Enhance collaboration with local health departments to improve outreach.",
+    "Develop training programs for future biomedical scientists focused on chronic disease research."
+  ],
+  "nih_alignment_score": 82.0,
+  "project_2025_score": 75.0,
+  "alabama_sb129_score": 78.5
+}

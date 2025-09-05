@@ -21,6 +21,7 @@ import os
 import re
 import time
 import multiprocessing as mp
+import psutil
 from dataclasses import dataclass, asdict
 from typing import Dict, List, Tuple, Any, Optional
 from pathlib import Path
@@ -700,21 +701,35 @@ def analyze_document_themes(pdf_text: str = None, docx_text: str = None,
 
 def process_terms_chunk(args) -> List[Hit]:
     """Worker function for processing a chunk of terms with proper text matching and bbox calculation."""
+    import time
+    import os
+    
+    start_time = time.time()
+    process_id = os.getpid()
+    
     page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words, api_type, skip_terms = args
+    
+    # Log process start
+    memory_info = psutil.Process().memory_info()
+    print(f"🚀 Worker {process_id} starting: page {page_num}, {len(phrase_tokens)} terms, memory: {memory_info.rss / 1024 / 1024:.1f}MB")
     
     # Create a new client for this process with fallback logic
     client = None
+    client_start = time.time()
     try:
         if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
             try:
                 client = get_gemini_client(model)
+                print(f"✅ Worker {process_id}: Gemini client created in {time.time() - client_start:.2f}s")
             except Exception as e:
-                print(f"Gemini failed in worker process: {e}, falling back to OpenAI")
+                print(f"⚠️ Worker {process_id}: Gemini failed: {e}, falling back to OpenAI")
                 client = get_openai_client()
+                print(f"✅ Worker {process_id}: OpenAI client created in {time.time() - client_start:.2f}s")
         else:
             client = get_openai_client()
+            print(f"✅ Worker {process_id}: OpenAI client created in {time.time() - client_start:.2f}s")
     except Exception as e:
-        print(f"Error creating client in worker process: {e}")
+        print(f"❌ Worker {process_id}: Error creating client: {e}")
         return []
     
     cache = {}  # Each process gets its own cache
@@ -725,7 +740,8 @@ def process_terms_chunk(args) -> List[Hit]:
     norm_tokens = [normalize_token(w[4]) for w in page_words]
     orig_tokens = [w[4] for w in page_words]
     
-    print(f"🔍 Processing {len(phrase_tokens)} terms on page {page_num} with skip terms: {skip_terms}")
+    print(f"🔍 Worker {process_id}: Processing {len(phrase_tokens)} terms on page {page_num} with skip terms: {skip_terms}")
+    print(f"📊 Worker {process_id}: Page has {len(page_words)} words, {len(norm_tokens)} normalized tokens")
     
     # Keep track of already consumed word indices to avoid overlaps
     used: List[int] = []
@@ -789,7 +805,18 @@ def process_terms_chunk(args) -> List[Hit]:
                 continue
             i += 1
     
-    print(f"📊 Page {page_num} summary: {processed_count} processed, {skipped_count} skipped, {len(hits)} hits found")
+    # Log completion details
+    end_time = time.time()
+    processing_time = end_time - start_time
+    memory_info = psutil.Process().memory_info()
+    
+    print(f"📊 Worker {process_id} completed: {processed_count} processed, {skipped_count} skipped, {len(hits)} hits found")
+    print(f"⏱️ Worker {process_id}: Processing time: {processing_time:.2f}s, Memory: {memory_info.rss / 1024 / 1024:.1f}MB")
+    
+    # Log API call statistics
+    if hasattr(client, '_api_call_count'):
+        print(f"🔌 Worker {process_id}: API calls made: {client._api_call_count}")
+    
     return hits
 
 def find_hits_on_page(page: fitz.Page,
@@ -1433,14 +1460,27 @@ def process_pdf(input_pdf: str,
             
             # Process chunks in parallel
             try:
+                print(f"🔄 Page {page_num + 1}: Starting multiprocessing with {len(chunk_args)} chunks...")
+                mp_start_time = time.time()
+                
                 with mp.Pool(processes=num_processes) as pool:
                     chunk_results = pool.map(process_terms_chunk, chunk_args)
                 
+                mp_time = time.time() - mp_start_time
+                print(f"⏱️ Page {page_num + 1}: Multiprocessing completed in {mp_time:.2f}s")
+                
                 # Check if multiprocessing failed (all chunks returned empty results)
                 total_chunk_hits = sum(len(chunk_hits) for chunk_hits in chunk_results)
+                chunk_hit_counts = [len(chunk_hits) for chunk_hits in chunk_results]
+                
+                print(f"📊 Page {page_num + 1}: Chunk results: {chunk_hit_counts} (total: {total_chunk_hits})")
+                
                 if total_chunk_hits == 0 and len(chunk_args) > 0:
-                    print(f"⚠️  Multiprocessing returned 0 hits, falling back to single-threaded mode...")
+                    print(f"⚠️  Page {page_num + 1}: Multiprocessing returned 0 hits, falling back to single-threaded mode...")
+                    print(f"🔍 Page {page_num + 1}: Chunk hit counts: {chunk_hit_counts}")
+                    
                     # Fall back to single-threaded mode using find_hits_on_page
+                    fallback_start = time.time()
                     page_hits = find_hits_on_page(
                         page=page,
                         phrase_tokens=phrase_tokens,
@@ -1451,11 +1491,15 @@ def process_pdf(input_pdf: str,
                         cache={},
                         api_type=api_type
                     )
+                    fallback_time = time.time() - fallback_start
+                    print(f"✅ Page {page_num + 1}: Fallback completed in {fallback_time:.2f}s, found {len(page_hits)} hits")
                 else:
                     # Collect all hits from this page
                     page_hits = []
-                    for chunk_hits in chunk_results:
+                    for i, chunk_hits in enumerate(chunk_results):
                         page_hits.extend(chunk_hits)
+                        if len(chunk_hits) > 0:
+                            print(f"📈 Page {page_num + 1}: Chunk {i+1} contributed {len(chunk_hits)} hits")
             except Exception as e:
                 print(f"⚠️  Multiprocessing failed: {e}, falling back to single-threaded mode...")
                 # Fall back to single-threaded mode using find_hits_on_page

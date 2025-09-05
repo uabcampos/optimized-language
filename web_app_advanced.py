@@ -176,51 +176,161 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
         return False, str(e), []
 
 def create_visualizations(hits: List[dict]) -> None:
-    """Create visualizations for the results."""
+    """Create comprehensive visualizations for the results."""
     if not hits:
+        st.info("ℹ️ No data available for visualization.")
         return
     
     df = pd.DataFrame(hits)
     
-    # Page distribution
-    st.subheader("📊 Page Distribution")
-    page_counts = df['page_num'].value_counts().sort_index()
-    fig_pages = px.bar(
-        x=page_counts.index, 
-        y=page_counts.values,
-        title="Flags per Page",
-        labels={'x': 'Page Number', 'y': 'Number of Flags'}
-    )
-    st.plotly_chart(fig_pages, use_container_width=True)
+    # Create tabs for different visualization categories
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Overview", "🏷️ Terms Analysis", "📄 Page Analysis", "💡 Suggestions", "📈 Trends"])
     
-    # Top flagged terms
-    st.subheader("🏷️ Most Flagged Terms")
-    term_counts = df['original_key'].value_counts().head(10)
-    fig_terms = px.bar(
-        x=term_counts.values,
-        y=term_counts.index,
-        orientation='h',
-        title="Top 10 Flagged Terms",
-        labels={'x': 'Number of Occurrences', 'y': 'Term'}
-    )
-    fig_terms.update_layout(yaxis={'categoryorder': 'total ascending'})
-    st.plotly_chart(fig_terms, use_container_width=True)
-    
-    # Suggestion categories
-    st.subheader("💡 Suggestion Analysis")
-    if 'suggestion' in df.columns:
-        # Word cloud of suggestions (simplified)
-        suggestions = df['suggestion'].str.lower().str.split().explode()
-        suggestion_counts = suggestions.value_counts().head(20)
-        fig_suggestions = px.bar(
-            x=suggestion_counts.values,
-            y=suggestion_counts.index,
-            orientation='h',
-            title="Most Common Words in Suggestions",
-            labels={'x': 'Frequency', 'y': 'Word'}
+    with tab1:
+        # Overview metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Flags", len(df))
+        with col2:
+            st.metric("Unique Terms", df['original_key'].nunique())
+        with col3:
+            st.metric("Pages with Flags", df['page_num'].nunique())
+        with col4:
+            st.metric("Avg Flags per Page", f"{len(df) / df['page_num'].nunique():.1f}")
+        
+        # Page distribution
+        st.subheader("📊 Flags per Page")
+        page_counts = df['page_num'].value_counts().sort_index()
+        fig_pages = px.bar(
+            x=page_counts.index, 
+            y=page_counts.values,
+            title="Distribution of Flags Across Pages",
+            labels={'x': 'Page Number', 'y': 'Number of Flags'},
+            color=page_counts.values,
+            color_continuous_scale='Blues'
         )
-        fig_suggestions.update_layout(yaxis={'categoryorder': 'total ascending'})
-        st.plotly_chart(fig_suggestions, use_container_width=True)
+        fig_pages.update_layout(showlegend=False)
+        st.plotly_chart(fig_pages, use_container_width=True)
+    
+    with tab2:
+        # Top flagged terms
+        st.subheader("🏷️ Most Flagged Terms")
+        term_counts = df['original_key'].value_counts().head(15)
+        fig_terms = px.bar(
+            x=term_counts.values,
+            y=term_counts.index,
+            orientation='h',
+            title="Top 15 Flagged Terms",
+            labels={'x': 'Number of Occurrences', 'y': 'Term'},
+            color=term_counts.values,
+            color_continuous_scale='Reds'
+        )
+        fig_terms.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+        st.plotly_chart(fig_terms, use_container_width=True)
+        
+        # Term frequency pie chart
+        if len(term_counts) > 1:
+            st.subheader("🥧 Term Distribution")
+            fig_pie = px.pie(
+                values=term_counts.values,
+                names=term_counts.index,
+                title="Distribution of Flagged Terms"
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+    
+    with tab3:
+        # Page analysis
+        st.subheader("📄 Page-by-Page Analysis")
+        
+        # Create a detailed page analysis
+        page_analysis = df.groupby('page_num').agg({
+            'original_key': 'count',
+            'matched_text': lambda x: ', '.join(x.unique()[:5])  # First 5 unique matches
+        }).rename(columns={'original_key': 'flag_count', 'matched_text': 'sample_terms'})
+        
+        st.dataframe(page_analysis, use_container_width=True)
+        
+        # Page heatmap
+        if len(page_counts) > 1:
+            st.subheader("🔥 Page Activity Heatmap")
+            # Create a simple heatmap representation
+            max_page = df['page_num'].max()
+            heatmap_data = []
+            for page in range(1, max_page + 1):
+                count = page_counts.get(page, 0)
+                heatmap_data.append({'Page': page, 'Flags': count})
+            
+            heatmap_df = pd.DataFrame(heatmap_data)
+            fig_heatmap = px.bar(
+                heatmap_df, 
+                x='Page', 
+                y='Flags',
+                title="Page Activity Heatmap",
+                color='Flags',
+                color_continuous_scale='Viridis'
+            )
+            st.plotly_chart(fig_heatmap, use_container_width=True)
+    
+    with tab4:
+        # Suggestion analysis
+        st.subheader("💡 Suggestion Analysis")
+        if 'suggestion' in df.columns and not df['suggestion'].isna().all():
+            # Most common words in suggestions
+            suggestions = df['suggestion'].str.lower().str.split().explode()
+            suggestion_counts = suggestions.value_counts().head(20)
+            
+            if len(suggestion_counts) > 0:
+                fig_suggestions = px.bar(
+                    x=suggestion_counts.values,
+                    y=suggestion_counts.index,
+                    orientation='h',
+                    title="Most Common Words in Suggestions",
+                    labels={'x': 'Frequency', 'y': 'Word'},
+                    color=suggestion_counts.values,
+                    color_continuous_scale='Greens'
+                )
+                fig_suggestions.update_layout(yaxis={'categoryorder': 'total ascending'}, showlegend=False)
+                st.plotly_chart(fig_suggestions, use_container_width=True)
+            
+            # Suggestion length analysis
+            st.subheader("📏 Suggestion Length Analysis")
+            df['suggestion_length'] = df['suggestion'].str.len()
+            fig_length = px.histogram(
+                df, 
+                x='suggestion_length',
+                title="Distribution of Suggestion Lengths",
+                labels={'x': 'Character Count', 'y': 'Frequency'},
+                nbins=20
+            )
+            st.plotly_chart(fig_length, use_container_width=True)
+        else:
+            st.info("No suggestion data available for analysis.")
+    
+    with tab5:
+        # Trends analysis
+        st.subheader("📈 Processing Trends")
+        
+        # Flags over time (by page order)
+        fig_trend = px.line(
+            x=page_counts.index,
+            y=page_counts.values,
+            title="Flags Trend Across Pages",
+            labels={'x': 'Page Number', 'y': 'Number of Flags'},
+            markers=True
+        )
+        st.plotly_chart(fig_trend, use_container_width=True)
+        
+        # Cumulative flags
+        cumulative_flags = page_counts.cumsum()
+        fig_cumulative = px.line(
+            x=cumulative_flags.index,
+            y=cumulative_flags.values,
+            title="Cumulative Flags Across Pages",
+            labels={'x': 'Page Number', 'y': 'Cumulative Flags'},
+            markers=True
+        )
+        st.plotly_chart(fig_cumulative, use_container_width=True)
 
 def main():
     st.title("📝 Smart PDF Language Flagger - Advanced")
@@ -388,16 +498,63 @@ def main():
         st.markdown("---")
         st.header("📊 Processing Results")
         
-        # Show processing summary
-        col1, col2, col3 = st.columns(3)
+        # Show processing summary with enhanced metrics
+        st.subheader("📊 Processing Results")
+        
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("Flagged Terms Found", len(st.session_state.processing_hits))
         with col2:
             st.metric("Processing Time", st.session_state.processing_timestamp)
         with col3:
             st.metric("Output Files", "1 PDF + Reports")
+        with col4:
+            if st.session_state.processing_hits:
+                unique_terms = len(set(hit.get('original_key', '') for hit in st.session_state.processing_hits))
+                st.metric("Unique Terms", unique_terms)
+            else:
+                st.metric("Unique Terms", 0)
         
-        # Debug information
+        # Success indicator
+        if st.session_state.processing_hits:
+            st.success(f"✅ Successfully processed document and found {len(st.session_state.processing_hits)} flagged terms!")
+        else:
+            st.warning("⚠️ No flagged terms found in the document.")
+        
+        # Create visualizations (only if there are hits)
+        if st.session_state.processing_hits:
+            st.subheader("📈 Analytics Dashboard")
+            create_visualizations(st.session_state.processing_hits)
+            
+            # Display hits in a detailed table
+            st.subheader("📋 Detailed Results Table")
+            df = pd.DataFrame(st.session_state.processing_hits)
+            
+            # Add search and filter capabilities
+            search_term = st.text_input("🔍 Search in results:", placeholder="Search by term, suggestion, or page...")
+            if search_term:
+                mask = df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
+                df = df[mask]
+                st.info(f"Showing {len(df)} results matching '{search_term}'")
+            
+            # Display the dataframe with enhanced formatting
+            st.dataframe(
+                df, 
+                use_container_width=True,
+                column_config={
+                    "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
+                    "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
+                    "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
+                    "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
+                    "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
+                    "context": st.column_config.TextColumn("Context", help="Surrounding text context")
+                }
+            )
+        else:
+            st.info("ℹ️ No flagged terms found in the document.")
+            st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
+        
+        # Debug information (collapsed by default)
         with st.expander("🔍 Debug Information", expanded=False):
             st.write(f"**Session State Debug:**")
             st.write(f"- Processing Success: {st.session_state.processing_success}")
@@ -414,52 +571,44 @@ def main():
             with st.expander("📋 Processing Log", expanded=False):
                 st.text_area("Processing Output", value=st.session_state.processing_output, height=300, help="Detailed processing log from the language flagging script")
         
-        # Create visualizations (only if there are hits)
-        if st.session_state.processing_hits:
-            create_visualizations(st.session_state.processing_hits)
-            
-            # Display hits in a table
-            st.subheader("📋 Detailed Results")
-            df = pd.DataFrame(st.session_state.processing_hits)
-            st.dataframe(df, use_container_width=True)
-        else:
-            st.info("ℹ️ No flagged terms found in the document.")
-            st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
-        
-        # Download options
+        # Download options with enhanced UI
         st.subheader("📥 Download Results")
+        st.markdown("Download your processed results in various formats:")
         
-        col1, col2, col3, col4 = st.columns(4)
+        # Create download buttons in a more organized layout
+        download_col1, download_col2 = st.columns(2)
         
-        if st.session_state.processing_hits:
-            df = pd.DataFrame(st.session_state.processing_hits)
+        with download_col1:
+            st.markdown("#### 📊 Data Reports")
             
-            with col1:
+            if st.session_state.processing_hits:
+                df = pd.DataFrame(st.session_state.processing_hits)
+                
                 # CSV download
                 csv_data = df.to_csv(index=False)
                 st.download_button(
                     label="📊 Download CSV Report",
                     data=csv_data,
                     file_name=f"flag_report_{st.session_state.processing_timestamp}.csv",
-                    mime="text/csv"
+                    mime="text/csv",
+                    help="Download results as a CSV spreadsheet"
                 )
-            
-            with col2:
+                
                 # JSON download
                 json_data = df.to_json(orient='records', indent=2)
                 st.download_button(
                     label="📋 Download JSON Report",
                     data=json_data,
                     file_name=f"flag_report_{st.session_state.processing_timestamp}.json",
-                    mime="application/json"
+                    mime="application/json",
+                    help="Download results as a JSON file for programmatic use"
                 )
-        else:
-            with col1:
-                st.info("No data to download")
-            with col2:
-                st.info("No data to download")
+            else:
+                st.info("No data available for download")
         
-        with col3:
+        with download_col2:
+            st.markdown("#### 📄 Documents")
+            
             # Annotated PDF download
             if st.session_state.processing_outdir:
                 annotated_pdf_path = os.path.join(st.session_state.processing_outdir, "flagged_output.pdf")
@@ -470,12 +619,18 @@ def main():
                         label="📄 Download Annotated PDF",
                         data=pdf_data,
                         file_name=f"flagged_output_{st.session_state.processing_timestamp}.pdf",
-                        mime="application/pdf"
+                        mime="application/pdf",
+                        help="Download the PDF with highlighted flagged terms"
                     )
+                else:
+                    st.warning("Annotated PDF not found")
+            else:
+                st.info("No output directory available")
         
-        with col4:
-            # ZIP download with all files
-            if st.session_state.processing_outdir and os.path.exists(st.session_state.processing_outdir):
+        # ZIP download (full width)
+        st.markdown("#### 📦 Complete Package")
+        if st.session_state.processing_outdir and os.path.exists(st.session_state.processing_outdir):
+            try:
                 zip_path = f"results_{st.session_state.processing_timestamp}.zip"
                 with zipfile.ZipFile(zip_path, 'w') as zipf:
                     for root, dirs, files in os.walk(st.session_state.processing_outdir):
@@ -486,11 +641,19 @@ def main():
                 with open(zip_path, 'rb') as f:
                     zip_data = f.read()
                 st.download_button(
-                    label="📦 Download All Files (ZIP)",
+                    label="📦 Download All Files (ZIP Archive)",
                     data=zip_data,
                     file_name=zip_path,
-                    mime="application/zip"
+                    mime="application/zip",
+                    help="Download all output files in a single ZIP archive"
                 )
+                
+                # Clean up the temporary zip file
+                os.unlink(zip_path)
+            except Exception as e:
+                st.error(f"Error creating ZIP file: {e}")
+        else:
+            st.info("No output files available for ZIP download")
         
         # Summary statistics
         st.subheader("📈 Summary Statistics")
