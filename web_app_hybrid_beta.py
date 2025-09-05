@@ -455,7 +455,7 @@ def main():
                 "Confidence Threshold",
                 min_value=0.0,
                 max_value=1.0,
-                value=0.5,
+                value=0.3,
                 step=0.1,
                 help="Only show suggestions with confidence above this threshold"
             )
@@ -466,7 +466,7 @@ def main():
             hybrid_strategy = st.selectbox(
                 "Matching Strategy",
                 ["conservative", "basic", "advanced"],
-                index=2,
+                index=1,
                 help="How aggressively to merge pattern matching and LangExtract results"
             )
             strategy_descriptions = {
@@ -482,7 +482,7 @@ def main():
                 "Chunk Size (characters)",
                 min_value=5000,
                 max_value=20000,
-                value=10000,
+                value=15000,
                 step=1000,
                 help="Size of text chunks for processing large documents"
             )
@@ -490,7 +490,7 @@ def main():
                 "Chunk Overlap (characters)",
                 min_value=100,
                 max_value=1000,
-                value=500,
+                value=750,
                 step=50,
                 help="Overlap between chunks to prevent missing hits at boundaries"
             )
