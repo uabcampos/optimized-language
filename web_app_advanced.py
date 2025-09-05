@@ -507,11 +507,25 @@ def main():
     # Always show debug info
     st.markdown("---")
     st.subheader("🔧 Debug Information")
+    st.write("**This debug section should always be visible**")
     st.write(f"**Session State Status:**")
     st.write(f"- Processing Success: {st.session_state.get('processing_success', 'Not set')}")
     st.write(f"- Processing Hits: {len(st.session_state.get('processing_hits', []))}")
-    st.write(f"- Processing Output: {len(st.session_state.get('processing_output', ''))}")
+    st.write(f"- Processing Output Length: {len(st.session_state.get('processing_output', ''))}")
     st.write(f"- Processing Outdir: {st.session_state.get('processing_outdir', 'Not set')}")
+    st.write(f"- Processing Timestamp: {st.session_state.get('processing_timestamp', 'Not set')}")
+    
+    # Show raw session state for debugging
+    st.write("**Raw Session State Keys:**")
+    st.write(list(st.session_state.keys()))
+    
+    # Test if we can see hits data
+    hits = st.session_state.get('processing_hits', [])
+    if hits:
+        st.write(f"**First Hit Sample:**")
+        st.write(hits[0] if hits else "No hits")
+    else:
+        st.write("**No hits in session state**")
     
     # Display persistent results if available
     if st.session_state.processing_success:
