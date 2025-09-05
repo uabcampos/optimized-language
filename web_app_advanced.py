@@ -172,6 +172,13 @@ def run_processing(input_file: str, flagged_terms: List[str], replacements: Dict
                 hits = []
                 print("DEBUG: CSV file not found")
             
+            # Add debug info to output
+            full_output += f"\n\nDEBUG: CSV path: {csv_path}"
+            full_output += f"\nDEBUG: CSV exists: {os.path.exists(csv_path)}"
+            full_output += f"\nDEBUG: Loaded {len(hits)} hits"
+            if hits:
+                full_output += f"\nDEBUG: Sample hit keys: {list(hits[0].keys())}"
+            
             return True, full_output, hits
         else:
             return False, full_output, []
@@ -496,6 +503,15 @@ def main():
         help="Upload a PDF or DOCX file to process",
         accept_multiple_files=False
     )
+    
+    # Always show debug info
+    st.markdown("---")
+    st.subheader("🔧 Debug Information")
+    st.write(f"**Session State Status:**")
+    st.write(f"- Processing Success: {st.session_state.get('processing_success', 'Not set')}")
+    st.write(f"- Processing Hits: {len(st.session_state.get('processing_hits', []))}")
+    st.write(f"- Processing Output: {len(st.session_state.get('processing_output', ''))}")
+    st.write(f"- Processing Outdir: {st.session_state.get('processing_outdir', 'Not set')}")
     
     # Display persistent results if available
     if st.session_state.processing_success:
