@@ -95,17 +95,21 @@ def detect_file_type(file_path: str) -> str:
 # -----------------------------
 
 SYSTEM_MSG = (
-    "You are a careful, concise editor. Follow these rules:\n"
-    "- Use AP style. Do not use em dash. Prefer short, clear sentences.\n"
+    "You are a careful, concise editor specializing in academic and scientific writing. Follow these rules:\n"
+    "- Prioritize Project 2025 healthcare principles and Alabama State Bill 129 compliance.\n"
+    "- Use clear, precise academic language. Prefer short, clear sentences.\n"
     "- Replace 'barrier' or 'burden' forms with 'challenge' forms.\n"
     "- Replace 'social determinants' or 'structural determinants' with "
     "  'non-medical factors such as housing, transportation, education, or nutrition'.\n"
     "- Replace standalone 'determinants' with 'influences', 'factors', or 'conditions'.\n"
     "- NEVER use the word 'determinants' in your suggestions - always replace it completely.\n"
     "- Avoid words that emphasize deficit framing. Prefer constructive, neutral alternatives.\n"
+    "- Consider context carefully: preserve proper nouns, institutional names, grant titles, publication titles, and center names.\n"
+    "- If the term appears to be part of a title, grant name, publication, or institutional name, suggest keeping it unchanged.\n"
     "- If a static suggestion is provided, validate or refine it for the specific context.\n"
     "- If no static suggestion exists, propose a concise replacement that preserves meaning and accuracy.\n"
     "- Keep the suggestion short, plain, and audience-centered.\n"
+    "- Focus on scientific accuracy and policy alignment over style guide preferences.\n"
     "- Return strict JSON with fields: suggestion, reason."
 )
 
@@ -113,8 +117,16 @@ USER_TEMPLATE = (
     "Term or phrase to revise: {term}\n\n"
     "Static suggestion from map (may be empty if none): {static_suggestion}\n\n"
     "Surrounding context from document:\n{context}\n\n"
+    "Context Analysis: Please analyze if this term appears to be part of:\n"
+    "- A proper noun, institutional name, or organization title\n"
+    "- A grant title, publication title, or research project name\n"
+    "- A center, department, or program name\n"
+    "- A geographic location or proper name\n"
+    "- A title, heading, or section header\n\n"
     "Task: Provide a replacement that fits this exact context, follows the rules, and is suitable for public-facing academic or grant text.\n"
-    "Return JSON only."
+    "If the term appears to be part of a proper noun, title, or institutional name, suggest keeping it unchanged.\n"
+    "Focus on Project 2025 healthcare principles and Alabama State Bill 129 compliance.\n"
+    "Return JSON only with fields: suggestion, reason."
 )
 
 def load_env(env_path: Optional[str] = None) -> None:
@@ -135,23 +147,51 @@ def load_env(env_path: Optional[str] = None) -> None:
 # -----------------------------
 
 def is_proper_noun_context(text: str, match_start: int, match_end: int) -> bool:
-    """Check if the matched term is part of a proper noun (like department names)."""
+    """Check if the matched term is part of a proper noun (like department names, titles, grants, publications)."""
     # Get context around the match
-    context_start = max(0, match_start - 50)
-    context_end = min(len(text), match_end + 50)
+    context_start = max(0, match_start - 100)
+    context_end = min(len(text), match_end + 100)
     context = text[context_start:context_end]
     
     # Check for common proper noun patterns
     proper_noun_patterns = [
+        # Institutional names
         r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+of\s+',
         r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+for\s+',
         r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+',
+        # Titles and positions
         r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+of\s+',
         r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+for\s+',
         r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+',
+        # Grant and funding patterns
+        r'\b(Grant|Award|Contract|Cooperative Agreement|R01|R21|R03|P01|P50|U01|U19|K01|K08|K23|F31|F32|T32|T35)\s+',
+        r'\b(NIH|NSF|CDC|AHRQ|PCORI|NCI|NHLBI|NIDDK|NIMH|NIA|NIAID|NINDS|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA)\s+',
+        # Publication patterns
+        r'\b(Journal|Journal of|American Journal|British Journal|New England Journal|Lancet|Nature|Science|Cell|PNAS|PLOS|BMC|Frontiers)\s+',
+        r'\b(Volume|Vol\.|Issue|No\.|Pages|pp\.|DOI|PMID|PMCID)\s+',
+        # Title patterns (often in quotes or italics)
+        r'["\']([^"\']*' + re.escape(text[match_start:match_end]) + r'[^"\']*)["\']',
+        r'\b(Title|Abstract|Introduction|Methods|Results|Discussion|Conclusion|Background|Objective|Purpose|Aim)\s*:',
+        # Center and program names
+        r'\b(Center for|Program for|Initiative for|Project for|Study of|Research on|Institute for|Laboratory for)\s+',
+        # Geographic and proper names
+        r'\b(Alabama|Birmingham|Montgomery|Huntsville|Mobile|Tuscaloosa|Auburn|Troy|Jacksonville|Florence|Gadsden|Dothan|Decatur|Phenix City|Prattville|Opelika|Anniston|Bessemer|Hoover|Vestavia Hills|Homewood|Mountain Brook|Trussville|Pelham|Helena|Calera|Chelsea|Leeds|Moody|Pell City|Sylacauga|Alexander City|Talladega|Oxford|Albertville|Fort Payne|Scottsboro|Athens|Hartselle|Cullman|Jasper|Hamilton|Winfield|Fayette|Carrollton|Livingston|Demopolis|Selma|Marion|Greensboro|Eutaw|Tuskegee|Union Springs|Auburn|Opelika|Phenix City|Columbus|Valley|Lanett|LaGrange|West Point|Auburn|Opelika|Phenix City|Columbus|Valley|Lanett|LaGrange|West Point)\s+',
     ]
     
     for pattern in proper_noun_patterns:
+        if re.search(pattern, context, re.IGNORECASE):
+            return True
+    
+    # Check for title-like patterns (capitalized words, quotes, etc.)
+    # Look for patterns that suggest this is part of a title
+    title_indicators = [
+        r'^[A-Z][^.!?]*$',  # Entire line is capitalized (title case)
+        r'["\'].*["\']',    # Text in quotes
+        r'\b[A-Z][a-z]+ [A-Z][a-z]+ [A-Z][a-z]+',  # Multiple capitalized words
+        r'\b(Figure|Table|Appendix|Chapter|Section)\s+\d+',  # Figure/table references
+    ]
+    
+    for pattern in title_indicators:
         if re.search(pattern, context, re.IGNORECASE):
             return True
     

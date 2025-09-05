@@ -221,6 +221,20 @@ def main():
     st.title("📝 Smart PDF Language Flagger - Advanced")
     st.markdown("Upload documents and configure language flagging settings with advanced analytics")
     
+    # Initialize session state for results persistence
+    if 'processing_results' not in st.session_state:
+        st.session_state.processing_results = None
+    if 'processing_success' not in st.session_state:
+        st.session_state.processing_success = False
+    if 'processing_hits' not in st.session_state:
+        st.session_state.processing_hits = []
+    if 'processing_output' not in st.session_state:
+        st.session_state.processing_output = ""
+    if 'processing_timestamp' not in st.session_state:
+        st.session_state.processing_timestamp = None
+    if 'processing_outdir' not in st.session_state:
+        st.session_state.processing_outdir = None
+    
     # Sidebar for configuration only
     with st.sidebar:
         st.header("⚙️ Configuration")
@@ -344,6 +358,121 @@ def main():
         accept_multiple_files=False
     )
     
+    # Display persistent results if available
+    if st.session_state.processing_success and st.session_state.processing_hits:
+        st.markdown("---")
+        st.header("📊 Processing Results")
+        
+        # Show processing summary
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Flagged Terms Found", len(st.session_state.processing_hits))
+        with col2:
+            st.metric("Processing Time", st.session_state.processing_timestamp)
+        with col3:
+            st.metric("Output Files", "1 PDF + Reports")
+        
+        # Display processing output if available
+        if st.session_state.processing_output:
+            with st.expander("📋 Processing Log", expanded=False):
+                st.text_area("Processing Output", value=st.session_state.processing_output, height=300, help="Detailed processing log from the language flagging script")
+        
+        # Create visualizations
+        create_visualizations(st.session_state.processing_hits)
+        
+        # Display hits in a table
+        st.subheader("📋 Detailed Results")
+        df = pd.DataFrame(st.session_state.processing_hits)
+        st.dataframe(df, use_container_width=True)
+        
+        # Download options
+        st.subheader("📥 Download Results")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            # CSV download
+            csv_data = df.to_csv(index=False)
+            st.download_button(
+                label="📊 Download CSV Report",
+                data=csv_data,
+                file_name=f"flag_report_{st.session_state.processing_timestamp}.csv",
+                mime="text/csv"
+            )
+        
+        with col2:
+            # JSON download
+            json_data = df.to_json(orient='records', indent=2)
+            st.download_button(
+                label="📋 Download JSON Report",
+                data=json_data,
+                file_name=f"flag_report_{st.session_state.processing_timestamp}.json",
+                mime="application/json"
+            )
+        
+        with col3:
+            # Annotated PDF download
+            if st.session_state.processing_outdir:
+                annotated_pdf_path = os.path.join(st.session_state.processing_outdir, "flagged_output.pdf")
+                if os.path.exists(annotated_pdf_path):
+                    with open(annotated_pdf_path, 'rb') as f:
+                        pdf_data = f.read()
+                    st.download_button(
+                        label="📄 Download Annotated PDF",
+                        data=pdf_data,
+                        file_name=f"flagged_output_{st.session_state.processing_timestamp}.pdf",
+                        mime="application/pdf"
+                    )
+        
+        with col4:
+            # ZIP download with all files
+            if st.session_state.processing_outdir and os.path.exists(st.session_state.processing_outdir):
+                zip_path = f"results_{st.session_state.processing_timestamp}.zip"
+                with zipfile.ZipFile(zip_path, 'w') as zipf:
+                    for root, dirs, files in os.walk(st.session_state.processing_outdir):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            zipf.write(file_path, os.path.relpath(file_path, st.session_state.processing_outdir))
+                
+                with open(zip_path, 'rb') as f:
+                    zip_data = f.read()
+                st.download_button(
+                    label="📦 Download All Files (ZIP)",
+                    data=zip_data,
+                    file_name=zip_path,
+                    mime="application/zip"
+                )
+        
+        # Summary statistics
+        st.subheader("📈 Summary Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Flags", len(st.session_state.processing_hits))
+        
+        with col2:
+            if st.session_state.processing_hits:
+                unique_terms = len(set(hit.get('original_key', '') for hit in st.session_state.processing_hits))
+                st.metric("Unique Terms", unique_terms)
+            else:
+                st.metric("Unique Terms", 0)
+        
+        with col3:
+            if st.session_state.processing_hits:
+                pages = len(set(hit.get('page_num', 0) for hit in st.session_state.processing_hits))
+                st.metric("Pages Affected", pages)
+            else:
+                st.metric("Pages Affected", 0)
+        
+        with col4:
+            if st.session_state.processing_hits:
+                avg_suggestions = len(st.session_state.processing_hits) / max(1, len(set(hit.get('page_num', 0) for hit in st.session_state.processing_hits)))
+                st.metric("Avg Flags/Page", f"{avg_suggestions:.1f}")
+            else:
+                st.metric("Avg Flags/Page", "0.0")
+        
+        st.markdown("---")
+    
     # Only show configuration and processing if file is uploaded
     if uploaded_file is not None:
         try:
@@ -439,6 +568,20 @@ def main():
                     if len(replacements) > 5:
                         st.write(f"... and {len(replacements) - 5} more")
             
+            # Start Over button (only show if there are results)
+            if st.session_state.processing_success:
+                st.markdown("---")
+                st.subheader("🔄 Session Management")
+                if st.button("🗑️ Start Over / Process New Document", type="secondary", use_container_width=True):
+                    # Clear all session state
+                    st.session_state.processing_results = None
+                    st.session_state.processing_success = False
+                    st.session_state.processing_hits = []
+                    st.session_state.processing_output = ""
+                    st.session_state.processing_timestamp = None
+                    st.session_state.processing_outdir = None
+                    st.rerun()
+            
             # Process button
             if flagged_terms and replacements:
                 if st.button("🚀 Process Document", type="primary", use_container_width=True):
@@ -509,6 +652,13 @@ def main():
                             st.text_area("Processing Output", value=output, height=300, help="Detailed processing log from the language flagging script")
                         
                         if success:
+                            # Store results in session state
+                            st.session_state.processing_success = True
+                            st.session_state.processing_hits = hits if hits else []
+                            st.session_state.processing_output = output if output else ""
+                            st.session_state.processing_timestamp = timestamp
+                            st.session_state.processing_outdir = outdir
+                            
                             # Clear progress indicators
                             progress_container.empty()
                             status_container.empty()
@@ -524,130 +674,11 @@ def main():
                             with col3:
                                 st.metric("Output Files", "1 PDF + Reports")
                             
-                            # Display results with progress
-                            st.header("📊 Results")
+                            # Results are now displayed persistently above
+                            st.info("📊 Results are displayed above and will persist until you click 'Start Over'")
                             
                             if hits:
-                                # Results processing progress
-                                with st.spinner("Generating detailed analysis..."):
-                                    st.subheader(f"Found {len(hits)} flagged terms")
-                                    
-                                    # Create progress for results processing
-                                    results_progress = st.progress(0)
-                                    results_status = st.empty()
-                                    
-                                    # Step 1: Process hits data
-                                    results_status.text("📋 Processing flagged terms data...")
-                                    results_progress.progress(25)
-                                    
-                                    # Step 2: Generate visualizations
-                                    results_status.text("📈 Creating visualizations...")
-                                    results_progress.progress(50)
-                                    
-                                    # Step 3: Prepare download files
-                                    results_status.text("📥 Preparing download files...")
-                                    results_progress.progress(75)
-                                    
-                                    # Step 4: Complete
-                                    results_status.text("✅ Analysis complete!")
-                                    results_progress.progress(100)
-                                    
-                                    # Clear progress indicators
-                                    results_progress.empty()
-                                    results_status.empty()
-                                
-                                # Create visualizations
-                                create_visualizations(hits)
-                                
-                                # Display hits in a table
-                                st.subheader("📋 Detailed Results")
-                                df = pd.DataFrame(hits)
-                                st.dataframe(df, use_container_width=True)
-                                
-                                # Download options
-                                st.subheader("📥 Download Results")
-                                
-                                col1, col2, col3, col4 = st.columns(4)
-                                
-                                with col1:
-                                    # CSV download
-                                    csv_data = df.to_csv(index=False)
-                                    st.download_button(
-                                        label="📊 Download CSV Report",
-                                        data=csv_data,
-                                        file_name=f"flag_report_{timestamp}.csv",
-                                        mime="text/csv"
-                                    )
-                                
-                                with col2:
-                                    # JSON download
-                                    json_data = df.to_json(orient='records', indent=2)
-                                    st.download_button(
-                                        label="📋 Download JSON Report",
-                                        data=json_data,
-                                        file_name=f"flag_report_{timestamp}.json",
-                                        mime="application/json"
-                                    )
-                                
-                                with col3:
-                                    # Annotated PDF download
-                                    annotated_pdf_path = os.path.join(outdir, "flagged_output.pdf")
-                                    if os.path.exists(annotated_pdf_path):
-                                        with open(annotated_pdf_path, 'rb') as f:
-                                            pdf_data = f.read()
-                                        st.download_button(
-                                            label="📄 Download Annotated PDF",
-                                            data=pdf_data,
-                                            file_name=f"flagged_output_{timestamp}.pdf",
-                                            mime="application/pdf"
-                                        )
-                                
-                                with col4:
-                                    # ZIP download with all files
-                                    zip_path = f"results_{timestamp}.zip"
-                                    with zipfile.ZipFile(zip_path, 'w') as zipf:
-                                        for root, dirs, files in os.walk(outdir):
-                                            for file in files:
-                                                file_path = os.path.join(root, file)
-                                                zipf.write(file_path, os.path.relpath(file_path, outdir))
-                                    
-                                    with open(zip_path, 'rb') as f:
-                                        zip_data = f.read()
-                                    st.download_button(
-                                        label="📦 Download All Files (ZIP)",
-                                        data=zip_data,
-                                        file_name=zip_path,
-                                        mime="application/zip"
-                                    )
-                                
-                                # Summary statistics
-                                st.subheader("📈 Summary Statistics")
-                                col1, col2, col3, col4 = st.columns(4)
-                                
-                                with col1:
-                                    st.metric("Total Flags", len(hits))
-                                
-                                with col2:
-                                    if hits:
-                                        unique_terms = len(set(hit.get('original_key', '') for hit in hits))
-                                        st.metric("Unique Terms", unique_terms)
-                                    else:
-                                        st.metric("Unique Terms", 0)
-                                
-                                with col3:
-                                    if hits:
-                                        pages = len(set(hit.get('page_num', 0) for hit in hits))
-                                        st.metric("Pages with Flags", pages)
-                                    else:
-                                        st.metric("Pages with Flags", 0)
-                                
-                                with col4:
-                                    if hits:
-                                        avg_flags_per_page = len(hits) / len(set(hit.get('page_num', 0) for hit in hits))
-                                        st.metric("Avg Flags per Page", f"{avg_flags_per_page:.1f}")
-                                    else:
-                                        st.metric("Avg Flags per Page", 0)
-                            
+                                st.success(f"✅ Found {len(hits)} flagged terms - see results above!")
                             else:
                                 st.info("No flagged terms found in the document.")
                             
