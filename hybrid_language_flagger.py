@@ -23,11 +23,13 @@ class HybridLanguageFlagger:
     """Hybrid language flagging system combining pattern matching and LangExtract."""
     
     def __init__(self, flagged_terms: List[str], replacement_map: Dict[str, str], 
-                 skip_terms: List[str] = None, use_langextract: bool = True):
+                 skip_terms: List[str] = None, use_langextract: bool = True,
+                 confidence_threshold: float = 0.5):
         self.flagged_terms = flagged_terms
         self.replacement_map = replacement_map
         self.skip_terms = skip_terms or []
         self.use_langextract = use_langextract and LANGEXTRACT_AVAILABLE
+        self.confidence_threshold = confidence_threshold
         
         # LangExtract examples for different types of problematic language
         self.langextract_examples = self._setup_langextract_examples()
@@ -37,6 +39,7 @@ class HybridLanguageFlagger:
         print(f"   - LangExtract: {'✅ Enabled' if self.use_langextract else '❌ Disabled'}")
         print(f"   - Flagged terms: {len(self.flagged_terms)}")
         print(f"   - Skip terms: {len(self.skip_terms)}")
+        print(f"   - Confidence threshold: {self.confidence_threshold}")
     
     def _setup_langextract_examples(self) -> List[Any]:
         """Setup few-shot examples for LangExtract, focusing on semantic issues not covered by pattern matching."""
@@ -198,6 +201,9 @@ class HybridLanguageFlagger:
                     # Get matched text (preserve original case)
                     matched_text = text[pos:pos + len(term)]
                     
+                    # Calculate confidence for pattern matching (high confidence for exact matches)
+                    confidence = 0.95  # High confidence for exact pattern matches
+                    
                     hits.append({
                         "original_key": term,
                         "matched_text": matched_text,
@@ -206,7 +212,8 @@ class HybridLanguageFlagger:
                         "method": "pattern_matching",
                         "suggestion": self.replacement_map.get(term, "Consider alternative"),
                         "reason": "Matched flagged term",
-                        "severity": "medium"
+                        "severity": "medium",
+                        "confidence": confidence
                     })
                     
                     start = pos + 1
@@ -255,6 +262,15 @@ class HybridLanguageFlagger:
                     original_suggestion = extraction.attributes.get("suggestion", "Consider alternative")
                     validated_suggestion, validation_reason = self._validate_suggestion(original_suggestion)
                     
+                    # Extract confidence score from attributes or calculate default
+                    confidence = extraction.attributes.get("confidence", 0.8)  # Default confidence
+                    
+                    # If confidence is not provided, try to extract from Gemini response metadata
+                    if hasattr(extraction, 'confidence') and extraction.confidence is not None:
+                        confidence = extraction.confidence
+                    elif hasattr(extraction, 'metadata') and extraction.metadata:
+                        confidence = extraction.metadata.get("confidence", confidence)
+                    
                     hits.append({
                         "original_key": extraction.extraction_text,
                         "matched_text": extraction.extraction_text,
@@ -264,7 +280,8 @@ class HybridLanguageFlagger:
                         "suggestion": validated_suggestion,
                         "reason": f"{extraction.attributes.get('reason', 'Semantic analysis')} ({validation_reason})",
                         "severity": extraction.attributes.get("severity", "medium"),
-                        "category": extraction.attributes.get("category", "unknown")
+                        "category": extraction.attributes.get("category", "unknown"),
+                        "confidence": confidence
                     })
                 
                 if (i + 1) % 5 == 0:  # Progress update every 5 extractions
@@ -312,6 +329,13 @@ class HybridLanguageFlagger:
         print(f"      - LangExtract only: {langextract_count}")
         print(f"      - Found by both: {both_count}")
         
+        # Calculate confidence statistics
+        confidences = [h.get("confidence", 0.0) for h in deduplicated_hits]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.0
+        high_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) >= 0.8])
+        medium_confidence_hits = len([h for h in deduplicated_hits if 0.5 <= h.get("confidence", 0.0) < 0.8])
+        low_confidence_hits = len([h for h in deduplicated_hits if h.get("confidence", 0.0) < 0.5])
+        
         return {
             "hits": deduplicated_hits,
             "summary": {
@@ -320,7 +344,13 @@ class HybridLanguageFlagger:
                 "langextract_hits": langextract_count,
                 "both_methods_hits": both_count,
                 "text_length": len(text),
-                "analysis_method": "hybrid"
+                "analysis_method": "hybrid",
+                "confidence_stats": {
+                    "average_confidence": round(avg_confidence, 3),
+                    "high_confidence_hits": high_confidence_hits,
+                    "medium_confidence_hits": medium_confidence_hits,
+                    "low_confidence_hits": low_confidence_hits
+                }
             }
         }
     
@@ -345,6 +375,18 @@ class HybridLanguageFlagger:
                         break
         
         return deduplicated
+    
+    def filter_by_confidence(self, hits: List[Dict[str, Any]], 
+                           threshold: float = None) -> List[Dict[str, Any]]:
+        """Filter hits by confidence threshold."""
+        if threshold is None:
+            threshold = self.confidence_threshold
+        
+        filtered_hits = [h for h in hits if h.get("confidence", 0.0) >= threshold]
+        
+        print(f"   🔍 Confidence filtering: {len(hits)} -> {len(filtered_hits)} hits (threshold: {threshold})")
+        
+        return filtered_hits
     
     def generate_suggestions(self, hits: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Generate enhanced suggestions for hits."""

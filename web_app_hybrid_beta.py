@@ -416,8 +416,21 @@ def main():
                 st.info("🧠 LangExtract-only mode selected")
             else:
                 st.info("🔧 Hybrid mode: Pattern matching + LangExtract")
+            
+            # Confidence threshold settings for hybrid mode
+            st.subheader("🎯 Confidence Settings")
+            confidence_threshold = st.slider(
+                "Confidence Threshold",
+                min_value=0.0,
+                max_value=1.0,
+                value=0.5,
+                step=0.1,
+                help="Only show suggestions with confidence above this threshold"
+            )
+            st.info(f"🎯 Showing suggestions with confidence ≥ {confidence_threshold:.1f}")
         else:
             st.info("🔍 Standard pattern matching mode")
+            confidence_threshold = 0.5  # Default value
         
         # API configuration
         st.subheader("🔑 API Configuration")
@@ -591,7 +604,7 @@ def main():
             # Process Button
             st.markdown("---")
             if st.button("🚀 Process Document", type="primary", help="Begin document analysis with current configuration"):
-                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements)
+                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold)
     
     with col2:
         st.header("📊 Quick Stats")
@@ -618,7 +631,8 @@ def main():
 
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
                     temperature: float, skip_terms: List[str], config_preset: str, 
-                    flagged_terms: List[str] = None, replacements: Dict[str, str] = None):
+                    flagged_terms: List[str] = None, replacements: Dict[str, str] = None,
+                    confidence_threshold: float = 0.5):
     """Process the uploaded document."""
     
     # Initialize session state
@@ -788,6 +802,14 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
                 df = pd.read_csv(csv_file)
                 hits = df.to_dict('records')
                 
+                # Apply confidence filtering if confidence column exists
+                if 'confidence' in df.columns and confidence_threshold > 0:
+                    original_count = len(hits)
+                    hits = [hit for hit in hits if hit.get('confidence', 0.0) >= confidence_threshold]
+                    filtered_count = len(hits)
+                    if original_count != filtered_count:
+                        st.info(f"🎯 Confidence filtering: {original_count} → {filtered_count} hits (threshold: {confidence_threshold:.1f})")
+                
                 # Update session state
                 st.session_state.processing_success = True
                 st.session_state.processing_hits = hits
@@ -891,6 +913,26 @@ def display_results():
                     total_hits = len(st.session_state.processing_hits)
                     if total_hits > 0:
                         st.info(f"📊 **Method Effectiveness:** Pattern matching found {pattern_count} ({pattern_count/total_hits*100:.1f}%), LangExtract found {langextract_count} ({langextract_count/total_hits*100:.1f}%), Both methods found {both_count} ({both_count/total_hits*100:.1f}%)")
+                        
+                        # Show confidence statistics
+                        confidences = [hit.get('confidence', 0.0) for hit in st.session_state.processing_hits if 'confidence' in hit]
+                        if confidences:
+                            avg_confidence = sum(confidences) / len(confidences)
+                            high_conf = len([c for c in confidences if c >= 0.8])
+                            medium_conf = len([c for c in confidences if 0.5 <= c < 0.8])
+                            low_conf = len([c for c in confidences if c < 0.5])
+                            
+                            st.subheader("🎯 Confidence Analysis")
+                            col1, col2, col3, col4 = st.columns(4)
+                            
+                            with col1:
+                                st.metric("Avg Confidence", f"{avg_confidence:.2f}")
+                            with col2:
+                                st.metric("High Confidence (≥0.8)", high_conf)
+                            with col3:
+                                st.metric("Medium Confidence (0.5-0.8)", medium_conf)
+                            with col4:
+                                st.metric("Low Confidence (<0.5)", low_conf)
         else:
             st.warning("⚠️ No flagged terms found in the document.")
         
@@ -996,7 +1038,8 @@ def display_results():
                                 "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
                                 "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
                                 "context": st.column_config.TextColumn("Context", help="Surrounding text context"),
-                                "method": st.column_config.TextColumn("Method", help="Analysis method used")
+                                "method": st.column_config.TextColumn("Method", help="Analysis method used"),
+                                "confidence": st.column_config.NumberColumn("Confidence", help="Confidence score (0.0-1.0)", format="%.2f")
                             },
                             hide_index=True,
                             use_container_width=True
