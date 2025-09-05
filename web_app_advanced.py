@@ -649,8 +649,8 @@ def main():
             st.info("ℹ️ No flagged terms found in the document.")
             st.info("💡 Try adjusting your flagged terms list, replacement map, or skip terms configuration.")
         
-        # Debug information (expanded by default for troubleshooting)
-        with st.expander("🔍 Debug Information", expanded=True):
+        # Debug information (collapsed by default)
+        with st.expander("🔍 Debug Information", expanded=False):
             st.write(f"**Session State Debug:**")
             st.write(f"- Processing Success: {st.session_state.processing_success}")
             st.write(f"- Number of Hits: {len(st.session_state.processing_hits) if st.session_state.processing_hits else 0}")
