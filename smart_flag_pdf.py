@@ -445,6 +445,11 @@ def get_gemini_client(model: str = "gemini-1.5-flash"):
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not set. Set it in your shell or supply a .env file (see --env-file).")
     genai.configure(api_key=api_key)
+    
+    # Try different models if safety filtering is an issue
+    if model == "gemini-1.5-flash" and os.getenv("GEMINI_USE_PRO", "").lower() == "true":
+        model = "gemini-1.5-pro"  # Pro model might be less restrictive
+    
     return genai.GenerativeModel(model)
 
 @retry(wait=wait_exponential(multiplier=1, min=1, max=20), stop=stop_after_attempt(4))
@@ -454,7 +459,7 @@ def llm_suggest_gemini(model, term: str, static_suggestion: str, context: str, t
     """
     user_msg = USER_TEMPLATE.format(term=term, static_suggestion=static_suggestion or "", context=context)
     
-    # Enhanced prompt for Gemini to ensure JSON output
+    # Enhanced prompt for Gemini to ensure JSON output with neutral academic tone
     enhanced_system_msg = f"""{SYSTEM_MSG}
 
 IMPORTANT: You must respond with valid JSON only. Use this exact format:
@@ -463,6 +468,7 @@ IMPORTANT: You must respond with valid JSON only. Use this exact format:
   "reason": "your reason here"
 }}
 
+This is for academic research language analysis. Respond with neutral, professional language suggestions only.
 Do not include any other text, explanations, or formatting outside the JSON."""
     
     full_prompt = f"{enhanced_system_msg}\n\n{user_msg}"
@@ -473,15 +479,39 @@ Do not include any other text, explanations, or formatting outside the JSON."""
             generation_config=genai.types.GenerationConfig(
                 temperature=temperature,
                 max_output_tokens=500,
-            )
+            ),
+            safety_settings=[
+                {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "threshold": "BLOCK_NONE"
+                },
+                {
+                    "category": "HARM_CATEGORY_HATE_SPEECH", 
+                    "threshold": "BLOCK_NONE"
+                },
+                {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_NONE"
+                },
+                {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_NONE"
+                }
+            ]
         )
         # Check if response has valid content
         if not response.text or response.candidates[0].finish_reason != 1:
-            # Handle empty or filtered responses
+            # Handle empty or filtered responses - try OpenAI fallback
             finish_reason = response.candidates[0].finish_reason if response.candidates else "unknown"
             if finish_reason == 2:
-                # Content was filtered by safety settings
-                return static_suggestion or "Consider alternative phrasing", "Content filtered by safety settings"
+                # Content was filtered by safety settings - try OpenAI
+                print(f"      ⚠️  Gemini safety filtering detected, trying OpenAI fallback...")
+                try:
+                    openai_client = get_openai_client()
+                    return llm_suggest_openai(openai_client, term, static_suggestion, context, temperature)
+                except Exception as e:
+                    print(f"      ⚠️  OpenAI fallback also failed: {e}")
+                    return static_suggestion or "Consider alternative phrasing", "Content filtered by safety settings"
             else:
                 return static_suggestion or "Consider alternative phrasing", f"Empty response (finish_reason: {finish_reason})"
         
