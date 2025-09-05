@@ -961,10 +961,14 @@ def main():
                             col1, col2, col3 = st.columns(3)
                             with col1:
                                 st.metric("Flagged Terms Found", len(hits) if hits else 0)
+                            
                             with col2:
                                 st.metric("Processing Time", f"{datetime.now().strftime('%H:%M:%S')}")
                             with col3:
                                 st.metric("Output Files", "1 PDF + Reports")
+                            
+                            # Force page refresh to show updated results
+                            st.rerun()
                             
                             # Results are now displayed persistently above
                             st.info("📊 Results are displayed above and will persist until you click 'Start Over'")
