@@ -460,9 +460,25 @@ def main():
                 help="Only show suggestions with confidence above this threshold"
             )
             st.info(f"🎯 Showing suggestions with confidence ≥ {confidence_threshold:.1f}")
+            
+            # Hybrid strategy settings
+            st.subheader("🔀 Hybrid Strategy")
+            hybrid_strategy = st.selectbox(
+                "Matching Strategy",
+                ["conservative", "basic", "advanced"],
+                index=2,
+                help="How aggressively to merge pattern matching and LangExtract results"
+            )
+            strategy_descriptions = {
+                "conservative": "Only merge exact overlaps - safest but may miss related hits",
+                "basic": "Merge overlaps and exact text matches - balanced approach",
+                "advanced": "Merge overlaps, semantic similarity, and text containment - most comprehensive"
+            }
+            st.info(f"📋 {strategy_descriptions[hybrid_strategy]}")
         else:
             st.info("🔍 Standard pattern matching mode")
             confidence_threshold = 0.5  # Default value
+            hybrid_strategy = "basic"  # Default value
         
         # API configuration
         st.subheader("🔑 API Configuration")
@@ -636,7 +652,7 @@ def main():
             # Process Button
             st.markdown("---")
             if st.button("🚀 Process Document", type="primary", help="Begin document analysis with current configuration"):
-                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold)
+                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements, confidence_threshold, hybrid_strategy)
     
     with col2:
         st.header("📊 Quick Stats")
@@ -664,7 +680,7 @@ def main():
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
                     temperature: float, skip_terms: List[str], config_preset: str, 
                     flagged_terms: List[str] = None, replacements: Dict[str, str] = None,
-                    confidence_threshold: float = 0.5):
+                    confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced"):
     """Process the uploaded document."""
     
     # Initialize session state
@@ -965,6 +981,50 @@ def display_results():
                                 st.metric("Medium Confidence (0.5-0.8)", medium_conf)
                             with col4:
                                 st.metric("Low Confidence (<0.5)", low_conf)
+                            
+                            # Show hybrid strategy effectiveness
+                            st.subheader("🔀 Hybrid Strategy Effectiveness")
+                            try:
+                                from hybrid_language_flagger import HybridLanguageFlagger
+                                
+                                # Create a temporary hybrid flagger for analysis
+                                temp_flagger = HybridLanguageFlagger(
+                                    flagged_terms=[],
+                                    replacement_map={},
+                                    hybrid_strategy=hybrid_strategy
+                                )
+                                
+                                effectiveness = temp_flagger.analyze_hybrid_effectiveness(st.session_state.processing_hits)
+                                
+                                if "error" not in effectiveness:
+                                    col1, col2, col3, col4 = st.columns(4)
+                                    
+                                    with col1:
+                                        st.metric("Pattern Coverage", f"{effectiveness['coverage_metrics']['pattern_coverage']:.1%}")
+                                    with col2:
+                                        st.metric("LangExtract Coverage", f"{effectiveness['coverage_metrics']['langextract_coverage']:.1%}")
+                                    with col3:
+                                        st.metric("Overlap Rate", f"{effectiveness['coverage_metrics']['overlap_rate']:.1%}")
+                                    with col4:
+                                        strategy_quality = "High" if effectiveness['strategy_effectiveness']['high_overlap'] else "Medium"
+                                        st.metric("Strategy Quality", strategy_quality)
+                                    
+                                    # Show effectiveness indicators
+                                    indicators = []
+                                    if effectiveness['strategy_effectiveness']['high_overlap']:
+                                        indicators.append("✅ High method overlap")
+                                    if effectiveness['strategy_effectiveness']['balanced_coverage']:
+                                        indicators.append("✅ Balanced coverage")
+                                    if effectiveness['strategy_effectiveness']['high_confidence']:
+                                        indicators.append("✅ High confidence")
+                                    
+                                    if indicators:
+                                        st.success(" | ".join(indicators))
+                                    else:
+                                        st.warning("⚠️ Consider adjusting hybrid strategy settings")
+                                        
+                            except Exception as e:
+                                st.warning(f"Could not analyze hybrid effectiveness: {e}")
                             
                             # Show span grounding statistics
                             if 'span_grounding' in df.columns:

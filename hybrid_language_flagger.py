@@ -24,12 +24,13 @@ class HybridLanguageFlagger:
     
     def __init__(self, flagged_terms: List[str], replacement_map: Dict[str, str], 
                  skip_terms: List[str] = None, use_langextract: bool = True,
-                 confidence_threshold: float = 0.5):
+                 confidence_threshold: float = 0.5, hybrid_strategy: str = "advanced"):
         self.flagged_terms = flagged_terms
         self.replacement_map = replacement_map
         self.skip_terms = skip_terms or []
         self.use_langextract = use_langextract and LANGEXTRACT_AVAILABLE
         self.confidence_threshold = confidence_threshold
+        self.hybrid_strategy = hybrid_strategy  # "basic", "advanced", "conservative"
         
         # LangExtract examples for different types of problematic language
         self.langextract_examples = self._setup_langextract_examples()
@@ -40,6 +41,7 @@ class HybridLanguageFlagger:
         print(f"   - Flagged terms: {len(self.flagged_terms)}")
         print(f"   - Skip terms: {len(self.skip_terms)}")
         print(f"   - Confidence threshold: {self.confidence_threshold}")
+        print(f"   - Hybrid strategy: {self.hybrid_strategy}")
     
     def _setup_langextract_examples(self) -> List[Any]:
         """Setup few-shot examples for LangExtract, focusing on semantic issues not covered by pattern matching."""
@@ -511,26 +513,204 @@ class HybridLanguageFlagger:
         }
     
     def _deduplicate_hits(self, hits: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Deduplicate hits based on position and text."""
-        seen = set()
-        deduplicated = []
+        """Advanced deduplication using hybrid match strategy."""
+        if not hits:
+            return []
         
-        for hit in hits:
-            # Create a key based on position and text
-            key = (hit["position"], hit["matched_text"].lower())
+        print(f"   🔄 Advanced deduplication: {len(hits)} hits")
+        
+        # Group hits by method for better processing
+        pattern_hits = [h for h in hits if h["method"] == "pattern_matching"]
+        langextract_hits = [h for h in hits if h["method"] == "langextract"]
+        
+        print(f"      - Pattern matching: {len(pattern_hits)} hits")
+        print(f"      - LangExtract: {len(langextract_hits)} hits")
+        
+        # Start with pattern matching hits (high confidence, exact matches)
+        deduplicated = pattern_hits.copy()
+        
+        # Process LangExtract hits with hybrid matching
+        for langextract_hit in langextract_hits:
+            merged = False
             
-            if key not in seen:
-                seen.add(key)
-                deduplicated.append(hit)
-            else:
-                # If we've seen this before, mark it as found by both methods
-                for existing_hit in deduplicated:
-                    if (existing_hit["position"] == hit["position"] and 
-                        existing_hit["matched_text"].lower() == hit["matched_text"].lower()):
-                        existing_hit["method"] = "both_methods"
-                        break
+            # Try to find overlapping or similar hits
+            for i, existing_hit in enumerate(deduplicated):
+                if self._should_merge_hits(existing_hit, langextract_hit):
+                    # Merge the hits
+                    merged_hit = self._merge_hits(existing_hit, langextract_hit)
+                    deduplicated[i] = merged_hit
+                    merged = True
+                    print(f"      🔗 Merged: '{langextract_hit['matched_text']}' with '{existing_hit['matched_text']}'")
+                    break
+            
+            if not merged:
+                # Add as new hit
+                deduplicated.append(langextract_hit)
+                print(f"      ➕ Added: '{langextract_hit['matched_text']}' (LangExtract only)")
         
+        print(f"   ✅ Deduplication complete: {len(deduplicated)} unique hits")
         return deduplicated
+    
+    def _should_merge_hits(self, hit1: Dict[str, Any], hit2: Dict[str, Any]) -> bool:
+        """Determine if two hits should be merged based on hybrid strategy."""
+        
+        # Same method - don't merge
+        if hit1["method"] == hit2["method"]:
+            return False
+        
+        # Strategy-specific merging logic
+        if self.hybrid_strategy == "conservative":
+            # Only merge exact overlaps
+            return self._hits_overlap(hit1, hit2)
+        
+        elif self.hybrid_strategy == "basic":
+            # Merge overlaps and exact text matches
+            return (self._hits_overlap(hit1, hit2) or 
+                    self._hits_semantically_similar(hit1, hit2))
+        
+        else:  # advanced
+            # Merge overlaps, semantic similarity, and text containment
+            return (self._hits_overlap(hit1, hit2) or 
+                    self._hits_semantically_similar(hit1, hit2) or
+                    self._hits_text_contained(hit1, hit2))
+    
+    def _hits_overlap(self, hit1: Dict[str, Any], hit2: Dict[str, Any]) -> bool:
+        """Check if two hits have overlapping character spans."""
+        start1, end1 = hit1.get("char_start", 0), hit1.get("char_end", 0)
+        start2, end2 = hit2.get("char_start", 0), hit2.get("char_end", 0)
+        
+        # Check for any overlap
+        return not (end1 <= start2 or end2 <= start1)
+    
+    def _hits_semantically_similar(self, hit1: Dict[str, Any], hit2: Dict[str, Any]) -> bool:
+        """Check if two hits are semantically similar."""
+        text1 = hit1["matched_text"].lower().strip()
+        text2 = hit2["matched_text"].lower().strip()
+        
+        # Exact match
+        if text1 == text2:
+            return True
+        
+        # High similarity threshold for semantic matching
+        similarity = self._text_similarity(text1, text2)
+        return similarity > 0.85
+    
+    def _hits_text_contained(self, hit1: Dict[str, Any], hit2: Dict[str, Any]) -> bool:
+        """Check if one hit's text is contained in the other."""
+        text1 = hit1["matched_text"].lower().strip()
+        text2 = hit2["matched_text"].lower().strip()
+        
+        return text1 in text2 or text2 in text1
+    
+    def _merge_hits(self, hit1: Dict[str, Any], hit2: Dict[str, Any]) -> Dict[str, Any]:
+        """Merge two hits using hybrid strategy."""
+        
+        # Determine which hit to use as base (prefer pattern matching for exactness)
+        base_hit = hit1 if hit1["method"] == "pattern_matching" else hit2
+        other_hit = hit2 if hit1["method"] == "pattern_matching" else hit1
+        
+        # Create merged hit
+        merged = base_hit.copy()
+        merged["method"] = "both_methods"
+        
+        # Use the longer/more specific text
+        if len(other_hit["matched_text"]) > len(base_hit["matched_text"]):
+            merged["matched_text"] = other_hit["matched_text"]
+        
+        # Use the better suggestion (prefer LangExtract for semantic quality)
+        if other_hit["method"] == "langextract" and other_hit.get("suggestion"):
+            merged["suggestion"] = other_hit["suggestion"]
+        
+        # Combine reasons
+        reason1 = hit1.get("reason", "")
+        reason2 = hit2.get("reason", "")
+        if reason1 and reason2 and reason1 != reason2:
+            merged["reason"] = f"{reason1} | {reason2}"
+        elif reason2:
+            merged["reason"] = reason2
+        
+        # Use higher confidence
+        conf1 = hit1.get("confidence", 0.0)
+        conf2 = hit2.get("confidence", 0.0)
+        merged["confidence"] = max(conf1, conf2)
+        
+        # Use more specific category if available
+        if other_hit.get("category") and other_hit["category"] != "unknown":
+            merged["category"] = other_hit["category"]
+        
+        # Use higher severity
+        severity_map = {"low": 1, "medium": 2, "high": 3}
+        sev1 = severity_map.get(hit1.get("severity", "medium"), 2)
+        sev2 = severity_map.get(hit2.get("severity", "medium"), 2)
+        if sev2 > sev1:
+            merged["severity"] = hit2["severity"]
+        
+        # Update span information to cover both hits
+        start1, end1 = hit1.get("char_start", 0), hit1.get("char_end", 0)
+        start2, end2 = hit2.get("char_start", 0), hit2.get("char_end", 0)
+        merged["char_start"] = min(start1, start2)
+        merged["char_end"] = max(end1, end2)
+        merged["span_length"] = merged["char_end"] - merged["char_start"]
+        merged["position"] = merged["char_start"]
+        
+        # Update grounding method
+        merged["span_grounding"] = f"hybrid_{base_hit.get('span_grounding', 'unknown')}_{other_hit.get('span_grounding', 'unknown')}"
+        
+        return merged
+    
+    def analyze_hybrid_effectiveness(self, hits: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze the effectiveness of the hybrid matching strategy."""
+        if not hits:
+            return {"error": "No hits to analyze"}
+        
+        # Count hits by method
+        method_counts = {}
+        for hit in hits:
+            method = hit.get("method", "unknown")
+            method_counts[method] = method_counts.get(method, 0) + 1
+        
+        # Calculate effectiveness metrics
+        total_hits = len(hits)
+        pattern_only = method_counts.get("pattern_matching", 0)
+        langextract_only = method_counts.get("langextract", 0)
+        both_methods = method_counts.get("both_methods", 0)
+        
+        # Calculate coverage metrics
+        pattern_coverage = (pattern_only + both_methods) / total_hits if total_hits > 0 else 0
+        langextract_coverage = (langextract_only + both_methods) / total_hits if total_hits > 0 else 0
+        overlap_rate = both_methods / total_hits if total_hits > 0 else 0
+        
+        # Calculate confidence metrics by method
+        confidence_by_method = {}
+        for method in ["pattern_matching", "langextract", "both_methods"]:
+            method_hits = [h for h in hits if h.get("method") == method]
+            if method_hits:
+                confidences = [h.get("confidence", 0.0) for h in method_hits]
+                confidence_by_method[method] = {
+                    "count": len(method_hits),
+                    "avg_confidence": sum(confidences) / len(confidences),
+                    "min_confidence": min(confidences),
+                    "max_confidence": max(confidences)
+                }
+        
+        return {
+            "total_hits": total_hits,
+            "method_distribution": method_counts,
+            "coverage_metrics": {
+                "pattern_coverage": round(pattern_coverage, 3),
+                "langextract_coverage": round(langextract_coverage, 3),
+                "overlap_rate": round(overlap_rate, 3)
+            },
+            "confidence_analysis": confidence_by_method,
+            "strategy_effectiveness": {
+                "high_overlap": overlap_rate > 0.3,
+                "balanced_coverage": abs(pattern_coverage - langextract_coverage) < 0.2,
+                "high_confidence": all(
+                    conf_data["avg_confidence"] > 0.7 
+                    for conf_data in confidence_by_method.values()
+                ) if confidence_by_method else False
+            }
+        }
     
     def filter_by_confidence(self, hits: List[Dict[str, Any]], 
                            threshold: float = None) -> List[Dict[str, Any]]:
