@@ -469,6 +469,8 @@ def main():
                 index=1,
                 help="How aggressively to merge pattern matching and LangExtract results"
             )
+            # Store in session state for use in display_results
+            st.session_state.hybrid_strategy = hybrid_strategy
             strategy_descriptions = {
                 "conservative": "Only merge exact overlaps - safest but may miss related hits",
                 "basic": "Merge overlaps and exact text matches - balanced approach",
@@ -499,6 +501,8 @@ def main():
             st.info("🔍 Standard pattern matching mode")
             confidence_threshold = 0.5  # Default value
             hybrid_strategy = "basic"  # Default value
+            # Store in session state for use in display_results
+            st.session_state.hybrid_strategy = hybrid_strategy
             chunk_size = 10000  # Default value
             chunk_overlap = 500  # Default value
         
@@ -1014,7 +1018,7 @@ def display_results():
                                 temp_flagger = HybridLanguageFlagger(
                                     flagged_terms=[],
                                     replacement_map={},
-                                    hybrid_strategy=hybrid_strategy
+                                    hybrid_strategy=st.session_state.get('hybrid_strategy', 'basic')
                                 )
                                 
                                 effectiveness = temp_flagger.analyze_hybrid_effectiveness(st.session_state.processing_hits)
@@ -1050,7 +1054,7 @@ def display_results():
                                 st.warning(f"Could not analyze hybrid effectiveness: {e}")
                             
                             # Show span grounding statistics
-                            if 'span_grounding' in df.columns:
+                            if 'span_grounding' in df.columns and not df['span_grounding'].isna().all():
                                 grounding_counts = df['span_grounding'].value_counts()
                                 st.subheader("🎯 Span Grounding Methods")
                                 col1, col2, col3, col4 = st.columns(4)
