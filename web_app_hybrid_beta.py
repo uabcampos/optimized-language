@@ -169,7 +169,9 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     # Prepare command
     cmd = [
         sys.executable, "smart_flag_pdf.py",
-        "--input", input_file,
+        input_file,  # Positional argument, not --input
+        "--flagged", "flagged_terms.json",
+        "--map", "replacements.json", 
         "--outdir", outdir,
         "--model", model,
         "--temperature", str(temperature),
