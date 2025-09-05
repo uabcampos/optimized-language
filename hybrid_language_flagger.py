@@ -277,7 +277,7 @@ class HybridLanguageFlagger:
         import re
         
         if not suggestion:
-            return "Consider alternative phrasing"
+            return "alternative phrasing"
         
         suggestion_lower = suggestion.lower()
         
@@ -308,8 +308,64 @@ class HybridLanguageFlagger:
             if better_suggestion:
                 return better_suggestion.capitalize()
         
-        # If all else fails, provide a generic alternative
-        return "Consider alternative phrasing"
+        # If all else fails, try to provide a meaningful alternative based on common patterns
+        # Look for common problematic terms and provide alternatives
+        common_replacements = {
+            "inequities": "differences",
+            "inequity": "difference", 
+            "disparities": "differences",
+            "disparity": "difference",
+            "health equity": "health fairness",
+            "equity": "fairness",
+            "underserved": "with limited access",
+            "marginalized": "with limited access",
+            "vulnerable": "facing challenges",
+            "disadvantaged": "with limited resources",
+            "burden": "challenge",
+            "struggling": "experiencing",
+            "at-risk": "facing challenges",
+            "hard-to-reach": "with limited access",
+            "low-income": "experiencing economic challenges"
+        }
+        
+        # Try word-by-word replacement
+        better_suggestion = suggestion
+        changes_made = False
+        
+        for word, replacement in common_replacements.items():
+            if re.search(r'\b' + re.escape(word) + r'\b', suggestion_lower):
+                old_suggestion = better_suggestion
+                better_suggestion = re.sub(
+                    r'\b' + re.escape(word) + r'\b',
+                    replacement,
+                    better_suggestion,
+                    flags=re.IGNORECASE
+                )
+                if better_suggestion != old_suggestion:
+                    changes_made = True
+        
+        if changes_made:
+            # Clean up any awkward phrasing
+            better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
+            better_suggestion = re.sub(r'\bwith limited access with limited access\b', 'with limited access', better_suggestion)
+            better_suggestion = re.sub(r'\bfacing challenges facing challenges\b', 'facing challenges', better_suggestion)
+            return better_suggestion.capitalize()
+        
+        # If still no changes, try to remove the flagged term and clean up
+        if flagged_term and flagged_term.lower() in suggestion_lower:
+            better_suggestion = re.sub(
+                r'\b' + re.escape(flagged_term.lower()) + r'\b',
+                '',
+                suggestion,
+                flags=re.IGNORECASE
+            )
+            better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
+            if better_suggestion:
+                return better_suggestion.capitalize()
+        
+        # Last resort: return a cleaned version of the original
+        cleaned = re.sub(r'\s+', ' ', suggestion).strip()
+        return cleaned.capitalize() if cleaned else "alternative phrasing"
     
     def _extract_span_info(self, extraction, text: str) -> Dict[str, Any]:
         """Extract precise span information for LangExtract extraction."""
