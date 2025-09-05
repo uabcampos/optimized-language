@@ -1,0 +1,1248 @@
+[
+  {
+    "page_num": 3,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase clearly describes the factors influencing health beyond medical care, fitting the academic context while avoiding deficit framing and maintaining clarity for a public-facing audience.",
+    "bbox": [
+      36.961578369140625,
+      723.4153442382812,
+      513.9002075195312,
+      750.7916259765625
+    ],
+    "context": "dissemination and implementation, translational study design, and multi-level measurement of physical and structural determinants of health; 3) By engaging 4 academic institutions in 3 contiguous states,"
+  },
+  {
+    "page_num": 6,
+    "original_key": "built environment",
+    "matched_text": "(built environment,",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, audience-friendly way, aligning with the context of community factors and following AP style.",
+    "bbox": [
+      312.0784912109375,
+      48.917381286621094,
+      402.5789489746094,
+      63.61162185668945
+    ],
+    "context": "P50MD017338 (MPI Dutton & Cherrington) behaviors), 2) interpersonal (peer norms), 3) community (built environment, food environment); Non-academic partner: AL and MS Cooperative Extension. Project 2: Improving"
+  },
+  {
+    "page_num": 6,
+    "original_key": "barriers",
+    "matched_text": "barriers),",
+    "suggestion": "transportation challenges",
+    "reason": "Replaces 'transportation barriers' with 'transportation challenges' to maintain a constructive and neutral tone, aligning with the context of health behaviors and food insecurity in a public-facing academic text.",
+    "bbox": [
+      107.39762115478516,
+      293.828369140625,
+      151.4947509765625,
+      308.52264404296875
+    ],
+    "context": "Grocery delivery; Levels of action: 1) Individual-level (health behaviors, food insecurity, transportation barriers), 2) Interpersonal (Household environment) and 3) Community/system level (access to health care"
+  },
+  {
+    "page_num": 15,
+    "original_key": "built environment",
+    "matched_text": "built environment,",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, accessible way suitable for public-facing academic or grant text, aligning with the context of community improvements.",
+    "bbox": [
+      217.48191833496094,
+      464.5576477050781,
+      300.349365234375,
+      478.6130065917969
+    ],
+    "context": "of health education resources (infographics, toolkits) for community organizations; community improvements in built environment, economic revitalization; meetings with local payers (eg Medicaid) public policy representatives, or"
+  },
+  {
+    "page_num": 21,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants;",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase clearly specifies the types of non-clinical factors being measured, aligns with the provided static suggestion, and avoids deficit framing while maintaining accuracy in an academic context.",
+    "bbox": [
+      36.91229248046875,
+      719.8739013671875,
+      151.9071502685547,
+      734.5681762695312
+    ],
+    "context": "experimental study designs for intervention evaluation; e) multi-level measurement of non-clinical and structural determinants; f) dissemination and implementation methods; g) data sources available to address translational"
+  },
+  {
+    "page_num": 23,
+    "original_key": "burdens",
+    "matched_text": "Burdens",
+    "suggestion": "challenges",
+    "reason": "Replaces 'burdens' with 'challenges' to maintain a neutral, constructive tone suitable for public-facing academic text.",
+    "bbox": [
+      268.90283203125,
+      250.69569396972656,
+      309.92156982421875,
+      265.38995361328125
+    ],
+    "context": "in AL (8.5%), MS (8.1%) and LA (7.4%) than the US (6.3%).2 Burdens are even higher among Black and lower-income residents. A complex array of"
+  },
+  {
+    "page_num": 27,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, maintaining clarity and a positive tone.",
+    "bbox": [
+      89.56837463378906,
+      666.6337890625,
+      126.8802490234375,
+      681.3280639648438
+    ],
+    "context": "steps to achieve the goal, past success and failures, current and future barriers to success, resources needed, and metrics based on anticipated positive findings from"
+  },
+  {
+    "page_num": 31,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to specify determinants such as housing, transportation, education, or nutrition, aligning with guidelines to avoid deficit framing and emphasize constructive, neutral language.",
+    "bbox": [
+      351.0101318359375,
+      366.8843688964844,
+      396.2521667480469,
+      381.57861328125
+    ],
+    "context": "physician discomfort,31-35 and, particularly in rural areas, lack of lifestyle programs.36 Observed structural and environmental obstacles further limit access to health promoting resources.4 This study"
+  },
+  {
+    "page_num": 32,
+    "original_key": "at-risk",
+    "matched_text": "at-risk.",
+    "suggestion": "Black women living in the rural Deep South who experience greater health-related challenges",
+    "reason": "Replaces 'at-risk' with a phrase that highlights health-related challenges without deficit framing, suitable for academic or grant text.",
+    "bbox": [
+      93.65105438232422,
+      518.6597290039062,
+      126.67706298828125,
+      533.35400390625
+    ],
+    "context": "chronic disease. Black women living in the rural Deep South are particularly at-risk. Large, well-designed RCTs have produced efficacious behavioral lifestyle interventions, but these have"
+  },
+  {
+    "page_num": 42,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants",
+    "suggestion": "non-medical determinants such as access to fast food establishments, parks, and walking trails",
+    "reason": "The replacement specifies relevant non-medical determinants in the context of geocoding participant addresses and geospatial analyses, aligning with the original meaning while avoiding deficit framing and using clear, audience-friendly language.",
+    "bbox": [
+      36.7005615234375,
+      543.9937744140625,
+      584.4560546875,
+      571.1632690429688
+    ],
+    "context": "to implementation and cost-effectiveness analysis. Geocoding participant addresses will provide access to structural determinants data sets (e.g. fast food establishments, parks, walking trails). Multilevel geospatial analyses"
+  },
+  {
+    "page_num": 42,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, accessible way suitable for public-facing academic text.",
+    "bbox": [
+      36.72265625,
+      569.1870727539062,
+      584.48583984375,
+      596.5994262695312
+    ],
+    "context": "examine both structural and individual influences and also potential differences in the built environment where participants live that can expand our understanding of environmental influences across"
+  },
+  {
+    "page_num": 42,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to align with guidance on using 'non-medical determinants such as housing, transportation, education, or nutrition' in public-facing academic text, maintaining clarity and neutrality.",
+    "bbox": [
+      192.94085693359375,
+      569.1870727539062,
+      238.1927490234375,
+      583.88134765625
+    ],
+    "context": "parks, walking trails). Multilevel geospatial analyses using these data can examine both structural and individual influences and also potential differences in the built environment where"
+  },
+  {
+    "page_num": 42,
+    "original_key": "burden",
+    "matched_text": "burden.",
+    "suggestion": "participant challenges",
+    "reason": "Replaces 'participant burden' with 'participant challenges' to maintain a neutral, constructive tone suitable for academic or grant text.",
+    "bbox": [
+      468.9857177734375,
+      265.5293884277344,
+      506.2964172363281,
+      280.2236328125
+    ],
+    "context": "also provide timely and relevant data to study participants with minimized participant burden. Finally, this study is greatly strengthened by its adherence to each of"
+  },
+  {
+    "page_num": 48,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "Replaces 'burden' with 'challenge' to avoid deficit framing and align with guidelines for constructive, neutral language.",
+    "bbox": [
+      524.7891845703125,
+      206.8430938720703,
+      559.0669555664062,
+      221.53733825683594
+    ],
+    "context": "and diabetes,1-3 and regional differences are evident. Black Americans experience a greater burden of obesity (50%) and diabetes (16%).1,3 Further, the Deep South has higher"
+  },
+  {
+    "page_num": 51,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "patients experiencing healthcare challenges",
+    "reason": "Replaces 'vulnerable' with a neutral, constructive phrase that highlights healthcare challenges without deficit framing, aligning with the context of patients benefiting from eHealth interventions.",
+    "bbox": [
+      36.950599670410156,
+      98.0843734741211,
+      87.7323989868164,
+      112.77861022949219
+    ],
+    "context": "Black adults now own a smart phone.63 There is evidence that healthcare- vulnerable patients with T2DM can benefit from eHealth interventions.64 Thus, the use of"
+  },
+  {
+    "page_num": 56,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to align with guidelines emphasizing non-medical determinants such as housing, transportation, education, or nutrition, making the term clearer and more audience-centered.",
+    "bbox": [
+      529.1168212890625,
+      567.7643432617188,
+      574.3785400390625,
+      582.4586181640625
+    ],
+    "context": "measures.98 We will capture patient address to enable geocoding and assessment of structural changes in medications and medical conditions, and healthcare utilization will be obtained"
+  },
+  {
+    "page_num": 58,
+    "original_key": "structural",
+    "matched_text": "(structural,",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to align with guidance on using terms like housing, transportation, education, or nutrition, making it clearer and more audience-centered.",
+    "bbox": [
+      486.9206848144531,
+      136.9623565673828,
+      538.8726806640625,
+      151.65660095214844
+    ],
+    "context": "employees of the clinics to understand their perceptions about Ochsner Health’s capabilities (structural, societal, resources) and how these capabilities affect implementation of the intervention. Similarly,"
+  },
+  {
+    "page_num": 58,
+    "original_key": "structural",
+    "matched_text": "Structural",
+    "suggestion": "organizational",
+    "reason": "In this context, 'organizational' better describes characteristics related to the internal setting of a clinic or healthcare environment, aligning with the focus on providers and implementation climate without implying deficit framing.",
+    "bbox": [
+      101.87039184570312,
+      361.519287109375,
+      129.9744415283203,
+      370.2606201171875
+    ],
+    "context": "health coaches, clinic administrators, medical staff & Epic developers Inner setting • Structural characteristics • Implementation climate • Provider & organization • Semi-structured interviews with"
+  },
+  {
+    "page_num": 59,
+    "original_key": "african americans",
+    "matched_text": "African Americans,",
+    "suggestion": "Black Americans",
+    "reason": "The term 'Black Americans' is widely accepted and respectful. It is concise and appropriate for academic and public-facing contexts.",
+    "bbox": [
+      369.53863525390625,
+      611.204345703125,
+      461.8519287109375,
+      625.8986206054688
+    ],
+    "context": "PhD (Co-I) has a research focus on community-based physical activity promotion in African Americans, and in utilizing emerging technologies to promote health. His role on the"
+  },
+  {
+    "page_num": 59,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to maintain a constructive and neutral tone suitable for academic or grant text.",
+    "bbox": [
+      398.036376953125,
+      247.279296875,
+      420.2082214355469,
+      255.98297119140625
+    ],
+    "context": "and opportunities/strategies to achieve fidelity • Cost-effectiveness analysis Maintenance • Facilitators and barriers to sustainability of the intervention • Assessment of institutional commitments from Ochsner"
+  },
+  {
+    "page_num": 74,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase clearly specifies the types of non-medical factors affecting behavior, fitting the context of assessing physical surroundings and maintaining a neutral, constructive tone.",
+    "bbox": [
+      418.968994140625,
+      276.4024353027344,
+      530.9080810546875,
+      291.0966796875
+    ],
+    "context": "capture patient addresses to enable geocoding and assessment of physical surroundings and structural determinants known to impact behavior, such as food environment and neighborhood safety. We"
+  },
+  {
+    "page_num": 76,
+    "original_key": "structural",
+    "matched_text": "Structural",
+    "suggestion": "organizational",
+    "reason": "In the context of inner setting characteristics related to clinics and providers, 'organizational' is a clear, neutral term that replaces 'structural' while fitting the academic and public-facing context.",
+    "bbox": [
+      124.23059844970703,
+      415.6230773925781,
+      157.5492706298828,
+      426.16461181640625
+    ],
+    "context": "interviews with patients, health coaches, providers, nurses, clinic champions Inner setting • Structural characteristics • Culture • Implementation climate • Provider & organization • Semi-structured"
+  },
+  {
+    "page_num": 77,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase clearly describes factors beyond medical care that influence health, fitting the context of geospatial analyses and maintaining a neutral, constructive tone suitable for academic or grant text.",
+    "bbox": [
+      436.6610107421875,
+      428.26275634765625,
+      548.0634765625,
+      442.9570007324219
+    ],
+    "context": "cost-effectiveness analysis. Geocoding participant addresses will provide access to many social and structural determinants data sets. Multilevel geospatial analyses using these data can examine both structural"
+  },
+  {
+    "page_num": 77,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, accessible way suitable for public-facing academic text.",
+    "bbox": [
+      191.75790405273438,
+      453.5569763183594,
+      275.4814453125,
+      468.251220703125
+    ],
+    "context": "examine both structural and individual influences and also potential differences in the built environment where participants live that can expand our understanding of environmental influences across"
+  },
+  {
+    "page_num": 77,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to specify determinants such as housing, transportation, education, or nutrition, aligning with guidelines and maintaining clarity in academic context.",
+    "bbox": [
+      383.85791015625,
+      440.90997314453125,
+      429.1156005859375,
+      455.6042175292969
+    ],
+    "context": "determinants data sets. Multilevel geospatial analyses using these data can examine both structural and individual influences and also potential differences in the built environment where"
+  },
+  {
+    "page_num": 78,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "racial and ethnic groups",
+    "reason": "This term is more precise and neutral, avoiding deficit framing and aligning with public-facing academic language.",
+    "bbox": [
+      320.9989013671875,
+      585.3271484375,
+      359.4568786621094,
+      600.0214233398438
+    ],
+    "context": "Services. 2019 23. US Department of Health and Human Services Office of Minority Health Web site. https://minorityhealth.hhs.gov/omh/browse.aspx?lvl=4&lvlid=18. Published 2021. Updated. 24. Thornton PL, Kumanyika SK,"
+  },
+  {
+    "page_num": 82,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "underrepresented populations",
+    "reason": "The term 'underrepresented populations' is more precise and respectful in academic and grant contexts, avoiding deficit framing and emphasizing inclusion.",
+    "bbox": [
+      232.97682189941406,
+      510.1364440917969,
+      271.5086364746094,
+      524.8306884765625
+    ],
+    "context": "Center for Outcomes and Effectiveness Research and Education 2006-present Associate Scientist, UAB Minority Health and Research Center 2006-2012 Assistant Professor of Medicine, Preventive Medicine, primary"
+  },
+  {
+    "page_num": 82,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "underrepresented groups",
+    "reason": "The term 'underrepresented groups' is more precise and respectful in academic and grant contexts, avoiding deficit framing while acknowledging diversity.",
+    "bbox": [
+      346.7948303222656,
+      712.4776000976562,
+      385.32000732421875,
+      727.171875
+    ],
+    "context": "Medicine, UAB Department of Medicine 2011 Charles Barkley Excellence in Mentoring Award, Minority Health & Research Center 2008-2011 Robert Wood Johnson Physician Faculty Scholar’s Award"
+  },
+  {
+    "page_num": 83,
+    "original_key": "structural",
+    "matched_text": "Structural",
+    "suggestion": "non-medical",
+    "reason": "Replaces 'structural' with 'non-medical' to align with guidance on using terms like housing, transportation, education, or nutrition, avoiding deficit framing and maintaining clarity for public-facing academic text.",
+    "bbox": [
+      147.00723266601562,
+      608.4793701171875,
+      194.0972900390625,
+      620.81103515625
+    ],
+    "context": "Tang TS. Predictors and Effects of Participation in Peer Support: A Prospective Structural Equation Modeling Analysis. Ann Behav Med. 2022 Aug 30;56(9):909-919. doi: 10.1093/abm/kaab114. PMID:"
+  },
+  {
+    "page_num": 83,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, aligning with the preference for positive framing.",
+    "bbox": [
+      214.91209411621094,
+      646.3994140625,
+      253.44393920898438,
+      658.7310791015625
+    ],
+    "context": "Willig A, Cherrington A, Mehta T, Thirumalai M. Stakeholders' Perspectives, Needs, and Barriers to Self-Management for People With Physical Impairments Experiencing Chronic Conditions: Focus Group"
+  },
+  {
+    "page_num": 87,
+    "original_key": "underserved",
+    "matched_text": "underserved",
+    "suggestion": "individuals with limited healthcare access",
+    "reason": "This phrase avoids deficit framing and clearly describes the group based on healthcare access, aligning with the context of managing weight gain during pregnancy and following AP style guidelines.",
+    "bbox": [
+      396.4884033203125,
+      170.0546417236328,
+      457.6611328125,
+      184.74888610839844
+    ],
+    "context": "NCE Use of home-delivered meals to manage weight gain during pregnancy in underserved women 1 I01 RX003965-01A2 Jackson (PI) - Role: Co-Investigator; 05/01/24–12/31/28 Telehealth delivered"
+  },
+  {
+    "page_num": 90,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral alternative to 'barriers' and fits well in the context of understanding difficulties faced by physicians and patients in addressing obesity in primary care.",
+    "bbox": [
+      158.29696655273438,
+      347.1362609863281,
+      195.60890197753906,
+      361.83050537109375
+    ],
+    "context": "targeting obesity in primary care, including developing a better understanding of the barriers and preferences of physicians and patients surrounding this issue. a. Dutton GR,"
+  },
+  {
+    "page_num": 98,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, maintaining a focus on addressing difficulties without deficit framing.",
+    "bbox": [
+      177.4081268310547,
+      145.8400421142578,
+      214.72006225585938,
+      160.53428649902344
+    ],
+    "context": "and interventions for the reduction of health differences. My publications identify key barriers to greater success in behavioral interventions among varied groups and offer multi-level"
+  },
+  {
+    "page_num": 98,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to use constructive, neutral language suitable for academic or grant text.",
+    "bbox": [
+      423.78826904296875,
+      211.82618713378906,
+      461.105712890625,
+      226.5204315185547
+    ],
+    "context": "Robinson C, Demark- Wahnefried W. Developing an intervention to address physical activity barriers for women in the deep south (USA). Womens Health (Lond Engl). 2013"
+  },
+  {
+    "page_num": 99,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral and constructive alternative to 'barriers' that fits well in academic and grant contexts, maintaining clarity and a positive tone.",
+    "bbox": [
+      389.0875244140625,
+      267.71636962890625,
+      430.0813293457031,
+      283.0177917480469
+    ],
+    "context": "Not Assigned (Baskin) 03/01/21-02/28/22 Go2Foundation Studying Trial Determinants of Success (STRIDES): Understanding barriers and facilitators to clinical trial accrual among patients with lung cancer in"
+  },
+  {
+    "page_num": 99,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to maintain a constructive and neutral tone suitable for academic and grant contexts.",
+    "bbox": [
+      251.39663696289062,
+      293.1966857910156,
+      288.70855712890625,
+      307.89093017578125
+    ],
+    "context": "the Deep South The goal of this study is to identify multilevel barriers to accrual in lung cancer clinical trials and develop and pilot multi-level"
+  },
+  {
+    "page_num": 100,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' that fits the context of identifying factors affecting prostate cancer screening among men.",
+    "bbox": [
+      236.00892639160156,
+      431.966796875,
+      273.3255615234375,
+      446.6610412597656
+    ],
+    "context": "Cancer Screening Among Men The purpose of this study is to identify barriers and facilitators to prostate cancer screening among men in order to develop"
+  },
+  {
+    "page_num": 105,
+    "original_key": "barriers",
+    "matched_text": "barriers,",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' and fits well in the context of identifying factors affecting physical activity and sedentary behavior.",
+    "bbox": [
+      116.44586944580078,
+      47.922447204589844,
+      156.7992401123047,
+      62.6166877746582
+    ],
+    "context": "prospective pediatric cohort to identify intervention targets based on the location, timing, barriers, and facilitators of current physical activity and sedentary behavior in a child's"
+  },
+  {
+    "page_num": 110,
+    "original_key": "resource-limited",
+    "matched_text": "resource-limited,",
+    "suggestion": "Mississippi communities with limited healthcare resources",
+    "reason": "This phrase replaces 'resource-limited' with a clear, neutral description that highlights the challenge of limited healthcare resources, fitting the context and audience.",
+    "bbox": [
+      297.99456787109375,
+      508.6274108886719,
+      379.3282775878906,
+      523.3216552734375
+    ],
+    "context": "studies examining the non-clinical determinants of chronic disease with families living in resource-limited, Mississippi communities. Specifically, I have (1) investigated self-care burnout symptoms with patients"
+  },
+  {
+    "page_num": 110,
+    "original_key": "resource-limited",
+    "matched_text": "resource-limited",
+    "suggestion": "youth in areas with limited healthcare resources",
+    "reason": "Replaces 'resource-limited' with a clear, audience-friendly phrase that specifies the context and avoids deficit framing, aligning with AP style and the focus on healthcare resources.",
+    "bbox": [
+      366.673583984375,
+      533.9313354492188,
+      444.9584655761719,
+      548.6256103515625
+    ],
+    "context": "diseases, (2) studied food access and the non-clinical determinants of obesity for resource-limited youth, and (3) examined local barriers to health and engaged community residents"
+  },
+  {
+    "page_num": 110,
+    "original_key": "resource-limited",
+    "matched_text": "resource-limited",
+    "suggestion": "populations with limited healthcare resources",
+    "reason": "This phrase clearly describes the populations in context without deficit framing and aligns with the static suggestion, making it suitable for public-facing academic or grant text.",
+    "bbox": [
+      275.3695983886719,
+      691.7823486328125,
+      353.6543884277344,
+      706.4766235351562
+    ],
+    "context": "training in risk reduction and health promotion research, recruitment and retention of resource-limited populations, and leadership in small and large grants, I am well equipped"
+  },
+  {
+    "page_num": 110,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to align with guidance and maintain a constructive, neutral tone suitable for academic or grant text.",
+    "bbox": [
+      62.52262878417969,
+      546.5833129882812,
+      99.84062957763672,
+      561.277587890625
+    ],
+    "context": "the non-clinical determinants of obesity for resource-limited youth, and (3) examined local barriers to health and engaged community residents in the development of sustainable health"
+  },
+  {
+    "page_num": 112,
+    "original_key": "marginalized communities",
+    "matched_text": "marginalized communities.",
+    "suggestion": "communities experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and highlights the challenges faced by these communities, aligning with the context of socioeconomic conditions and access to healthy food.",
+    "bbox": [
+      105.1722640991211,
+      465.1843566894531,
+      235.17242431640625,
+      479.8786315917969
+    ],
+    "context": "the relationships between nutrition and the socioeconomic conditions affecting obesity prevalence in marginalized communities. Specifically, I have highlighted systematic and participant-identified barriers to healthy food access"
+  },
+  {
+    "page_num": 112,
+    "original_key": "underserved",
+    "matched_text": "underserved",
+    "suggestion": "families with limited healthcare access",
+    "reason": "Replaces 'underserved' with a clear, neutral phrase that highlights limited healthcare access without deficit framing, suitable for academic and public contexts.",
+    "bbox": [
+      507.2877502441406,
+      363.95782470703125,
+      568.4603271484375,
+      378.6520690917969
+    ],
+    "context": "illuminates (1) chronic disease management, (2) the construction of need-based services for underserved families, and (3) educational and health program evaluations. Throughout this work, I"
+  },
+  {
+    "page_num": 112,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive, neutral alternative to 'barriers' that fits well in academic and grant contexts. It avoids deficit framing and aligns with the preference for clear, audience-centered language.",
+    "bbox": [
+      275.41461181640625,
+      389.39398193359375,
+      312.7265319824219,
+      404.0882263183594
+    ],
+    "context": "Throughout this work, I have explored the educational, communicative, social, and medical barriers that affect care for children and families and worked to practically identify"
+  },
+  {
+    "page_num": 112,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, especially when discussing obstacles to healthy food access and behaviors.",
+    "bbox": [
+      36.900299072265625,
+      477.8543701171875,
+      74.16785430908203,
+      492.5486145019531
+    ],
+    "context": "obesity prevalence in marginalized communities. Specifically, I have highlighted systematic and participant-identified barriers to healthy food access and behaviors. Through this work, I developed and"
+  },
+  {
+    "page_num": 113,
+    "original_key": "disadvantaged",
+    "matched_text": "Disadvantaged",
+    "suggestion": "individuals facing challenges in healthcare access",
+    "reason": "This phrase avoids deficit framing and focuses on the challenge of accessing healthcare, aligning with the context of urban children and families while being suitable for academic or grant text.",
+    "bbox": [
+      185.3282928466797,
+      79.36434173583984,
+      258.7796325683594,
+      94.05857849121094
+    ],
+    "context": "Need Saving/Saving Need?: Intersecting Discourses on Urban Children, Families, and Need. In Disadvantaged Childhoods and Humanitarian Intervention. Cheney, K and Sinervo, A., eds. Palgrave. London."
+  },
+  {
+    "page_num": 113,
+    "original_key": "inequality",
+    "matched_text": "Inequality",
+    "suggestion": "disparity",
+    "reason": "Disparity is a neutral term that highlights differences without deficit framing, suitable for academic and public contexts.",
+    "bbox": [
+      394.3822326660156,
+      104.5576400756836,
+      441.4790344238281,
+      119.25187683105469
+    ],
+    "context": "eds. Palgrave. London. b. Compretta CE. (2012). Growing Gaps: Children’s Experiences of Inequality in a Faith-based Afterschool Program in the US South. Ph.D. Dissertation, Anthropology"
+  },
+  {
+    "page_num": 113,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to align with preferred terminology and maintain a constructive, neutral tone suitable for academic or grant text.",
+    "bbox": [
+      131.62811279296875,
+      433.3643798828125,
+      168.9278564453125,
+      448.0586242675781
+    ],
+    "context": "and physician/patient challenges in healthcare. I have worked to elucidate the communicative barriers and misperceptions that occur between clinicians and patients, which have been shown"
+  },
+  {
+    "page_num": 113,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' and fits well in the context of team-based decision-making and communication issues in a clinical setting.",
+    "bbox": [
+      187.282958984375,
+      521.9050903320312,
+      224.58270263671875,
+      536.599365234375
+    ],
+    "context": "extended admissions to the Pediatric Intensive Care Unit (PICU). Both studies identified barriers to effective team-based decision-making and examined the effects of poor communication on"
+  },
+  {
+    "page_num": 114,
+    "original_key": "resource-limited",
+    "matched_text": "resource-limited",
+    "suggestion": "families with limited healthcare resources",
+    "reason": "The phrase 'families with limited healthcare resources' is clear, neutral, and audience-centered. It replaces 'resource-limited' with a more specific and constructive term that fits the context of engaging families in research related to health and food access.",
+    "bbox": [
+      151.386474609375,
+      69.04671478271484,
+      229.6645050048828,
+      83.74095153808594
+    ],
+    "context": "Informal Food Outlets to Address Obesity and Food Access This research engages resource-limited families and youth from a community-based organization to examine previously unidentified informal"
+  },
+  {
+    "page_num": 114,
+    "original_key": "resource-limited",
+    "matched_text": "Resource-limited",
+    "suggestion": "youth in areas with limited healthcare resources",
+    "reason": "This phrase avoids deficit framing and specifies the context of healthcare resources, aligning with the original meaning while being clear and audience-centered.",
+    "bbox": [
+      317.316650390625,
+      436.7705383300781,
+      399.8764343261719,
+      449.10223388671875
+    ],
+    "context": "PI) 5/2016 – 12/2018 Kid Koders for Health: Promoting Physical Activity among Resource-limited Youth Community-based research engaging youth at risk for obesity in creating and"
+  },
+  {
+    "page_num": 114,
+    "original_key": "at risk",
+    "matched_text": "at risk",
+    "suggestion": "youth facing challenges related to obesity",
+    "reason": "This phrase avoids deficit framing and clearly describes the group without implying risk, aligning with the context of resource-limited youth and health promotion.",
+    "bbox": [
+      252.72265625,
+      447.0245056152344,
+      281.9289245605469,
+      461.71875
+    ],
+    "context": "for Health: Promoting Physical Activity among Resource-limited Youth Community-based research engaging youth at risk for obesity in creating and testing a theoretically-based fitness mobile application. Feldman"
+  },
+  {
+    "page_num": 117,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "prone to error or needing improvement",
+    "reason": "The original phrase 'vulnerable to error' can be replaced with 'prone to error or needing improvement' to avoid deficit framing and clarify the meaning in the context of healthcare processes.",
+    "bbox": [
+      147.9474639892578,
+      74.07576751708984,
+      198.70941162109375,
+      88.77000427246094
+    ],
+    "context": "There are many processes in healthcare that involve many moving parts, thus vulnerable to error and/or needs for improvement. One of these processes is hospital"
+  },
+  {
+    "page_num": 119,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' and fits well in academic or grant contexts discussing factors affecting physical activity.",
+    "bbox": [
+      489.9004821777344,
+      657.6986083984375,
+      526.5485229492188,
+      670.9826049804688
+    ],
+    "context": "Duck, JC Robinson, & MW Stewart. (2019). Adults and children’s perceptions of barriers and facilitators of school-aged children’s physical activity in an inner-city urban area."
+  },
+  {
+    "page_num": 120,
+    "original_key": "underserved",
+    "matched_text": "underserved",
+    "suggestion": "adolescents with limited healthcare access",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in a constructive, neutral way suitable for academic or grant contexts.",
+    "bbox": [
+      83.52259063720703,
+      326.25848388671875,
+      142.16659545898438,
+      339.54248046875
+    ],
+    "context": "program grant, integrating comprehensive and behavioral health in a school-based clinic for underserved adolescents, positive outcomes are noted in aspects of wellness, health promotion, mental"
+  },
+  {
+    "page_num": 125,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral alternative to 'barriers' and fits well in the context of interventions aiming to improve health outcomes.",
+    "bbox": [
+      322.36651611328125,
+      465.27667236328125,
+      359.6784362792969,
+      479.9709167480469
+    ],
+    "context": "to examine whether two interventions delivered remotely via telehealth can overcome these barriers to reduce clinical complications and improve health-related quality of life among patients"
+  },
+  {
+    "page_num": 137,
+    "original_key": "underserved population",
+    "matched_text": "Underserved Population",
+    "suggestion": "population with limited access to healthcare",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in a constructive, neutral way suitable for academic and grant contexts.",
+    "bbox": [
+      411.79815673828125,
+      168.9005889892578,
+      529.89990234375,
+      183.59483337402344
+    ],
+    "context": "Selleck (PI) 07/01/12-06/30/15 Implementing an Interprofessional Collaborative Practice (IPCP) Model in an Underserved Population Role: Consultant Individual Investigator Award, University of Nevada Las Vegas Olena Mazurenko"
+  },
+  {
+    "page_num": 164,
+    "original_key": "advocacy",
+    "matched_text": "Advocacy",
+    "suggestion": "Expanding participation Committee",
+    "reason": "The term 'advocacy' is replaced with 'expanding participation' to emphasize constructive engagement and align with the context of committee membership in an academic or grant setting.",
+    "bbox": [
+      164.38775634765625,
+      81.0261459350586,
+      212.09164428710938,
+      95.72038269042969
+    ],
+    "context": "Finance Committee, The Obesity Society 2015 Associate Faculty Member, F1000Prime 2015–2018 Member, Advocacy Committee, The Obesity Society 2013–2016 Specialty Chief Editor, Frontiers in Nutritional Methodology"
+  },
+  {
+    "page_num": 167,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "underrepresented racial and ethnic groups",
+    "reason": "This term is more precise and respectful, avoiding deficit framing while accurately describing the groups involved in the research context.",
+    "bbox": [
+      173.966552734375,
+      320.08245849609375,
+      212.4983673095703,
+      334.7767028808594
+    ],
+    "context": "Research Center and am the director of the Physical Activity and Ethnic Minority Health Laboratory. My main research focus involves physical activity promotion as it"
+  },
+  {
+    "page_num": 167,
+    "original_key": "at risk",
+    "matched_text": "at risk",
+    "suggestion": "who have a higher chance of developing diabetes",
+    "reason": "This phrase avoids deficit framing and clearly communicates the increased likelihood without negative connotations, fitting the academic and public-facing context.",
+    "bbox": [
+      179.3804931640625,
+      357.9938049316406,
+      208.73365783691406,
+      372.68804931640625
+    ],
+    "context": "program for adults and an exercise training trial for men who are at risk for developing diabetes (ARTIIS; 1R01DK095233-01). Recently I have become involved in aging"
+  },
+  {
+    "page_num": 173,
+    "original_key": "at risk",
+    "matched_text": "at risk",
+    "suggestion": "populations likely to discontinue treatment",
+    "reason": "This phrase avoids deficit framing and clearly describes the group without implying inherent risk, making it suitable for academic and public-facing texts.",
+    "bbox": [
+      109.84416198730469,
+      706.4478149414062,
+      139.20614624023438,
+      721.14208984375
+    ],
+    "context": "in various diseases. I examined adherence to cancer treatment to identify populations at risk of discontinuing treatment, for example examining the duration of chemotherapy and radiation"
+  },
+  {
+    "page_num": 177,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "expanding participation",
+    "reason": "The phrase fits the context of community engagement and focuses on inclusive involvement, aligning with a positive, constructive tone suitable for public-facing academic or grant text.",
+    "bbox": [
+      485.24554443359375,
+      409.9236755371094,
+      531.7315673828125,
+      424.617919921875
+    ],
+    "context": "health, workforce development and health outcomes education initiatives, community engagement and health advocacy to investigate and create solutions for the challenges we face today. My"
+  },
+  {
+    "page_num": 179,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' that fits well in academic and grant contexts, maintaining clarity and a positive tone.",
+    "bbox": [
+      150.2622833251953,
+      238.9595489501953,
+      188.79412841796875,
+      253.65379333496094
+    ],
+    "context": "Price-Haywood E, Glover C, Dominick P, Malone P, Hu G, Shi L. Barriers and Facilitators in Implementing Non-Face-to-Face Chronic Care Management in an Elderly Population"
+  },
+  {
+    "page_num": 179,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, especially when discussing factors affecting chronic care management.",
+    "bbox": [
+      248.73062133789062,
+      340.2424621582031,
+      287.262451171875,
+      354.93670654296875
+    ],
+    "context": "Clinical Pharmacist Team-Based Care in a Safety Net Medical Home: Facilitators and Barriers to Chronic Care Management. Popul Health Manag. 2017 Apr;20(2):123-131. PubMed Central PMCID:"
+  },
+  {
+    "page_num": 179,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in academic and grant contexts, maintaining clarity and a positive tone.",
+    "bbox": [
+      303.8500061035156,
+      378.1624450683594,
+      342.3818359375,
+      392.856689453125
+    ],
+    "context": "JJ. Collaborative Depression Care in a Safety Net Medical Home: Facilitators and Barriers to Quality Improvement. Popul Health Manag. 2016 Feb;19(1):46-55. PubMed Central PMCID: PMC4770843."
+  },
+  {
+    "page_num": 181,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' that fits well in academic and grant contexts, maintaining clarity and a positive tone.",
+    "bbox": [
+      249.27459716796875,
+      98.5943832397461,
+      286.6005859375,
+      113.28861999511719
+    ],
+    "context": "care patients with chronic non- cancer pain and to examine facilitators and barriers to implementing this multi-component intervention. Role: PI/PD Outcomes Research Agreement Price-Haywood (PI)"
+  },
+  {
+    "page_num": 181,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' aligns with the preferred wording and maintains a constructive, neutral tone suitable for academic and grant contexts.",
+    "bbox": [
+      37.06158447265625,
+      162.9713897705078,
+      75.60127258300781,
+      175.30307006835938
+    ],
+    "context": "multi-component intervention. Role: PI/PD Outcomes Research Agreement Price-Haywood (PI) 08/11/2020–12/31/2021 Pfizer Inc. Barriers to Digital Health This project seeks to identify strategies to address barriers"
+  },
+  {
+    "page_num": 181,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to use a constructive, neutral term suitable for public-facing academic text.",
+    "bbox": [
+      294.0065612792969,
+      174.4984588623047,
+      332.98480224609375,
+      189.8315887451172
+    ],
+    "context": "Barriers to Digital Health This project seeks to identify strategies to address barriers to use of digital health programs and patient portals among Louisiana populations."
+  },
+  {
+    "page_num": 184,
+    "original_key": "minority",
+    "matched_text": "Minority",
+    "suggestion": "underrepresented groups",
+    "reason": "The term 'underrepresented groups' is more precise and respectful in academic and grant contexts, avoiding deficit framing and emphasizing inclusion.",
+    "bbox": [
+      483.1505126953125,
+      339.2393798828125,
+      521.6749877929688,
+      353.9336242675781
+    ],
+    "context": "in Health Care Co-chair, Ethics & Regulatory Sub-committee of Research Centers in Minority Institutions Translational Research Network of Nine Institutions. Member, Study Advisory Committee, Community-Campus"
+  },
+  {
+    "page_num": 187,
+    "original_key": "disadvantaged neighborhoods",
+    "matched_text": "disadvantaged neighborhoods.",
+    "suggestion": "neighborhoods facing challenges related to non-medical determinants such as housing and transportation",
+    "reason": "This phrase avoids deficit framing and specifies challenges related to non-medical determinants, fitting the academic context and maintaining a neutral, constructive tone.",
+    "bbox": [
+      316.8605041503906,
+      395.13861083984375,
+      462.84051513671875,
+      408.422607421875
+    ],
+    "context": "how they fit together to describe the vicissitudes of life, particularly in disadvantaged neighborhoods. My dissertation addressed the social characteristics of urban life (economics, housing, among"
+  },
+  {
+    "page_num": 192,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a clear, neutral alternative to 'barriers' that fits well in academic and public-facing contexts, maintaining a constructive tone.",
+    "bbox": [
+      334.8695983886719,
+      133.1243438720703,
+      373.40142822265625,
+      147.81858825683594
+    ],
+    "context": "c. Chan C, Wallace E, Golper T, Rosner M et al. Exploring Barriers and Potential Solutions in Home Dialysis: A National Kidney Foundation KDOQI Conference"
+  },
+  {
+    "page_num": 194,
+    "original_key": "barriers",
+    "matched_text": "Barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a clear, neutral alternative to 'barriers' and fits well in academic and grant contexts, maintaining a constructive tone.",
+    "bbox": [
+      316.0970764160156,
+      651.4969482421875,
+      354.62890625,
+      666.1912231445312
+    ],
+    "context": "Role: Principal Investigator: 1/2014-1/2017 Rural Utilization of Peritoneal Dialysis and It’s Associated Barriers Baxter Clinical Evidence Council for Peritonal Dialysis Role: Principal Investigator: 1/2014-1/2017 Fabry"
+  },
+  {
+    "page_num": 205,
+    "original_key": "disadvantaged",
+    "matched_text": "disadvantaged,",
+    "suggestion": "individuals with limited healthcare access",
+    "reason": "This phrase avoids deficit framing and focuses on a specific challenge related to healthcare access, aligning with the context of health outcomes in special populations.",
+    "bbox": [
+      390.6990051269531,
+      124.70076751708984,
+      465.2993469238281,
+      139.39500427246094
+    ],
+    "context": "disease and differences in health outcomes that disproportionately affect special (i.e., economically disadvantaged, rural) populations within our region. This vision forms a common purpose among"
+  },
+  {
+    "page_num": 208,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "protein and RNA three-dimensional",
+    "reason": "In this context, 'structural' refers to the three-dimensional shape of proteins and RNA. Replacing it with 'three-dimensional' clarifies the meaning for a broad audience while maintaining accuracy.",
+    "bbox": [
+      223.42396545410156,
+      588.8632202148438,
+      268.67584228515625,
+      603.5574951171875
+    ],
+    "context": "traditional sequence and genomics analysis, microarray gene expression analysis, protein and RNA structural prediction, and the analysis of data from next generation sequencing (NGS) technologies,"
+  },
+  {
+    "page_num": 219,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "supporting policies that improve nutrition, physical activity, and the environment",
+    "reason": "This phrase focuses on constructive action to improve health outcomes related to nutrition, physical activity, and the environment, aligning with the context and avoiding deficit framing.",
+    "bbox": [
+      98.72382354736328,
+      644.5595092773438,
+      145.21768188476562,
+      659.2537841796875
+    ],
+    "context": "research aims to improve the health of human populations through science and advocacy on nutrition, physical activity, and the environment as they relate to obesity,"
+  },
+  {
+    "page_num": 226,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "expanding participation",
+    "reason": "The phrase 'expanding participation' aligns with the context of involving community voices in health research discussions and systemic change, emphasizing inclusion and engagement without deficit framing.",
+    "bbox": [
+      85.83570861816406,
+      48.639610290527344,
+      132.2986602783203,
+      63.3338508605957
+    ],
+    "context": "for bringing community voice to important tables of discussion on health research, advocacy and systemic change. Many New Orleans CAB members have participated in academic-community"
+  },
+  {
+    "page_num": 234,
+    "original_key": "underserved communities",
+    "matched_text": "underserved communities,",
+    "suggestion": "communities with limited healthcare access",
+    "reason": "This phrase is clear, neutral, and highlights the specific challenge related to healthcare access without deficit framing.",
+    "bbox": [
+      440.2536315917969,
+      213.08534240722656,
+      569.4046020507812,
+      227.7795867919922
+    ],
+    "context": "in research focused on reducing cancer. The three institutions, which are assisting underserved communities, possess unique strengths that supplement each other. The primary objectives are to"
+  },
+  {
+    "page_num": 234,
+    "original_key": "minority",
+    "matched_text": "minority",
+    "suggestion": "underrepresented institutions",
+    "reason": "The term 'underrepresented institutions' is more precise and constructive, avoiding deficit framing while accurately describing institutions that may have fewer resources or recognition in cancer research.",
+    "bbox": [
+      528.8296508789062,
+      112.05831146240234,
+      567.36962890625,
+      126.75254821777344
+    ],
+    "context": "Dr. Clayton Yates develops and strengthens the field of cancer research at minority institutions by conducting basic, clinical, and translational research in collaboration with RCMI."
+  },
+  {
+    "page_num": 234,
+    "original_key": "minority",
+    "matched_text": "minority",
+    "suggestion": "underrepresented investigators",
+    "reason": "This term is more inclusive and focuses on representation without deficit framing, suitable for academic and grant contexts.",
+    "bbox": [
+      96.32014465332031,
+      250.99635314941406,
+      134.86915588378906,
+      265.69061279296875
+    ],
+    "context": "at MSM and TU, to persist in developing a pipeline of prospective minority investigators at TU and further expand cancer disparity research at O' Neal"
+  },
+  {
+    "page_num": 236,
+    "original_key": "advocacy",
+    "matched_text": "advocacy.",
+    "suggestion": "community engagement and expanding participation",
+    "reason": "Expanding participation aligns with the context of community involvement and avoids deficit framing while emphasizing inclusive action.",
+    "bbox": [
+      347.0368957519531,
+      339.7030029296875,
+      396.57122802734375,
+      354.3972473144531
+    ],
+    "context": "population health, workforce development and health education initiatives, community engagement and health advocacy. A. Laboratory As a randomized controlled study of patients within primary care"
+  },
+  {
+    "page_num": 237,
+    "original_key": "african american",
+    "matched_text": "African American",
+    "suggestion": "Black",
+    "reason": "The term 'Black' is widely accepted in academic and public-facing contexts as a respectful and accurate descriptor for people of African descent in the United States.",
+    "bbox": [
+      293.9906005859375,
+      271.1243591308594,
+      377.7843322753906,
+      285.818603515625
+    ],
+    "context": "General Population Location # Unique Patients per Year # Annual In-person Encounters African American Hispanic Caucasian System 1,414,346 3,656,591 29.7% 3.7% 54.2% OMC 632,386 1,021,798 28.3%"
+  },
+  {
+    "page_num": 240,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "community engagement and expanding participation to investigate and create solutions for the challenges we face today",
+    "reason": "Replaces 'health advocacy' with 'expanding participation' to emphasize inclusive involvement and align with the context of community engagement, avoiding deficit framing and focusing on constructive action.",
+    "bbox": [
+      346.9927062988281,
+      48.639610290527344,
+      393.4788818359375,
+      63.3338508605957
+    ],
+    "context": "population health, workforce development and health education initiatives, community engagement and health advocacy to investigate and create solutions for the challenges we face today. OXIHER’s"
+  },
+  {
+    "page_num": 241,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' and fits well in the context of addressing issues like nutrition, financial toxicity, and transportation in public-facing academic or grant text.",
+    "bbox": [
+      243.02548217773438,
+      630.6443481445312,
+      280.3373718261719,
+      645.338623046875
+    ],
+    "context": "individuals with community-based resources that address nutrition, financial toxicity, transportation, and other barriers to optimal health. We collect data via patient reported outcomes, digital engagement,"
+  },
+  {
+    "page_num": 241,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "supporting patient engagement",
+    "reason": "The term 'advocacy' in this context refers to efforts by patient organizations to involve and empower patients. 'Supporting patient engagement' is a clear, constructive alternative that fits public-facing academic or grant text and aligns with the focus on participation and health outcomes.",
+    "bbox": [
+      262.0076904296875,
+      668.5643310546875,
+      308.5015563964844,
+      683.2586059570312
+    ],
+    "context": "programming. Coaching is implemented across multi-sector healthcare verticals, including employers, payors, patient advocacy organizations, and through partnerships with academic and community health care providers. Pack"
+  },
+  {
+    "page_num": 243,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and clearly identifies the group based on their healthcare needs, aligning with the context and audience.",
+    "bbox": [
+      310.54180908203125,
+      568.7175903320312,
+      361.3137512207031,
+      583.411865234375
+    ],
+    "context": "and employs community health workers to address the needs of Alabama's most vulnerable citizens. Currently, ConnectionHealth serves citizens in Jefferson County and the Black Belt"
+  },
+  {
+    "page_num": 244,
+    "original_key": "advocacy",
+    "matched_text": "Advocacy.",
+    "suggestion": "supporting community engagement",
+    "reason": "This phrase aligns with the context of client-centered counseling and referral making, emphasizing constructive involvement without deficit framing.",
+    "bbox": [
+      226.54945373535156,
+      74.07576751708984,
+      277.30694580078125,
+      88.77000427246094
+    ],
+    "context": "6) Conflict resolution, 7) Client centered counseling, 8) Referral making, and 8) Advocacy. ConnectionHealth has been a community partner in past and ongoing trials with"
+  },
+  {
+    "page_num": 245,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "expanding participation",
+    "reason": "In this context, 'expanding participation' aligns with the goal of involving communities more actively, which fits the public-facing academic or grant text and avoids deficit framing.",
+    "bbox": [
+      316.4040832519531,
+      668.5470581054688,
+      362.8902587890625,
+      683.2413330078125
+    ],
+    "context": "communities. MFN provides nutrition education to clients in need and also emphasize advocacy and related needs."
+  },
+  {
+    "page_num": 245,
+    "original_key": "at risk",
+    "matched_text": "at risk",
+    "suggestion": "with a higher chance of developing type 2 diabetes",
+    "reason": "This phrase avoids deficit framing and clearly describes the population without using 'at risk,' making it suitable for public-facing academic or grant text.",
+    "bbox": [
+      160.48373413085938,
+      162.6319122314453,
+      189.8457489013672,
+      177.32615661621094
+    ],
+    "context": "Dining with Diabetes program, a five-part educational series designed to assist adults at risk for type 2 diabetes, who are pre-diabetic, or who have diabetes to"
+  }
+]

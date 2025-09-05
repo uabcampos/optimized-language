@@ -1,0 +1,828 @@
+[
+  {
+    "page_num": 2,
+    "original_key": "social determinants of health",
+    "matched_text": "Social determinants of health",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase clearly specifies the factors influencing health beyond medical care, aligns with the provided static suggestion, and avoids deficit framing while fitting the context of addressing healthcare disparities and challenges faced by vulnerable populations.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": " need to address disparities in healthcare access and reduce the burden on underserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "underserved communities",
+    "matched_text": "underserved communities",
+    "suggestion": "communities with limited healthcare access",
+    "reason": "This phrase is clear, neutral, and focuses on the specific challenge of healthcare access without deficit framing.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "or inclusive language. We need to address disparities in healthcare access and reduce the burden on underserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populati"
+  },
+  {
+    "page_num": 2,
+    "original_key": "vulnerable populations",
+    "matched_text": "vulnerable populations",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and focuses on the challenges faced, aligning with the context of non-medical determinants affecting health.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "rserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "vulnerable population",
+    "matched_text": "vulnerable population",
+    "suggestion": "communities facing health challenges",
+    "reason": "This phrase avoids deficit framing and emphasizes the challenges related to health without labeling the group as vulnerable.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "rserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "disparities",
+    "matched_text": "disparities",
+    "suggestion": "differences",
+    "reason": "The term 'differences' is neutral and constructive, avoiding deficit framing while accurately describing variations in healthcare access.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "s document contains various terms that should be flagged for inclusive language. We need to address disparities in healthcare access and reduce the burden on underserved communities. Social determinants of healt"
+  },
+  {
+    "page_num": 2,
+    "original_key": "underserved",
+    "matched_text": "underserved",
+    "suggestion": "communities with limited healthcare access",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in terms of healthcare access challenges, aligning with the context and preferred terminology.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "or inclusive language. We need to address disparities in healthcare access and reduce the burden on underserved communities. Social determinants of health play a significant role in creating barriers for vulnera"
+  },
+  {
+    "page_num": 2,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in context, aligning with the provided static suggestion and the focus on healthcare challenges.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "rserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "inclusive",
+    "matched_text": "inclusive",
+    "suggestion": "equitable",
+    "reason": "Equitable emphasizes fairness and justice in access, aligning with the goal to address disparities without implying deficit.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "This document contains various terms that should be flagged for inclusive language. We need to address disparities in healthcare access and reduce the burden on underserved "
+  },
+  {
+    "page_num": 2,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "Replaces 'barriers' with 'challenges' to use a constructive, neutral term that fits public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "urden on underserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "barrier",
+    "matched_text": "barrier",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in the context of discussing factors affecting vulnerable populations, aligning with the preference for positive framing.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "urden on underserved communities. Social determinants of health play a significant role in creating barriers for vulnerable populations."
+  },
+  {
+    "page_num": 2,
+    "original_key": "burden",
+    "matched_text": "burden",
+    "suggestion": "challenge",
+    "reason": "The term 'challenge' is a constructive and neutral alternative to 'burden' that fits the context of addressing disparities in healthcare access for underserved communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": " flagged for inclusive language. We need to address disparities in healthcare access and reduce the burden on underserved communities. Social determinants of health play a significant role in creating barri"
+  },
+  {
+    "page_num": 3,
+    "original_key": "disparities",
+    "matched_text": "Disparities",
+    "suggestion": "healthcare challenges",
+    "reason": "Replaces 'disparities' with a neutral, constructive term that highlights challenges without deficit framing, suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Healthcare Disparities"
+  },
+  {
+    "page_num": 4,
+    "original_key": "structural determinants",
+    "matched_text": "structural determinants",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase replaces 'structural determinants' with a clear, audience-friendly term that specifies relevant factors, aligning with AP style and avoiding deficit framing.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "t-risk individuals often experience greater health-related challenges due to systemic injustice and structural determinants of health."
+  },
+  {
+    "page_num": 4,
+    "original_key": "marginalized groups",
+    "matched_text": "marginalized groups",
+    "suggestion": "individuals experiencing healthcare challenges and minority populations",
+    "reason": "This phrase avoids deficit framing and aligns with the static suggestion, maintaining clarity and inclusivity in a public-facing academic context.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "The healthcare system faces significant challenges in serving marginalized groups and minority populations. At-risk individuals often experience greater health-related challenges du"
+  },
+  {
+    "page_num": 4,
+    "original_key": "systemic injustice",
+    "matched_text": "systemic injustice",
+    "suggestion": "imbalances in access or opportunity",
+    "reason": "This phrase aligns with the static suggestion and reframes 'systemic injustice' in a neutral, constructive way suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "minority populations. At-risk individuals often experience greater health-related challenges due to systemic injustice and structural determinants of health."
+  },
+  {
+    "page_num": 4,
+    "original_key": "marginalized group",
+    "matched_text": "marginalized group",
+    "suggestion": "underserved groups",
+    "reason": "The term 'underserved groups' is neutral and constructive, avoiding deficit framing while accurately describing populations facing challenges in healthcare access.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "The healthcare system faces significant challenges in serving marginalized groups and minority populations. At-risk individuals often experience greater health-related challenges d"
+  },
+  {
+    "page_num": 4,
+    "original_key": "marginalized",
+    "matched_text": "marginalized",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase aligns with the static suggestion, avoids deficit framing, and focuses on the challenges faced in healthcare, making it suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "The healthcare system faces significant challenges in serving marginalized groups and minority populations. At-risk individuals often experience greater health-related challe"
+  },
+  {
+    "page_num": 4,
+    "original_key": "structural",
+    "matched_text": "structural",
+    "suggestion": "non-medical determinants",
+    "reason": "Replaces 'structural' with a clear, neutral phrase that specifies factors like housing, transportation, education, or nutrition, aligning with guidelines for public-facing academic text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "t-risk individuals often experience greater health-related challenges due to systemic injustice and structural determinants of health."
+  },
+  {
+    "page_num": 4,
+    "original_key": "minority",
+    "matched_text": "minority",
+    "suggestion": "underrepresented populations",
+    "reason": "The term 'underrepresented populations' is neutral, inclusive, and appropriate for public-facing academic or grant text, avoiding deficit framing while accurately describing groups facing challenges in healthcare.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "The healthcare system faces significant challenges in serving marginalized groups and minority populations. At-risk individuals often experience greater health-related challenges due to systemic"
+  },
+  {
+    "page_num": 4,
+    "original_key": "at-risk",
+    "matched_text": "At-risk",
+    "suggestion": "individuals experiencing greater health-related challenges",
+    "reason": "This phrase avoids deficit framing and clearly describes the group facing health challenges without labeling them as 'at-risk.' It aligns with the context of systemic injustice and non-medical determinants.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "thcare system faces significant challenges in serving marginalized groups and minority populations. At-risk individuals often experience greater health-related challenges due to systemic injustice and struct"
+  },
+  {
+    "page_num": 6,
+    "original_key": "social and built environments",
+    "matched_text": "social and built environments",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase aligns with the context of addressing factors affecting low-income communities and follows the guideline to replace 'social and built environments' with specific non-medical determinants, avoiding deficit framing and ensuring clarity for a public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "color and first-generation students. We aim to develop culturally adapted curriculum that addresses social and built environments affecting low-income communities."
+  },
+  {
+    "page_num": 6,
+    "original_key": "culturally adapted curriculum",
+    "matched_text": "culturally adapted curriculum",
+    "suggestion": "curriculum developed with community input to improve relevance and uptake",
+    "reason": "This phrase emphasizes collaboration and relevance without deficit framing, aligning with the context of addressing non-medical determinants affecting low-income communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "turally relevant interventions for people of color and first-generation students. We aim to develop culturally adapted curriculum that addresses social and built environments affecting low-income communities."
+  },
+  {
+    "page_num": 6,
+    "original_key": "first-generation students",
+    "matched_text": "first-generation students",
+    "suggestion": "students whose parents did not complete a four-year degree",
+    "reason": "This phrase is clear, audience-centered, and avoids deficit framing while accurately describing the group in the context of culturally relevant interventions.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our research focuses on culturally relevant interventions for people of color and first-generation students. We aim to develop culturally adapted curriculum that addresses social and built environments affec"
+  },
+  {
+    "page_num": 6,
+    "original_key": "first-generation student",
+    "matched_text": "first-generation student",
+    "suggestion": "students who are the first in their families to attend college",
+    "reason": "This phrase is clear, audience-centered, and avoids deficit framing while accurately describing the group.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our research focuses on culturally relevant interventions for people of color and first-generation students. We aim to develop culturally adapted curriculum that addresses social and built environments affe"
+  },
+  {
+    "page_num": 6,
+    "original_key": "low-income communities",
+    "matched_text": "low-income communities",
+    "suggestion": "communities with median household income below the state average",
+    "reason": "This phrase avoids deficit framing and specifies the economic context clearly, aligning with the focus on non-medical determinants such as housing and transportation.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "aim to develop culturally adapted curriculum that addresses social and built environments affecting low-income communities."
+  },
+  {
+    "page_num": 6,
+    "original_key": "culturally relevant",
+    "matched_text": "culturally relevant",
+    "suggestion": "developed with input from community partners to reflect local context",
+    "reason": "This phrase emphasizes collaboration and local relevance without implying deficit framing, aligning with the context of interventions for diverse groups.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our research focuses on culturally relevant interventions for people of color and first-generation students. We aim to develop culturally adapt"
+  },
+  {
+    "page_num": 6,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, audience-friendly way that fits academic and grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "irst-generation students. We aim to develop culturally adapted curriculum that addresses social and built environments affecting low-income communities."
+  },
+  {
+    "page_num": 6,
+    "original_key": "people of color",
+    "matched_text": "people of color",
+    "suggestion": "populations with varied racial backgrounds",
+    "reason": "This phrase is neutral, inclusive, and suitable for academic or grant contexts, avoiding deficit framing while accurately describing diverse racial groups.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our research focuses on culturally relevant interventions for people of color and first-generation students. We aim to develop culturally adapted curriculum that addresses socia"
+  },
+  {
+    "page_num": 8,
+    "original_key": "historically marginalized communities",
+    "matched_text": "historically marginalized communities",
+    "suggestion": "communities facing historical challenges",
+    "reason": "This phrase avoids deficit framing and emphasizes the challenges these communities have faced without implying blame or exclusion.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "We will work with historically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addr"
+  },
+  {
+    "page_num": 8,
+    "original_key": "inclusive research practices",
+    "matched_text": "inclusive research practices",
+    "suggestion": "practices that engage a broad range of participants",
+    "reason": "This phrase emphasizes engaging diverse participants without deficit framing and aligns with the context of working with historically marginalized communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "We will work with historically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addressing bias in research design."
+  },
+  {
+    "page_num": 8,
+    "original_key": "marginalized communities",
+    "matched_text": "marginalized communities",
+    "suggestion": "communities experiencing healthcare challenges",
+    "reason": "This phrase aligns with the static suggestion and focuses on challenges without deficit framing, fitting the context of inclusive research and advocacy.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "We will work with historically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addr"
+  },
+  {
+    "page_num": 8,
+    "original_key": "social justice",
+    "matched_text": "social justice",
+    "suggestion": "advocacy for expanding participation and addressing bias in research design",
+    "reason": "This phrase aligns with the context of inclusive research practices and avoids deficit framing while emphasizing constructive action.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "arginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addressing bias in research design."
+  },
+  {
+    "page_num": 8,
+    "original_key": "marginalized",
+    "matched_text": "marginalized",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase aligns with the context of working with communities facing healthcare challenges and avoids deficit framing while being suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "We will work with historically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social just"
+  },
+  {
+    "page_num": 8,
+    "original_key": "inclusive",
+    "matched_text": "inclusive",
+    "suggestion": "equitable",
+    "reason": "Equitable emphasizes fairness and justice in research practices, aligning with advocacy for social justice and addressing bias, without implying deficit.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "We will work with historically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addressing bias in resear"
+  },
+  {
+    "page_num": 8,
+    "original_key": "advocacy",
+    "matched_text": "advocacy",
+    "suggestion": "supporting inclusive participation",
+    "reason": "This phrase emphasizes constructive action to involve historically marginalized communities, aligning with the context of inclusive research practices without deficit framing.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "istorically marginalized communities to develop inclusive research practices. Our approach includes advocacy for social justice and addressing bias in research design."
+  },
+  {
+    "page_num": 10,
+    "original_key": "socially vulnerable communities",
+    "matched_text": "socially vulnerable communities",
+    "suggestion": "communities with elevated exposure to health-related risks",
+    "reason": "This phrase avoids deficit framing and clearly describes the communities' increased exposure to health risks, aligning with the context and maintaining a neutral, constructive tone.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "ies, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vulnerable communities."
+  },
+  {
+    "page_num": 10,
+    "original_key": "hard-to-reach populations",
+    "matched_text": "hard-to-reach populations",
+    "suggestion": "populations that are difficult to engage through traditional outreach",
+    "reason": "This phrase avoids deficit framing and emphasizes engagement challenges without labeling groups negatively. It aligns with the context of focusing on resource-limited and socially vulnerable communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vulnerable communities."
+  },
+  {
+    "page_num": 10,
+    "original_key": "hard-to-reach population",
+    "matched_text": "hard-to-reach population",
+    "suggestion": "populations facing access challenges",
+    "reason": "This phrase avoids deficit framing and emphasizes challenges without negative connotations, aligning with the context of focusing on resource-limited and socially vulnerable communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vulnerable communities."
+  },
+  {
+    "page_num": 10,
+    "original_key": "priority populations",
+    "matched_text": "Priority populations",
+    "suggestion": "populations identified in public-health guidelines for targeted interventions",
+    "reason": "This phrase is clear, neutral, and aligns with public health terminology for groups targeted in interventions without implying deficit or hierarchy.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on reso"
+  },
+  {
+    "page_num": 10,
+    "original_key": "priority population",
+    "matched_text": "Priority population",
+    "suggestion": "focus populations",
+    "reason": "The term 'focus populations' is neutral, clear, and suitable for public-facing academic or grant text. It avoids deficit framing and aligns with the context of identifying groups for targeted efforts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on res"
+  },
+  {
+    "page_num": 10,
+    "original_key": "resource-limited",
+    "matched_text": "resource-limited",
+    "suggestion": "areas with limited healthcare resources",
+    "reason": "This phrase is clear, neutral, and aligns with the context of focusing on communities with fewer healthcare resources, avoiding deficit framing.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "ions include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vulnerable communities."
+  },
+  {
+    "page_num": 10,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in a constructive, neutral way suitable for academic or grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "nx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vulnerable communities."
+  },
+  {
+    "page_num": 10,
+    "original_key": "latinx",
+    "matched_text": "Latinx",
+    "suggestion": "Latino and Latina individuals",
+    "reason": "Provides a clear, inclusive alternative that avoids the contested term 'Latinx' and fits the formal, public-facing academic context.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited areas and socially vu"
+  },
+  {
+    "page_num": 10,
+    "original_key": "bipoc",
+    "matched_text": "BIPOC",
+    "suggestion": "communities experiencing healthcare challenges",
+    "reason": "This phrase is clear, neutral, and focuses on healthcare challenges without emphasizing deficits. It aligns with the context of priority populations and is suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Priority populations include BIPOC communities, Latinx individuals, and hard-to-reach populations. We will focus on resource-limited a"
+  },
+  {
+    "page_num": 12,
+    "original_key": "underrepresented investigators",
+    "matched_text": "underrepresented investigators",
+    "suggestion": "investigators with historically lower participation",
+    "reason": "This phrase avoids deficit framing and clearly identifies the group in a constructive, neutral way suitable for academic and grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our implementation will use tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare"
+  },
+  {
+    "page_num": 12,
+    "original_key": "underrepresented investigator",
+    "matched_text": "underrepresented investigator",
+    "suggestion": "investigators from diverse backgrounds",
+    "reason": "This phrase is constructive, neutral, and emphasizes inclusion without deficit framing, fitting the academic and grant context.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our implementation will use tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers to healthcar"
+  },
+  {
+    "page_num": 12,
+    "original_key": "tailored intervention",
+    "matched_text": "tailored intervention",
+    "suggestion": "context-specific approach",
+    "reason": "The phrase 'context-specific approach' aligns with the static suggestion and fits the academic context. It avoids deficit framing and emphasizes adapting to specific needs without implying a challenge.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our implementation will use tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and bu"
+  },
+  {
+    "page_num": 12,
+    "original_key": "adapted materials",
+    "matched_text": "adapted materials",
+    "suggestion": "materials refined through stakeholder input",
+    "reason": "This phrase emphasizes collaboration and improvement based on feedback, aligning with the context of supporting underrepresented investigators without implying deficits.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our implementation will use tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors"
+  },
+  {
+    "page_num": 12,
+    "original_key": "non-medical needs",
+    "matched_text": "non-medical needs",
+    "suggestion": "non-medical determinants such as nutrition and stable living conditions",
+    "reason": "This phrase aligns with the context by specifying relevant non-medical determinants, avoids deficit framing, and fits public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "se tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare access."
+  },
+  {
+    "page_num": 12,
+    "original_key": "built environment",
+    "matched_text": "built environment",
+    "suggestion": "physical surroundings and infrastructure",
+    "reason": "This phrase clearly describes the built environment in a neutral, accessible way that fits the context of addressing non-medical determinants affecting healthcare access.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "ons and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare access."
+  },
+  {
+    "page_num": 12,
+    "original_key": "underrepresented",
+    "matched_text": "underrepresented",
+    "suggestion": "investigators with historically lower participation",
+    "reason": "This phrase avoids deficit framing and clearly identifies the group in a constructive, neutral way suitable for academic and grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "Our implementation will use tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers"
+  },
+  {
+    "page_num": 12,
+    "original_key": "non-medical need",
+    "matched_text": "non-medical need",
+    "suggestion": "non-medical determinants such as housing, transportation, education, or nutrition",
+    "reason": "This phrase aligns with the preferred terminology for factors influencing healthcare access and avoids deficit framing, making it suitable for academic or grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "se tailored interventions and adapted materials for underrepresented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare access."
+  },
+  {
+    "page_num": 12,
+    "original_key": "barriers",
+    "matched_text": "barriers",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a neutral, constructive alternative to 'barriers' and fits well in the context of addressing non-medical needs and built environment factors affecting healthcare access.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "resented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare access."
+  },
+  {
+    "page_num": 12,
+    "original_key": "barrier",
+    "matched_text": "barrier",
+    "suggestion": "challenges",
+    "reason": "The term 'challenges' is a constructive and neutral alternative to 'barriers' that fits well in public-facing academic or grant text, especially when discussing factors affecting healthcare access.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "resented investigators. We will address non-medical needs and built environment factors that create barriers to healthcare access."
+  },
+  {
+    "page_num": 14,
+    "original_key": "historically excluded",
+    "matched_text": "historically excluded",
+    "suggestion": "individuals with historically lower participation",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in a neutral, constructive way suitable for academic and grant contexts.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "oach will help reduce health disparities and improve outcomes for vulnerable adults and children in historically excluded communities."
+  },
+  {
+    "page_num": 14,
+    "original_key": "vulnerable adults",
+    "matched_text": "vulnerable adults",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and clearly describes the group in a respectful, constructive way suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "This comprehensive approach will help reduce health disparities and improve outcomes for vulnerable adults and children in historically excluded communities."
+  },
+  {
+    "page_num": 14,
+    "original_key": "vulnerable adult",
+    "matched_text": "vulnerable adult",
+    "suggestion": "adults facing health challenges",
+    "reason": "This phrase avoids deficit framing and emphasizes the health context without labeling individuals as vulnerable.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "This comprehensive approach will help reduce health disparities and improve outcomes for vulnerable adults and children in historically excluded communities."
+  },
+  {
+    "page_num": 14,
+    "original_key": "disparities",
+    "matched_text": "disparities",
+    "suggestion": "health challenges",
+    "reason": "Replaces 'disparities' with a neutral term that highlights challenges without deficit framing, suitable for public-facing academic or grant text.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "This comprehensive approach will help reduce health disparities and improve outcomes for vulnerable adults and children in historically excluded communities."
+  },
+  {
+    "page_num": 14,
+    "original_key": "vulnerable",
+    "matched_text": "vulnerable",
+    "suggestion": "individuals experiencing healthcare challenges",
+    "reason": "This phrase avoids deficit framing and focuses on the challenges faced, aligning with the context of improving outcomes for historically excluded communities.",
+    "bbox": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "context": "This comprehensive approach will help reduce health disparities and improve outcomes for vulnerable adults and children in historically excluded communities."
+  }
+]

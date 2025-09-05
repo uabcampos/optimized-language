@@ -1,0 +1,9 @@
+pymupdf
+pandas
+openai
+tiktoken
+tenacity
+python-dotenv
+bayoo-docx
+pylighter
+tqdm
