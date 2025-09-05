@@ -187,7 +187,11 @@ class HybridLanguageFlagger:
         skip_terms_comprehensive = set(self.skip_terms)
         skip_terms_comprehensive.update(self.flagged_terms)
         skip_terms_comprehensive.update(self.replacement_map.keys())  # Original flagged terms
-        skip_terms_comprehensive.update(self.replacement_map.values())  # Replacement terms (like "underserved")
+        
+        # Only add replacement values that contain flagged terms
+        for replacement in self.replacement_map.values():
+            if any(term.lower() in replacement.lower() for term in self.flagged_terms):
+                skip_terms_comprehensive.add(replacement)
         
         # Also check for common problematic terms that should be avoided
         problematic_terms = [
@@ -230,9 +234,12 @@ class HybridLanguageFlagger:
                     current_suggestion = re.sub(
                         r'\b' + re.escape(original.lower()) + r'\b', 
                         replacement, 
-                        current_suggestion_lower, 
+                        current_suggestion,  # Use original case, not lowercase
                         flags=re.IGNORECASE
                     )
+                    # Clean up and capitalize
+                    current_suggestion = re.sub(r'\s+', ' ', current_suggestion).strip()
+                    current_suggestion = current_suggestion.capitalize()
                     validation_history.append(f"replaced '{original}' with '{replacement}'")
                     improved = True
                     break
@@ -242,124 +249,67 @@ class HybridLanguageFlagger:
                 previous_suggestion = current_suggestion
                 current_suggestion = self._generate_alternative_suggestion(current_suggestion, flagged_term_found)
                 validation_history.append(f"improved '{previous_suggestion}' to '{current_suggestion}'")
+            
+            # Check if the suggestion is now clean (no flagged terms)
+            current_suggestion_lower = current_suggestion.lower()
+            still_has_flagged = False
+            for term in skip_terms_comprehensive:
+                term_lower = term.lower()
+                if re.search(r'\b' + re.escape(term_lower) + r'\b', current_suggestion_lower):
+                    still_has_flagged = True
+                    break
+            
+            if not still_has_flagged:
+                # Suggestion is clean, we can exit the loop
+                break
         
         # If we've reached max iterations, return the best we have
         return current_suggestion, f"Validated after {max_iterations} improvements (max reached): {' → '.join(validation_history)}"
     
     def _generate_alternative_suggestion(self, suggestion: str, flagged_term: str) -> str:
-        """Generate a better alternative suggestion when the original contains flagged terms."""
+        """Generate a better alternative suggestion by running it through validation again."""
+        # Use a simplified validation that only does replacement map lookups
+        # to avoid infinite recursion
+        return self._simple_validate_suggestion(suggestion, flagged_term)
+    
+    def _simple_validate_suggestion(self, suggestion: str, flagged_term: str = None) -> str:
+        """Simple validation that only uses replacement map, no recursion."""
         import re
+        
+        if not suggestion:
+            return "Consider alternative phrasing"
         
         suggestion_lower = suggestion.lower()
         
-        # First, try to use the actual replacement map
+        # Try to use the actual replacement map
         for original, replacement in self.replacement_map.items():
             if re.search(r'\b' + re.escape(original.lower()) + r'\b', suggestion_lower):
                 # Replace the flagged term with its approved alternative
                 better_suggestion = re.sub(
                     r'\b' + re.escape(original.lower()) + r'\b', 
                     replacement, 
-                    suggestion_lower, 
+                    suggestion,  # Use original case
                     flags=re.IGNORECASE
                 )
                 # Clean up and capitalize
                 better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
                 return better_suggestion.capitalize()
         
-        # If no replacement map match, try to find a replacement for the specific flagged term
+        # If no replacement map match, try to remove the flagged term entirely
         if flagged_term and flagged_term.lower() in suggestion_lower:
-            # Try to find a replacement for this specific term
-            for original, replacement in self.replacement_map.items():
-                if original.lower() == flagged_term.lower():
-                    better_suggestion = re.sub(
-                        r'\b' + re.escape(flagged_term.lower()) + r'\b',
-                        replacement,
-                        suggestion_lower,
-                        flags=re.IGNORECASE
-                    )
-                    # Clean up and capitalize
-                    better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
-                    return better_suggestion.capitalize()
-        
-        # Fallback to hardcoded replacements for common problematic phrases
-        phrase_replacements = {
-            "underserved communities": "communities with limited access",
-            "marginalized communities": "communities with limited access", 
-            "vulnerable communities": "communities facing challenges",
-            "disadvantaged communities": "communities with limited resources",
-            "underserved populations": "populations with limited access",
-            "marginalized populations": "populations with limited access",
-            "vulnerable populations": "populations facing challenges",
-            "disadvantaged populations": "populations with limited resources",
-            "hard-to-reach populations": "populations with limited access",
-            "hard-to-reach communities": "communities with limited access",
-            "low-income families": "families experiencing economic challenges",
-            "at-risk youth": "youth facing challenges",
-            "struggling with addiction": "experiencing substance use challenges"
-        }
-        
-        # Check for exact phrase matches first
-        for phrase, replacement in phrase_replacements.items():
-            if phrase in suggestion_lower:
-                return replacement
-        
-        # If no exact match, try word-by-word replacement with fallback terms
-        word_replacements = {
-            "underserved": "with limited access",
-            "marginalized": "with limited access",
-            "vulnerable": "facing challenges", 
-            "disadvantaged": "with limited resources",
-            "at-risk": "facing challenges",
-            "burden": "challenge",
-            "struggling": "experiencing",
-            "hard-to-reach": "with limited access",
-            "low-income": "experiencing economic challenges",
-            "health equity": "health fairness",
-            "inequities": "disparities",
-            "equity": "fairness"
-        }
-        
-        better_suggestion = suggestion_lower
-        changes_made = False
-        
-        for word, replacement in word_replacements.items():
-            if word in better_suggestion:
-                old_suggestion = better_suggestion
-                better_suggestion = re.sub(
-                    r'\b' + re.escape(word) + r'\b',
-                    replacement,
-                    better_suggestion,
-                    flags=re.IGNORECASE
-                )
-                if better_suggestion != old_suggestion:
-                    changes_made = True
-        
-        # If no changes were made, try to remove the flagged term entirely
-        if not changes_made and flagged_term:
             better_suggestion = re.sub(
                 r'\b' + re.escape(flagged_term.lower()) + r'\b',
                 '',
-                better_suggestion,
+                suggestion,
                 flags=re.IGNORECASE
             )
             # Clean up extra spaces
             better_suggestion = re.sub(r'\s+', ' ', better_suggestion).strip()
-            changes_made = True
+            if better_suggestion:
+                return better_suggestion.capitalize()
         
-        # If still no changes, provide a generic alternative
-        if not changes_made:
-            better_suggestion = "Consider alternative phrasing"
-        else:
-            # Clean up any double words or awkward phrasing
-            better_suggestion = re.sub(r'\bwith limited access with limited access\b', 'with limited access', better_suggestion)
-            better_suggestion = re.sub(r'\bfacing challenges facing challenges\b', 'facing challenges', better_suggestion)
-            better_suggestion = re.sub(r'\bcommunities communities\b', 'communities', better_suggestion)
-            better_suggestion = re.sub(r'\bpopulations populations\b', 'populations', better_suggestion)
-            
-            # Capitalize first letter
-            better_suggestion = better_suggestion.capitalize()
-        
-        return better_suggestion
+        # If all else fails, provide a generic alternative
+        return "Consider alternative phrasing"
     
     def _extract_span_info(self, extraction, text: str) -> Dict[str, Any]:
         """Extract precise span information for LangExtract extraction."""
