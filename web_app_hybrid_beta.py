@@ -11,6 +11,7 @@ import tempfile
 import subprocess
 import sys
 import re
+import time
 from typing import Dict, List, Tuple
 import pandas as pd
 import zipfile
@@ -50,23 +51,22 @@ def main():
     st.title("🧠 Smart PDF Language Flagger - Hybrid Beta")
     st.markdown("**Enhanced with LangExtract semantic analysis**")
     
+    # Configuration preset selection (outside sidebar for scope)
+    config_preset = st.selectbox(
+        "📋 Choose flagged terms configuration:",
+        [
+            "Standard (flagged_terms.json)",
+            "Overkill (flagged_terms_overkill.json)", 
+            "Overkill Lite (flagged_terms_overkill_lite.json)",
+            "Grant (flagged_terms_grant.json)",
+            "Grant Enhanced (flagged_terms_grant_enhanced.json)"
+        ],
+        help="Select which set of flagged terms and replacements to use"
+    )
+    
     # Sidebar configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
-        
-        # Configuration preset selection
-        st.subheader("📋 Configuration Preset")
-        config_preset = st.selectbox(
-            "Choose flagged terms configuration:",
-            [
-                "Standard (flagged_terms.json)",
-                "Overkill (flagged_terms_overkill.json)", 
-                "Overkill Lite (flagged_terms_overkill_lite.json)",
-                "Grant (flagged_terms_grant.json)",
-                "Grant Enhanced (flagged_terms_grant_enhanced.json)"
-            ],
-            help="Select which set of flagged terms and replacements to use"
-        )
         
         # Analysis mode selection
         st.subheader("🔧 Analysis Mode")
@@ -219,28 +219,92 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
         st.code(" ".join(cmd))
         st.info(f"Configuration: {flagged_file} + {replacements_file}")
     
-    # Process with progress bar
+    # Process with progress bar and detailed progress tracking
     progress_bar = st.progress(0)
     status_text = st.empty()
+    progress_container = st.empty()
+    
+    # Progress tracking variables
+    total_pages = 0
+    current_page = 0
+    processing_rate = 0
+    start_time = time.time()
+    last_update_time = start_time
     
     try:
         status_text.text("🚀 Starting document analysis...")
         progress_bar.progress(10)
         
-        # Run the processing
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
+        # Run the command with real-time output
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True)
         
-        progress_bar.progress(50)
-        status_text.text("📊 Processing results...")
+        output_lines = []
+        total_hits = 0
+        methods = {}
         
-        if result.returncode == 0:
+        # Read output line by line
+        for line in iter(process.stdout.readline, ''):
+            if line:
+                output_lines.append(line.strip())
+                
+                # Parse progress information
+                if "Processing" in line and "pages with" in line:
+                    # Extract total pages: "Processing 245 pages with Overkill preset..."
+                    match = re.search(r'Processing (\d+) pages', line)
+                    if match:
+                        total_pages = int(match.group(1))
+                
+                elif "Processing page" in line and "/" in line:
+                    # Extract current page and rate: "Processing page 45/245 (18.4%) - Rate: 2.3 pages/sec - ETA: 12m 45s"
+                    page_match = re.search(r'Processing page (\d+)/(\d+)', line)
+                    rate_match = re.search(r'Rate: ([\d.]+) pages/sec', line)
+                    
+                    if page_match:
+                        current_page = int(page_match.group(1))
+                        if not total_pages:
+                            total_pages = int(page_match.group(2))
+                    
+                    if rate_match:
+                        processing_rate = float(rate_match.group(1))
+                    
+                    # Update UI every 10 seconds
+                    current_time = time.time()
+                    if (current_time - last_update_time) >= 10:
+                        elapsed = current_time - start_time
+                        progress_pct = (current_page / total_pages * 100) if total_pages > 0 else 0
+                        eta_seconds = (total_pages - current_page) / processing_rate if processing_rate > 0 else 0
+                        eta_minutes = eta_seconds / 60
+                        
+                        with progress_container.container():
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
+                                st.metric("Pages Processed", f"{current_page}/{total_pages}")
+                            with col2:
+                                st.metric("Progress", f"{progress_pct:.1f}%")
+                            with col3:
+                                st.metric("Rate", f"{processing_rate:.1f} pages/sec")
+                            with col4:
+                                st.metric("ETA", f"{eta_minutes:.1f} min")
+                        
+                        progress_bar.progress(progress_pct / 100)
+                        last_update_time = current_time
+                
+                # Parse final statistics
+                elif "Total flags:" in line:
+                    total_hits = int(line.split(":")[1].strip())
+                elif "Pattern matching only:" in line:
+                    methods["pattern_matching"] = int(line.split(":")[1].strip())
+                elif "LangExtract only:" in line:
+                    methods["langextract"] = int(line.split(":")[1].strip())
+                elif "Found by both:" in line:
+                    methods["both_methods"] = int(line.split(":")[1].strip())
+        
+        # Wait for process to complete
+        process.wait()
+        
+        if process.returncode == 0:
             progress_bar.progress(80)
-            status_text.text("✅ Analysis complete!")
+            status_text.text("📊 Processing results...")
             
             # Load results
             csv_file = os.path.join(outdir, "flag_report.csv")
@@ -251,10 +315,12 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
                 # Update session state
                 st.session_state.processing_success = True
                 st.session_state.processing_hits = hits
-                st.session_state.processing_output = result.stdout
+                st.session_state.processing_output = '\n'.join(output_lines)
                 st.session_state.processing_outdir = outdir
                 st.session_state.processing_timestamp = timestamp
-                st.session_state.processing_duration = 0  # Will be calculated
+                st.session_state.processing_duration = time.time() - start_time
+                st.session_state.total_hits = total_hits
+                st.session_state.methods = methods
                 
                 progress_bar.progress(100)
                 status_text.text(f"✅ Found {len(hits)} language issues!")
@@ -264,7 +330,8 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
             else:
                 st.error("❌ Results file not found")
         else:
-            st.error(f"❌ Processing failed: {result.stderr}")
+            stderr_output = process.stderr.read()
+            st.error(f"❌ Processing failed: {stderr_output}")
             status_text.text("❌ Analysis failed")
             
     except subprocess.TimeoutExpired:
