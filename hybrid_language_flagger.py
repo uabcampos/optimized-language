@@ -7,9 +7,39 @@ Combines traditional pattern matching with LangExtract semantic analysis
 import os
 import json
 import textwrap
+import re
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 from datetime import datetime
+
+# Import should_skip_term from smart_flag_pdf
+try:
+    from smart_flag_pdf import should_skip_term
+except ImportError:
+    # Fallback implementation if import fails
+    def should_skip_term(term: str, skip_terms: List[str]) -> bool:
+        """Check if a term should be skipped based on skip terms list and their variations."""
+        if not skip_terms:
+            return False
+        
+        term_lower = term.lower()
+        
+        for skip_term in skip_terms:
+            skip_lower = skip_term.lower()
+            
+            # Exact match
+            if term_lower == skip_lower:
+                return True
+            
+            # Simple suffix additions
+            simple_suffixes = ['s', 'ed', 'ing', 'ly', 'ness', 'ment', 'able', 'ible', 'ful', 'less']
+            for suffix in simple_suffixes:
+                if term_lower == skip_lower + suffix:
+                    return True
+                if skip_lower == term_lower + suffix:
+                    return True
+        
+        return False
 
 # Optional LangExtract import
 try:
@@ -430,7 +460,7 @@ class HybridLanguageFlagger:
         text_lower = text.lower()
         
         for term in self.flagged_terms:
-            if term.lower() in self.skip_terms:
+            if should_skip_term(term, self.skip_terms):
                 continue
                 
             if term.lower() in text_lower:
