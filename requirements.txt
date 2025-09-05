@@ -9,3 +9,7 @@ python-dotenv>=1.0.0
 python-docx>=0.8.11
 plotly>=5.0.0
 psutil>=5.9.0
+reportlab>=4.0.0
+# Optional dependencies for PDF report charts (not available in Streamlit Cloud)
+# matplotlib>=3.7.0
+# seaborn>=0.12.0

@@ -7,8 +7,6 @@ Generates professional PDF reports with summaries, visualizations, and recommend
 import os
 import json
 import tempfile
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -26,6 +24,15 @@ from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics import renderPDF
 import io
 import base64
+
+# Optional imports for chart generation
+try:
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    CHART_AVAILABLE = True
+except ImportError:
+    CHART_AVAILABLE = False
+    print("Warning: matplotlib/seaborn not available. Charts will be skipped in PDF reports.")
 
 class PDFReportGenerator:
     """Generate professional PDF reports for language flagging results."""
@@ -91,44 +98,89 @@ class PDFReportGenerator:
     def create_chart_image(self, chart_type: str, data: Dict, title: str, 
                           width: int = 8, height: int = 6) -> str:
         """Create a chart and return it as a base64 encoded image."""
-        plt.style.use('seaborn-v0_8')
-        fig, ax = plt.subplots(figsize=(width, height))
+        if not CHART_AVAILABLE:
+            # Return a placeholder if matplotlib is not available
+            return self.create_text_placeholder(title, data)
         
-        if chart_type == 'bar':
-            terms = list(data.keys())[:10]  # Top 10 terms
-            counts = list(data.values())[:10]
-            bars = ax.bar(terms, counts, color='#2E86AB', alpha=0.7)
-            ax.set_title(title, fontsize=14, fontweight='bold')
-            ax.set_xlabel('Terms', fontsize=12)
-            ax.set_ylabel('Count', fontsize=12)
-            plt.xticks(rotation=45, ha='right')
+        try:
+            plt.style.use('seaborn-v0_8')
+            fig, ax = plt.subplots(figsize=(width, height))
             
-        elif chart_type == 'pie':
-            # Take top 8 terms for pie chart
-            terms = list(data.keys())[:8]
-            counts = list(data.values())[:8]
-            colors_list = plt.cm.Set3(range(len(terms)))
-            wedges, texts, autotexts = ax.pie(counts, labels=terms, autopct='%1.1f%%', 
-                                            colors=colors_list, startangle=90)
-            ax.set_title(title, fontsize=14, fontweight='bold')
+            if chart_type == 'bar':
+                terms = list(data.keys())[:10]  # Top 10 terms
+                counts = list(data.values())[:10]
+                bars = ax.bar(terms, counts, color='#2E86AB', alpha=0.7)
+                ax.set_title(title, fontsize=14, fontweight='bold')
+                ax.set_xlabel('Terms', fontsize=12)
+                ax.set_ylabel('Count', fontsize=12)
+                plt.xticks(rotation=45, ha='right')
+                
+            elif chart_type == 'pie':
+                # Take top 8 terms for pie chart
+                terms = list(data.keys())[:8]
+                counts = list(data.values())[:8]
+                colors_list = plt.cm.Set3(range(len(terms)))
+                wedges, texts, autotexts = ax.pie(counts, labels=terms, autopct='%1.1f%%', 
+                                                colors=colors_list, startangle=90)
+                ax.set_title(title, fontsize=14, fontweight='bold')
+                
+            elif chart_type == 'page_distribution':
+                pages = list(data.keys())
+                counts = list(data.values())
+                ax.plot(pages, counts, marker='o', linewidth=2, markersize=6, color='#2E86AB')
+                ax.set_title(title, fontsize=14, fontweight='bold')
+                ax.set_xlabel('Page Number', fontsize=12)
+                ax.set_ylabel('Number of Flags', fontsize=12)
+                ax.grid(True, alpha=0.3)
             
-        elif chart_type == 'page_distribution':
-            pages = list(data.keys())
-            counts = list(data.values())
-            ax.plot(pages, counts, marker='o', linewidth=2, markersize=6, color='#2E86AB')
-            ax.set_title(title, fontsize=14, fontweight='bold')
-            ax.set_xlabel('Page Number', fontsize=12)
-            ax.set_ylabel('Number of Flags', fontsize=12)
-            ax.grid(True, alpha=0.3)
+            plt.tight_layout()
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return image_base64
+        except Exception as e:
+            print(f"Error creating chart: {e}")
+            return self.create_text_placeholder(title, data)
+    
+    def create_text_placeholder(self, title: str, data: Dict) -> str:
+        """Create a text-based placeholder when charts are not available."""
+        # Create a simple text representation
+        text_content = f"{title}\n\n"
         
-        plt.tight_layout()
+        if len(data) > 0:
+            # Sort by value and take top items
+            sorted_items = sorted(data.items(), key=lambda x: x[1], reverse=True)
+            for i, (key, value) in enumerate(sorted_items[:10]):
+                text_content += f"{i+1}. {key}: {value}\n"
+        else:
+            text_content += "No data available"
+        
+        # Create a simple text image using reportlab
+        from reportlab.graphics.shapes import Drawing, String
+        from reportlab.graphics import renderPDF
+        from reportlab.lib.colors import black
+        
+        # Create a simple drawing
+        d = Drawing(400, 300)
+        d.add(String(50, 250, title, fontSize=14, fillColor=black))
+        
+        # Add data as text
+        y_pos = 220
+        for i, (key, value) in enumerate(sorted(data.items(), key=lambda x: x[1], reverse=True)[:8]):
+            text = f"{key}: {value}"
+            d.add(String(50, y_pos, text, fontSize=10, fillColor=black))
+            y_pos -= 20
         
         # Convert to base64
         buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight')
+        renderPDF.drawToFile(buffer, d, "PNG")
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode()
-        plt.close()
         
         return image_base64
     
