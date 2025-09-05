@@ -471,9 +471,127 @@ def main():
                 tmp_file.write(uploaded_file.getvalue())
                 input_file = tmp_file.name
             
-            # Process button
-            if st.button("🚀 Process Document", type="primary"):
-                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset)
+            # Configuration Review Section
+            st.markdown("---")
+            st.header("📋 Configuration Review & Edit")
+            st.markdown("Review and edit your flagged terms and replacement maps before processing:")
+            
+            # Get configuration files based on preset
+            flagged_file, replacements_file = get_config_files(config_preset)
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.subheader("📝 Flagged Terms Configuration")
+                
+                # Load flagged terms based on preset
+                if config_preset != "Custom" and os.path.exists(flagged_file):
+                    with open(flagged_file, 'r') as f:
+                        default_flagged_terms = json.load(f)
+                else:
+                    default_flagged_terms = []
+                
+                # Flagged terms as editable text area
+                st.markdown("**Terms to Flag** (one per line):")
+                
+                flagged_terms_text = st.text_area(
+                    "Flagged Terms",
+                    value="\n".join(default_flagged_terms),
+                    height=200,
+                    help="Enter terms to flag, one per line",
+                    key="flagged_terms_edit"
+                )
+                
+                # Parse the terms
+                flagged_terms = [term.strip() for term in flagged_terms_text.split('\n') if term.strip()]
+                
+                # Show count and preview
+                st.info(f"📊 Total flagged terms: {len(flagged_terms)}")
+                
+                if flagged_terms:
+                    st.markdown("**Preview (first 10 terms):**")
+                    for i, term in enumerate(flagged_terms[:10]):
+                        st.write(f"{i+1}. {term}")
+                    if len(flagged_terms) > 10:
+                        st.write(f"... and {len(flagged_terms) - 10} more")
+            
+            with col2:
+                st.subheader("🔄 Replacement Map Configuration")
+                
+                # Load replacements based on preset
+                if config_preset != "Custom" and os.path.exists(replacements_file):
+                    with open(replacements_file, 'r') as f:
+                        default_replacements = json.load(f)
+                else:
+                    default_replacements = {}
+                
+                # Replacements as editable text area
+                st.markdown("**Term Replacements** (JSON format):")
+                
+                replacements_text = st.text_area(
+                    "Replacements JSON",
+                    value=json.dumps(default_replacements, indent=2),
+                    height=200,
+                    help="Enter replacements as JSON object (term: replacement)",
+                    key="replacements_edit"
+                )
+                
+                # Parse the replacements
+                try:
+                    replacements = json.loads(replacements_text)
+                    if not isinstance(replacements, dict):
+                        st.error("❌ Replacements must be a JSON object")
+                        replacements = default_replacements
+                except json.JSONDecodeError as e:
+                    st.error(f"❌ Invalid JSON: {e}")
+                    replacements = default_replacements
+                
+                # Show count and preview
+                st.info(f"📊 Total replacements: {len(replacements)}")
+                
+                if replacements:
+                    st.markdown("**Preview (first 10 replacements):**")
+                    for i, (term, replacement) in enumerate(list(replacements.items())[:10]):
+                        st.write(f"{i+1}. '{term}' → '{replacement}'")
+                    if len(replacements) > 10:
+                        st.write(f"... and {len(replacements) - 10} more")
+            
+            # Skip Terms Configuration
+            st.subheader("⏭️ Skip Terms Configuration")
+            skip_terms_text = st.text_area(
+                "Skip Terms",
+                value="\n".join(skip_terms),
+                height=100,
+                help="Enter terms to skip during analysis, one per line",
+                key="skip_terms_edit"
+            )
+            
+            # Parse skip terms
+            skip_terms = [term.strip() for term in skip_terms_text.split('\n') if term.strip()]
+            st.info(f"📊 Total skip terms: {len(skip_terms)}")
+            
+            # Processing Options Summary
+            st.markdown("---")
+            st.header("⚙️ Processing Options Summary")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown("**Analysis Mode:**")
+                st.write(f"🔍 {analysis_mode}")
+            
+            with col2:
+                st.markdown("**API Provider:**")
+                st.write(f"🤖 {api_provider}")
+            
+            with col3:
+                st.markdown("**Model:**")
+                st.write(f"🧠 {model}")
+            
+            # Process Button
+            st.markdown("---")
+            if st.button("🚀 Process Document", type="primary", help="Begin document analysis with current configuration"):
+                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset, flagged_terms, replacements)
     
     with col2:
         st.header("📊 Quick Stats")
@@ -499,7 +617,8 @@ def main():
             st.info("Upload and process a document to see statistics")
 
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
-                    temperature: float, skip_terms: List[str], config_preset: str):
+                    temperature: float, skip_terms: List[str], config_preset: str, 
+                    flagged_terms: List[str] = None, replacements: Dict[str, str] = None):
     """Process the uploaded document."""
     
     # Initialize session state
@@ -516,8 +635,13 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     if 'processing_duration' not in st.session_state:
         st.session_state.processing_duration = None
     
-    # Get configuration files based on preset
-    flagged_file, replacements_file = get_config_files(config_preset)
+    # Get configuration files based on preset (fallback if not provided)
+    if flagged_terms is None or replacements is None:
+        flagged_file, replacements_file = get_config_files(config_preset)
+    else:
+        # Use provided terms and create temporary files
+        flagged_file = None
+        replacements_file = None
     
     # Create output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -525,16 +649,42 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     os.makedirs(outdir, exist_ok=True)
     
     # Prepare command
-    cmd = [
-        sys.executable, "smart_flag_pdf.py",
-        input_file,  # Positional argument, not --input
-        "--flagged", flagged_file,
-        "--map", replacements_file, 
-        "--outdir", outdir,
-        "--model", model,
-        "--temperature", str(temperature),
-        "--api", api_provider.lower(),
-        "--skip-terms"] + skip_terms
+    if flagged_file and replacements_file:
+        # Use preset files
+        cmd = [
+            sys.executable, "smart_flag_pdf.py",
+            input_file,  # Positional argument, not --input
+            "--flagged", flagged_file,
+            "--map", replacements_file, 
+            "--outdir", outdir,
+            "--model", model,
+            "--temperature", str(temperature),
+            "--api", api_provider.lower(),
+            "--skip-terms"] + skip_terms
+    else:
+        # Use edited terms - create temporary files
+        import tempfile
+        
+        # Create temporary flagged terms file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(flagged_terms, f, indent=2)
+            flagged_file = f.name
+        
+        # Create temporary replacements file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(replacements, f, indent=2)
+            replacements_file = f.name
+        
+        cmd = [
+            sys.executable, "smart_flag_pdf.py",
+            input_file,  # Positional argument, not --input
+            "--flagged", flagged_file,
+            "--map", replacements_file, 
+            "--outdir", outdir,
+            "--model", model,
+            "--temperature", str(temperature),
+            "--api", api_provider.lower(),
+            "--skip-terms"] + skip_terms
     
     # Add hybrid flag if needed
     if analysis_mode in ["Hybrid (Pattern + LangExtract)", "LangExtract Only"]:
@@ -671,6 +821,19 @@ def process_document(input_file: str, analysis_mode: str, api_provider: str, mod
     # Clean up input file
     if os.path.exists(input_file):
         os.unlink(input_file)
+    
+    # Clean up temporary files if they were created
+    if flagged_file and flagged_file.startswith('/tmp'):
+        try:
+            os.unlink(flagged_file)
+        except:
+            pass
+    
+    if replacements_file and replacements_file.startswith('/tmp'):
+        try:
+            os.unlink(replacements_file)
+        except:
+            pass
 
 def display_results():
     """Display comprehensive processing results."""
