@@ -162,7 +162,6 @@ class PDFReportGenerator:
         
         # Create a simple text image using reportlab
         from reportlab.graphics.shapes import Drawing, String
-        from reportlab.graphics import renderPDF
         from reportlab.lib.colors import black
         
         # Create a simple drawing
