@@ -148,14 +148,25 @@ class HybridLanguageFlagger:
         skip_terms_comprehensive.update(self.flagged_terms)
         skip_terms_comprehensive.update(self.replacement_map.keys())  # Only original flagged terms
         
-        # Check if suggestion contains any flagged terms
+        # Check if suggestion contains any flagged terms (word boundary matching)
         suggestion_lower = suggestion.lower()
+        import re
+        
         for term in skip_terms_comprehensive:
-            if term.lower() in suggestion_lower:
+            term_lower = term.lower()
+            # Use word boundary matching to avoid partial matches
+            if re.search(r'\b' + re.escape(term_lower) + r'\b', suggestion_lower):
                 # Try to find a better suggestion from replacement map
                 for original, replacement in self.replacement_map.items():
-                    if original.lower() in suggestion_lower:
-                        return replacement, f"Replaced flagged term '{original}' with approved alternative"
+                    if re.search(r'\b' + re.escape(original.lower()) + r'\b', suggestion_lower):
+                        # Replace the flagged term with its approved alternative
+                        updated_suggestion = re.sub(
+                            r'\b' + re.escape(original.lower()) + r'\b', 
+                            replacement, 
+                            suggestion_lower, 
+                            flags=re.IGNORECASE
+                        )
+                        return updated_suggestion, f"Replaced flagged term '{original}' with approved alternative"
                 
                 # If no direct replacement, provide a generic alternative
                 return "Consider alternative phrasing", f"Suggestion contained flagged term '{term}'"
