@@ -405,19 +405,32 @@ def main():
     st.title("📝 Smart PDF Language Flagger - Advanced")
     st.markdown("Upload documents and configure language flagging settings with advanced analytics")
     
-    # Initialize session state for results persistence
-    if 'processing_results' not in st.session_state:
-        st.session_state.processing_results = None
-    if 'processing_success' not in st.session_state:
-        st.session_state.processing_success = False
-    if 'processing_hits' not in st.session_state:
-        st.session_state.processing_hits = []
-    if 'processing_output' not in st.session_state:
-        st.session_state.processing_output = ""
-    if 'processing_timestamp' not in st.session_state:
-        st.session_state.processing_timestamp = None
-    if 'processing_outdir' not in st.session_state:
-        st.session_state.processing_outdir = None
+    # Initialize session state for results persistence with better error handling
+    try:
+        if 'processing_results' not in st.session_state:
+            st.session_state.processing_results = None
+        if 'processing_success' not in st.session_state:
+            st.session_state.processing_success = False
+        if 'processing_hits' not in st.session_state:
+            st.session_state.processing_hits = []
+        if 'processing_output' not in st.session_state:
+            st.session_state.processing_output = ""
+        if 'processing_timestamp' not in st.session_state:
+            st.session_state.processing_timestamp = None
+        if 'processing_outdir' not in st.session_state:
+            st.session_state.processing_outdir = None
+        if 'processing_duration' not in st.session_state:
+            st.session_state.processing_duration = None
+        
+        # Ensure processing_hits is always a list to prevent serialization issues
+        if not isinstance(st.session_state.processing_hits, list):
+            st.session_state.processing_hits = []
+            
+    except Exception as e:
+        st.error(f"Session state initialization error: {e}")
+        # Reset session state
+        st.session_state.clear()
+        st.rerun()
     
     # Sidebar for configuration only
     with st.sidebar:
@@ -620,29 +633,92 @@ def main():
             # Display hits in a detailed table
             st.subheader("📋 Detailed Results Table")
             try:
-                df = pd.DataFrame(st.session_state.processing_hits)
+                # Ensure we have valid data
+                if not st.session_state.processing_hits:
+                    st.warning("No hits data available")
+                    return
+                
+                # Create DataFrame with error handling
+                try:
+                    df = pd.DataFrame(st.session_state.processing_hits)
+                    if df.empty:
+                        st.warning("No data to display")
+                        return
+                except Exception as df_error:
+                    st.error(f"Error creating DataFrame: {df_error}")
+                    return
+                
                 st.write(f"DataFrame columns: {list(df.columns)}")
                 
-                # Add search and filter capabilities
-                search_term = st.text_input("🔍 Search in results:", placeholder="Search by term, suggestion, or page...")
-                if search_term:
-                    mask = df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
-                    df = df[mask]
-                    st.info(f"Showing {len(df)} results matching '{search_term}'")
+                # Add search and filter capabilities with better error handling
+                search_term = st.text_input(
+                    "🔍 Search in results:", 
+                    placeholder="Search by term, suggestion, or page...", 
+                    key="search_results",
+                    help="Search across all columns in the results table"
+                )
+                
+                # Initialize display dataframe
+                display_df = df.copy()
+                
+                # Apply search filter if provided
+                if search_term and search_term.strip():
+                    try:
+                        # Clean the search term
+                        clean_search = search_term.strip()
+                        
+                        # Create search mask with better error handling
+                        search_mask = pd.Series([False] * len(display_df), index=display_df.index)
+                        
+                        for col in display_df.columns:
+                            try:
+                                col_mask = display_df[col].astype(str).str.contains(
+                                    clean_search, 
+                                    case=False, 
+                                    na=False, 
+                                    regex=False
+                                )
+                                search_mask = search_mask | col_mask
+                            except Exception as col_error:
+                                st.warning(f"Search error in column '{col}': {col_error}")
+                                continue
+                        
+                        display_df = display_df[search_mask]
+                        st.info(f"Showing {len(display_df)} results matching '{clean_search}'")
+                        
+                    except Exception as search_error:
+                        st.warning(f"Search error: {search_error}. Showing all results.")
+                        display_df = df
                 
                 # Display the dataframe with enhanced formatting
-                st.dataframe(
-                    df, 
-                    width='stretch',
-                    column_config={
-                        "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
-                        "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
-                        "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
-                        "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
-                        "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
-                        "context": st.column_config.TextColumn("Context", help="Surrounding text context")
-                    }
-                )
+                try:
+                    # Ensure we have data to display
+                    if display_df.empty:
+                        st.info("No results match your search criteria.")
+                    else:
+                        st.dataframe(
+                            display_df, 
+                            width='stretch',
+                            column_config={
+                                "page_num": st.column_config.NumberColumn("Page", help="Page number where the term was found"),
+                                "original_key": st.column_config.TextColumn("Original Term", help="The flagged term"),
+                                "matched_text": st.column_config.TextColumn("Matched Text", help="Actual text that was matched"),
+                                "suggestion": st.column_config.TextColumn("Suggestion", help="LLM-generated suggestion"),
+                                "reason": st.column_config.TextColumn("Reason", help="Explanation for the suggestion"),
+                                "context": st.column_config.TextColumn("Context", help="Surrounding text context")
+                            },
+                            hide_index=True,
+                            use_container_width=True
+                        )
+                except Exception as display_error:
+                    st.error(f"Error displaying table: {display_error}")
+                    # Fallback: show basic table without column config
+                    try:
+                        st.dataframe(display_df, width='stretch', hide_index=True, use_container_width=True)
+                    except Exception as fallback_error:
+                        st.error(f"Fallback display also failed: {fallback_error}")
+                        st.write("Raw data preview:")
+                        st.write(display_df.head())
             except Exception as e:
                 st.error(f"Error creating table: {e}")
                 st.write("Raw hits data:")
@@ -669,6 +745,17 @@ def main():
                 st.write(f"**Hit Keys:** {list(st.session_state.processing_hits[0].keys()) if st.session_state.processing_hits[0] else 'No keys'}")
             else:
                 st.write("**No hits data available**")
+            
+            # Recovery options
+            st.write("**Recovery Options:**")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🔄 Reset Session State", help="Clear all session data and start fresh"):
+                    st.session_state.clear()
+                    st.rerun()
+            with col2:
+                if st.button("🔄 Reload Page", help="Refresh the page to recover from errors"):
+                    st.rerun()
         
         # Display processing output if available
         if st.session_state.processing_output:
