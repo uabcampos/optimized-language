@@ -702,10 +702,15 @@ def process_terms_chunk(args) -> List[Hit]:
     """Worker function for processing a chunk of terms with proper text matching and bbox calculation."""
     page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words, api_type, skip_terms = args
     
-    # Create a new client for this process
+    # Create a new client for this process with fallback logic
+    client = None
     try:
         if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
-            client = get_gemini_client(model)
+            try:
+                client = get_gemini_client(model)
+            except Exception as e:
+                print(f"Gemini failed in worker process: {e}, falling back to OpenAI")
+                client = get_openai_client()
         else:
             client = get_openai_client()
     except Exception as e:
@@ -1354,6 +1359,24 @@ def process_pdf(input_pdf: str,
     print(f"📋 Built {len(all_terms)} search terms")
     print(f"📋 Created {len(phrase_tokens)} phrase tokens")
     
+    # Create LLM client for fallback mode with fallback logic
+    client = None
+    try:
+        if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+            try:
+                client = get_gemini_client(model)
+                print("Using Gemini for fallback mode")
+            except Exception as e:
+                print(f"Gemini failed: {e}, falling back to OpenAI")
+                client = get_openai_client()
+                print("Using OpenAI for fallback mode")
+        else:
+            client = get_openai_client()
+            print("Using OpenAI for fallback mode")
+    except Exception as e:
+        print(f"Error creating client: {e}")
+        return out_pdf, []
+    
     if skip_terms:
         print(f"🚫 Skip terms: {skip_terms}")
     else:
@@ -1409,13 +1432,43 @@ def process_pdf(input_pdf: str,
                 chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words, api_type, skip_terms or []))
             
             # Process chunks in parallel
-            with mp.Pool(processes=num_processes) as pool:
-                chunk_results = pool.map(process_terms_chunk, chunk_args)
-            
-            # Collect all hits from this page
-            page_hits = []
-            for chunk_hits in chunk_results:
-                page_hits.extend(chunk_hits)
+            try:
+                with mp.Pool(processes=num_processes) as pool:
+                    chunk_results = pool.map(process_terms_chunk, chunk_args)
+                
+                # Check if multiprocessing failed (all chunks returned empty results)
+                total_chunk_hits = sum(len(chunk_hits) for chunk_hits in chunk_results)
+                if total_chunk_hits == 0 and len(chunk_args) > 0:
+                    print(f"⚠️  Multiprocessing returned 0 hits, falling back to single-threaded mode...")
+                    # Fall back to single-threaded mode using find_hits_on_page
+                    page_hits = find_hits_on_page(
+                        page=page,
+                        phrase_tokens=phrase_tokens,
+                        repl_map=repl_map,
+                        client=client,
+                        model=model,
+                        temperature=temperature,
+                        cache={},
+                        api_type=api_type
+                    )
+                else:
+                    # Collect all hits from this page
+                    page_hits = []
+                    for chunk_hits in chunk_results:
+                        page_hits.extend(chunk_hits)
+            except Exception as e:
+                print(f"⚠️  Multiprocessing failed: {e}, falling back to single-threaded mode...")
+                # Fall back to single-threaded mode using find_hits_on_page
+                page_hits = find_hits_on_page(
+                    page=page,
+                    phrase_tokens=phrase_tokens,
+                    repl_map=repl_map,
+                    client=client,
+                    model=model,
+                    temperature=temperature,
+                    cache={},
+                    api_type=api_type
+                )
             
             # Collect hits (annotation will be done later)
             all_hits.extend(page_hits)
