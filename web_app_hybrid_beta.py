@@ -147,7 +147,7 @@ def main():
             
             # Process button
             if st.button("🚀 Process Document", type="primary"):
-                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms)
+                process_document(input_file, analysis_mode, api_provider, model, temperature, skip_terms, config_preset)
     
     with col2:
         st.header("📊 Quick Stats")
@@ -173,7 +173,7 @@ def main():
             st.info("Upload and process a document to see statistics")
 
 def process_document(input_file: str, analysis_mode: str, api_provider: str, model: str, 
-                    temperature: float, skip_terms: List[str]):
+                    temperature: float, skip_terms: List[str], config_preset: str):
     """Process the uploaded document."""
     
     # Initialize session state
