@@ -288,6 +288,11 @@ class Hit:
     bbox: Tuple[float, float, float, float]  # union of matched words
     context: str
     method: str = "pattern_matching"  # analysis method used
+    confidence: float = 0.0    # confidence score for the hit
+    char_start: int = -1       # character start position
+    char_end: int = -1         # character end position
+    span_length: int = 0       # length of the matched span
+    span_grounding: str = ""   # method used for span grounding
 
 @dataclass
 class DocumentAnalysis:
@@ -909,7 +914,9 @@ def process_terms_chunk(args) -> List[Hit]:
                     suggestion=suggestion,
                     reason=reason,
                     bbox=bbox,  # Proper bbox calculation
-                    context=context
+                    context=context,
+                    method="pattern_matching",
+                    confidence=0.95
                 )
                 hits.append(hit)
                 processed_count += 1
@@ -994,7 +1001,9 @@ def find_hits_on_page(page: fitz.Page,
                     suggestion=suggestion,
                     reason=reason,
                     bbox=bbox,
-                    context=context
+                    context=context,
+                    method="pattern_matching",
+                    confidence=0.95
                 )
                 hits.append(hit)
                 used.extend(span)
@@ -1307,7 +1316,9 @@ def process_docx_advanced(input_docx: str, flagged_terms: List[str], repl_map: D
             suggestion=suggestion,
             reason=reason,
             bbox=(0, 0, 0, 0),  # No bbox for DOCX
-            context=context
+            context=context,
+            method="pattern_matching",
+            confidence=0.95
         )
         hits.append(hit)
     
@@ -1678,7 +1689,12 @@ def process_pdf(input_pdf: str,
                         reason=hit_data["reason"],
                         bbox=bbox,
                         context=hit_data["context"],
-                        method=hit_data.get("method", "unknown")
+                        method=hit_data.get("method", "unknown"),
+                        confidence=hit_data.get("confidence", 0.0),
+                        char_start=hit_data.get("char_start", -1),
+                        char_end=hit_data.get("char_end", -1),
+                        span_length=hit_data.get("span_length", 0),
+                        span_grounding=hit_data.get("span_grounding", "")
                     )
                     page_hits.append(hit)
                 
@@ -1795,7 +1811,7 @@ def process_pdf(input_pdf: str,
 
 def export_reports(hits: List[Hit], outdir: str) -> Tuple[str, str]:
     rows = [asdict(h) for h in hits]
-    df = pd.DataFrame(rows, columns=["page_num", "original_key", "matched_text", "suggestion", "reason", "bbox", "context"])
+    df = pd.DataFrame(rows, columns=["page_num", "original_key", "matched_text", "suggestion", "reason", "bbox", "context", "method", "confidence", "char_start", "char_end", "span_length", "span_grounding"])
     csv_path = os.path.join(outdir, "flag_report.csv")
     json_path = os.path.join(outdir, "flag_report.json")
     df.to_csv(csv_path, index=False)
