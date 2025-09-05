@@ -287,6 +287,7 @@ class Hit:
     reason: str
     bbox: Tuple[float, float, float, float]  # union of matched words
     context: str
+    method: str = "pattern_matching"  # analysis method used
 
 @dataclass
 class DocumentAnalysis:
@@ -1612,7 +1613,8 @@ def process_pdf(input_pdf: str,
                         suggestion=hit_data["suggestion"],
                         reason=hit_data["reason"],
                         bbox=bbox,
-                        context=hit_data["context"]
+                        context=hit_data["context"],
+                        method=hit_data.get("method", "unknown")
                     )
                     page_hits.append(hit)
                 
@@ -1842,6 +1844,17 @@ def main():
         print(f"CSV report:     {csv_path}")
         print(f"JSON report:    {json_path}")
         print(f"Total flags:    {len(hits)}")
+        
+        # Add hybrid analysis breakdown if using hybrid mode
+        if use_hybrid and hits:
+            # Count hits by method
+            pattern_count = len([h for h in hits if h.method == "pattern_matching"])
+            langextract_count = len([h for h in hits if h.method == "langextract"])
+            both_count = len([h for h in hits if h.method == "both_methods"])
+            
+            print(f"Pattern matching only: {pattern_count}")
+            print(f"LangExtract only: {langextract_count}")
+            print(f"Found by both: {both_count}")
 
 if __name__ == "__main__":
     main()
