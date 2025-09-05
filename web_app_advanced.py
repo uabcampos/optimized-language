@@ -324,7 +324,7 @@ def main():
         st.subheader("🚫 Skip Terms")
         skip_terms_text = st.text_area(
             "Terms to Skip (one per line)",
-            value="disparity\n",
+            value="",
             height=100,
             help="Enter terms to skip during processing. The system will automatically detect variations (e.g., 'disparity' will skip 'disparities', 'disparate', etc.)"
         )

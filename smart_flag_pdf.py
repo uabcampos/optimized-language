@@ -160,27 +160,26 @@ def should_skip_term(term: str, skip_terms: List[str]) -> bool:
         if term_lower == skip_lower:
             return True
         
-        # Check if term starts with skip term (for variations like disparity -> disparities)
-        if term_lower.startswith(skip_lower):
-            return True
-        
-        # Check if skip term starts with term (for root forms)
-        if skip_lower.startswith(term_lower):
-            return True
-        
-        # Check for common word variations
-        # Remove common suffixes and check root
+        # Check for word variations (more precise matching)
+        # Only match if the term is a variation of the skip term, not just starts with it
         common_suffixes = ['s', 'es', 'ed', 'ing', 'ly', 'tion', 'sion', 'ness', 'ment', 'able', 'ible', 'ful', 'less']
         
+        # Check if term is skip_term + suffix
         for suffix in common_suffixes:
-            if term_lower.endswith(suffix):
-                root = term_lower[:-len(suffix)]
-                if root == skip_lower or skip_lower.startswith(root):
-                    return True
-            
-            if skip_lower.endswith(suffix):
-                root = skip_lower[:-len(suffix)]
-                if root == term_lower or term_lower.startswith(root):
+            if term_lower == skip_lower + suffix:
+                return True
+        
+        # Check if skip_term is term + suffix
+        for suffix in common_suffixes:
+            if skip_lower == term_lower + suffix:
+                return True
+        
+        # Check if they share the same root (both have suffixes)
+        for suffix in common_suffixes:
+            if term_lower.endswith(suffix) and skip_lower.endswith(suffix):
+                term_root = term_lower[:-len(suffix)]
+                skip_root = skip_lower[:-len(suffix)]
+                if term_root == skip_root:
                     return True
     
     return False
@@ -682,8 +681,12 @@ def process_terms_chunk(args) -> List[Hit]:
     cache = {}  # Each process gets its own cache
     
     hits = []
+    skipped_count = 0
+    processed_count = 0
     norm_tokens = [normalize_token(w[4]) for w in page_words]
     orig_tokens = [w[4] for w in page_words]
+    
+    print(f"🔍 Processing {len(phrase_tokens)} terms on page {page_num} with skip terms: {skip_terms}")
     
     # Keep track of already consumed word indices to avoid overlaps
     used: List[int] = []
@@ -713,6 +716,8 @@ def process_terms_chunk(args) -> List[Hit]:
                 
                 # Check if this term should be skipped
                 if should_skip_term(phrase, skip_terms):
+                    print(f"⏭️  Skipping term: '{phrase}' (matches skip terms: {skip_terms})")
+                    skipped_count += 1
                     i += 1
                     continue
                 
@@ -737,11 +742,13 @@ def process_terms_chunk(args) -> List[Hit]:
                     context=context
                 )
                 hits.append(hit)
+                processed_count += 1
                 used.extend(span)
                 i += n
                 continue
             i += 1
     
+    print(f"📊 Page {page_num} summary: {processed_count} processed, {skipped_count} skipped, {len(hits)} hits found")
     return hits
 
 def find_hits_on_page(page: fitz.Page,
