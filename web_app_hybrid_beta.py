@@ -430,7 +430,7 @@ def main():
         st.subheader("🔧 Analysis Mode")
         analysis_mode = st.radio(
             "Choose analysis method:",
-            ["Standard Pattern Matching", "Hybrid (Pattern + LangExtract)", "LangExtract Only"],
+            ["Hybrid (Pattern + LangExtract)", "Standard Pattern Matching", "LangExtract Only"],
             help="Hybrid mode combines traditional pattern matching with LangExtract semantic analysis"
         )
         
