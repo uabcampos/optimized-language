@@ -1073,21 +1073,6 @@ def display_results():
                                         
                             except Exception as e:
                                 st.warning(f"Could not analyze hybrid effectiveness: {e}")
-                            
-                            # Show span grounding statistics
-                            if 'span_grounding' in df.columns and not df['span_grounding'].isna().all():
-                                grounding_counts = df['span_grounding'].value_counts()
-                                st.subheader("🎯 Span Grounding Methods")
-                                col1, col2, col3, col4 = st.columns(4)
-                                
-                                with col1:
-                                    st.metric("Direct LangExtract", grounding_counts.get('langextract_direct', 0))
-                                with col2:
-                                    st.metric("Fuzzy Matching", grounding_counts.get('fuzzy_exact', 0) + grounding_counts.get('fuzzy_word_match', 0))
-                                with col3:
-                                    st.metric("Pattern Matching", grounding_counts.get('pattern_matching_exact', 0))
-                                with col4:
-                                    st.metric("Simple Find", grounding_counts.get('simple_find', 0))
         else:
             st.warning("⚠️ No flagged terms found in the document.")
         
@@ -1136,6 +1121,21 @@ def display_results():
                     return
                 
                 st.write(f"DataFrame columns: {list(df.columns)}")
+                
+                # Show span grounding statistics
+                if 'span_grounding' in df.columns and not df['span_grounding'].isna().all():
+                    grounding_counts = df['span_grounding'].value_counts()
+                    st.subheader("🎯 Span Grounding Methods")
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        st.metric("Direct LangExtract", grounding_counts.get('langextract_direct', 0))
+                    with col2:
+                        st.metric("Fuzzy Matching", grounding_counts.get('fuzzy_exact', 0) + grounding_counts.get('fuzzy_word_match', 0))
+                    with col3:
+                        st.metric("Pattern Matching", grounding_counts.get('pattern_matching_exact', 0))
+                    with col4:
+                        st.metric("Simple Find", grounding_counts.get('simple_find', 0))
                 
                 # Add search and filter capabilities with better error handling
                 search_term = st.text_input(
