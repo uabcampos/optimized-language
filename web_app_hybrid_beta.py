@@ -1312,6 +1312,8 @@ def display_results():
                 if st.session_state.processing_hits and len(st.session_state.processing_hits) > 0:
                     if st.button("📊 Generate PDF Report", help="Generate a comprehensive PDF report with summaries and visualizations"):
                         try:
+                            st.write("🔍 Debug: Starting PDF generation...")
+                            
                             # Load document analysis if available
                             document_analysis = {}
                             if st.session_state.processing_outdir:
@@ -1319,6 +1321,8 @@ def display_results():
                                 if os.path.exists(analysis_file):
                                     with open(analysis_file, 'r', encoding='utf-8') as f:
                                         document_analysis = json.load(f)
+                            
+                            st.write("🔍 Debug: About to call generate_pdf_report...")
                             
                             # Generate PDF report
                             with st.spinner("Generating PDF report..."):
@@ -1347,6 +1351,8 @@ def display_results():
                                 
                         except Exception as e:
                             st.error(f"Error generating PDF report: {e}")
+                            import traceback
+                            st.error(f"Full traceback: {traceback.format_exc()}")
                             st.exception(e)
                 else:
                     st.info("No data available for PDF report generation")
