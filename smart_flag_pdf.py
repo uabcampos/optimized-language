@@ -271,43 +271,68 @@ def llm_suggest(client: OpenAI, model: str, term: str, static_suggestion: str, c
 # -----------------------------
 
 def process_terms_chunk(args) -> List[Hit]:
-    """Worker function for processing a chunk of terms."""
-    page_text, phrase_tokens, repl_map, model, temperature, page_num = args
+    """Worker function for processing a chunk of terms with proper text matching and bbox calculation."""
+    page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words = args
     
     # Create a new OpenAI client for this process
     client = get_openai_client()
     cache = {}  # Each process gets its own cache
     
-    # Simple text-based matching for parallel processing
     hits = []
+    norm_tokens = [normalize_token(w[4]) for w in page_words]
+    orig_tokens = [w[4] for w in page_words]
+    
+    # Keep track of already consumed word indices to avoid overlaps
+    used: List[int] = []
+    
+    def span_free(span: List[int]) -> bool:
+        return all(idx not in used for idx in span)
+    
     for phrase, toks in phrase_tokens:
         if not toks:
             continue
             
-        # Simple text search for the phrase
-        phrase_text = ' '.join(toks)
-        if phrase_text.lower() in page_text.lower():
-            # Get static suggestion if available
-            static_suggestion = repl_map.get(phrase, "")
-            
-            # Always ask LLM
-            cache_key = f"{phrase.lower()}|{page_text[:100].lower()}"
-            if cache_key in cache:
-                suggestion, reason = cache[cache_key]
-            else:
-                suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, page_text[:500], temperature)
-                cache[cache_key] = (suggestion, reason)
-            
-            hit = Hit(
-                page_num=page_num,
-                original_key=phrase,
-                matched_text=phrase_text,
-                suggestion=suggestion,
-                reason=reason,
-                bbox=(100, 100, 200, 120),  # Default bbox for parallel processing
-                context=page_text[:500]
-            )
-            hits.append(hit)
+        n = len(toks)
+        i = 0
+        while i <= len(norm_tokens) - n:
+            window = norm_tokens[i:i+n]
+            if window == toks and span_free(list(range(i, i+n))):
+                span = list(range(i, i+n))
+                matched_words = [page_words[k] for k in span]
+                matched_text = join_words(matched_words)
+                bbox = get_union_bbox(matched_words)
+                context = extract_context_tokens(orig_tokens, i, i+n)
+                
+                # Check if this is part of a proper noun context
+                if is_proper_noun_context(context, 0, len(matched_text)):
+                    i += 1
+                    continue
+                
+                # Get static suggestion if available
+                static_suggestion = repl_map.get(phrase, "")
+                
+                # Always ask LLM
+                cache_key = term_context_cache_key(phrase, context)
+                if cache_key in cache:
+                    suggestion, reason = cache[cache_key]
+                else:
+                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature)
+                    cache[cache_key] = (suggestion, reason)
+                
+                hit = Hit(
+                    page_num=page_num,
+                    original_key=phrase,
+                    matched_text=matched_text,
+                    suggestion=suggestion,
+                    reason=reason,
+                    bbox=bbox,  # Proper bbox calculation
+                    context=context
+                )
+                hits.append(hit)
+                used.extend(span)
+                i += n
+                continue
+            i += 1
     
     return hits
 
@@ -825,10 +850,12 @@ def process_pdf(input_pdf: str,
         total_pages = len(doc)
         print(f"Processing {total_pages} pages with Overkill preset...")
         
-        # Extract all page text first
+        # Extract all page text and words first
         page_texts = []
+        page_words_list = []
         for page_num, page in enumerate(doc):
             page_texts.append(page.get_text())
+            page_words_list.append(words_by_order(page))
         
         # Process each page with parallel term chunks
         start_time = time.time()
@@ -841,12 +868,13 @@ def process_pdf(input_pdf: str,
             
             # Prepare arguments for parallel processing
             page_text = page_texts[page_num]
+            page_words = page_words_list[page_num]
             chunk_args = []
             
             for chunk_start in range(0, total_terms, chunk_size):
                 chunk_end = min(chunk_start + chunk_size, total_terms)
                 chunk_phrase_tokens = phrase_tokens[chunk_start:chunk_end]
-                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1))
+                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words))
             
             # Process chunks in parallel
             with mp.Pool(processes=num_processes) as pool:
@@ -867,11 +895,8 @@ def process_pdf(input_pdf: str,
         print(f"Annotating {len(all_hits)} hits found...")
         for hit in all_hits:
             page = doc[hit.page_num - 1]  # Convert to 0-based index
-            # Find the actual text position for proper annotation
-            page_text = page.get_text()
-            if hit.matched_text.lower() in page_text.lower():
-                # Simple annotation at the beginning of the page for now
-                annotate_hit(page, hit, style=style)
+            # Use the proper bounding box calculated during matching
+            annotate_hit(page, hit, style=style)
         
         doc.save(out_pdf, deflate=True, garbage=4)
 
