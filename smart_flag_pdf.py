@@ -64,6 +64,13 @@ except Exception:
     OpenAI = None
     _OPENAI_STYLE = "none"
 
+# Google Gemini API
+try:
+    import google.generativeai as genai
+    _GEMINI_AVAILABLE = True
+except ImportError:
+    _GEMINI_AVAILABLE = False
+
 
 # -----------------------------
 # File type detection
@@ -225,10 +232,77 @@ def get_openai_client() -> OpenAI:
         raise RuntimeError("OPENAI_API_KEY is not set. Set it in your shell or supply a .env file (see --env-file).")
     return OpenAI(api_key=api_key)
 
+def get_gemini_client():
+    """Initialize Gemini client."""
+    if not _GEMINI_AVAILABLE:
+        raise RuntimeError("google-generativeai package not available. Install with `pip install google-generativeai`.")
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY is not set. Set it in your shell or supply a .env file (see --env-file).")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('gemini-1.5-flash')
+
 @retry(wait=wait_exponential(multiplier=1, min=1, max=20), stop=stop_after_attempt(4))
-def llm_suggest(client: OpenAI, model: str, term: str, static_suggestion: str, context: str, temperature: float) -> Tuple[str, str]:
+def llm_suggest_gemini(model, term: str, static_suggestion: str, context: str, temperature: float) -> Tuple[str, str]:
     """
-    Returns (suggestion, reason) JSON-parsed from model output.
+    Returns (suggestion, reason) JSON-parsed from Gemini model output.
+    """
+    user_msg = USER_TEMPLATE.format(term=term, static_suggestion=static_suggestion or "", context=context)
+    
+    # Enhanced prompt for Gemini to ensure JSON output
+    enhanced_system_msg = f"""{SYSTEM_MSG}
+
+IMPORTANT: You must respond with valid JSON only. Use this exact format:
+{{
+  "suggestion": "your suggestion here",
+  "reason": "your reason here"
+}}
+
+Do not include any other text, explanations, or formatting outside the JSON."""
+    
+    full_prompt = f"{enhanced_system_msg}\n\n{user_msg}"
+    
+    try:
+        response = model.generate_content(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=500,
+            )
+        )
+        content = response.text.strip()
+        
+        # Clean up the response to extract JSON
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        # Try to find JSON in the response
+        if "{" in content and "}" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            content = content[start:end]
+            
+    except Exception as e:
+        raise RuntimeError(f"Gemini API error: {e}")
+
+    try:
+        data = json.loads(content)
+        suggestion = data.get("suggestion", "").strip()
+        reason = data.get("reason", "").strip()
+        if not suggestion:
+            raise ValueError("Empty suggestion from model.")
+        return suggestion, reason
+    except Exception as e:
+        # Safe fallback: if parsing fails, use static suggestion or echo term
+        fallback = static_suggestion or term
+        return fallback, f"Used fallback suggestion due to parsing issue: {str(e)[:100]}"
+
+@retry(wait=wait_exponential(multiplier=1, min=1, max=20), stop=stop_after_attempt(4))
+def llm_suggest_openai(client: OpenAI, model: str, term: str, static_suggestion: str, context: str, temperature: float) -> Tuple[str, str]:
+    """
+    Returns (suggestion, reason) JSON-parsed from OpenAI model output.
     """
     user_msg = USER_TEMPLATE.format(term=term, static_suggestion=static_suggestion or "", context=context)
 
@@ -268,16 +342,33 @@ def llm_suggest(client: OpenAI, model: str, term: str, static_suggestion: str, c
         fallback = static_suggestion or term
         return fallback, "Used fallback suggestion due to parsing issue."
 
+def llm_suggest(client, model: str, term: str, static_suggestion: str, context: str, temperature: float, api_type: str = "auto") -> Tuple[str, str]:
+    """
+    Universal LLM suggest function that works with both OpenAI and Gemini.
+    """
+    if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+        return llm_suggest_gemini(client, term, static_suggestion, context, temperature)
+    else:
+        return llm_suggest_openai(client, model, term, static_suggestion, context, temperature)
+
 # -----------------------------
 # Core matching and annotation
 # -----------------------------
 
 def process_terms_chunk(args) -> List[Hit]:
     """Worker function for processing a chunk of terms with proper text matching and bbox calculation."""
-    page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words = args
+    page_text, phrase_tokens, repl_map, model, temperature, page_num, page_words, api_type = args
     
-    # Create a new OpenAI client for this process
-    client = get_openai_client()
+    # Create a new client for this process
+    try:
+        if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+            client = get_gemini_client()
+        else:
+            client = get_openai_client()
+    except Exception as e:
+        print(f"Error creating client in worker process: {e}")
+        return []
+    
     cache = {}  # Each process gets its own cache
     
     hits = []
@@ -318,7 +409,7 @@ def process_terms_chunk(args) -> List[Hit]:
                 if cache_key in cache:
                     suggestion, reason = cache[cache_key]
                 else:
-                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature)
+                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature, api_type)
                     cache[cache_key] = (suggestion, reason)
                 
                 hit = Hit(
@@ -341,10 +432,11 @@ def process_terms_chunk(args) -> List[Hit]:
 def find_hits_on_page(page: fitz.Page,
                       phrase_tokens: List[Tuple[str, List[str]]],
                       repl_map: Dict[str, str],
-                      client: OpenAI,
+                      client,
                       model: str,
                       temperature: float,
-                      cache: Dict[str, Tuple[str, str]]) -> List[Hit]:
+                      cache: Dict[str, Tuple[str, str]],
+                      api_type: str = "auto") -> List[Hit]:
     hits: List[Hit] = []
     words = words_by_order(page)
     norm_tokens = [normalize_token(w[4]) for w in words]
@@ -380,7 +472,7 @@ def find_hits_on_page(page: fitz.Page,
                 if cache_key in cache:
                     suggestion, reason = cache[cache_key]
                 else:
-                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature)
+                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature, api_type)
                     cache[cache_key] = (suggestion, reason)
 
                 hit = Hit(
@@ -811,12 +903,13 @@ def process_file(input_file: str,
                 outdir: str,
                 style: str,
                 model: str,
-                temperature: float) -> Tuple[str, List[Hit]]:
+                temperature: float,
+                api_type: str = "auto") -> Tuple[str, List[Hit]]:
     """Process either PDF or DOCX file based on file extension."""
     file_type = detect_file_type(input_file)
     
     if file_type == 'pdf':
-        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature)
+        return process_pdf(input_file, flagged_terms, repl_map, outdir, style, model, temperature, api_type)
     elif file_type == 'docx':
         return process_docx_file(input_file, flagged_terms, repl_map, outdir, model, temperature)
     else:
@@ -828,7 +921,8 @@ def process_pdf(input_pdf: str,
                 outdir: str,
                 style: str,
                 model: str,
-                temperature: float) -> Tuple[str, List[Hit]]:
+                temperature: float,
+                api_type: str = "auto") -> Tuple[str, List[Hit]]:
     os.makedirs(outdir, exist_ok=True)
     out_pdf = os.path.join(outdir, "flagged_output.pdf")
 
@@ -836,8 +930,11 @@ def process_pdf(input_pdf: str,
     all_terms = build_match_list(flagged_terms, repl_map)
     phrase_tokens = build_phrase_tokens(all_terms)
 
-    client = get_openai_client()
-    cache: Dict[str, Tuple[str, str]] = {}
+    # Determine API type and print info
+    if api_type == "gemini" or (api_type == "auto" and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY")):
+        print("Using Gemini 1.5 Flash for language processing")
+    else:
+        print(f"Using OpenAI {model} for language processing")
 
     all_hits: List[Hit] = []
     
@@ -876,7 +973,7 @@ def process_pdf(input_pdf: str,
             for chunk_start in range(0, total_terms, chunk_size):
                 chunk_end = min(chunk_start + chunk_size, total_terms)
                 chunk_phrase_tokens = phrase_tokens[chunk_start:chunk_end]
-                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words))
+                chunk_args.append((page_text, chunk_phrase_tokens, repl_map, model, temperature, page_num + 1, page_words, api_type))
             
             # Process chunks in parallel
             with mp.Pool(processes=num_processes) as pool:
@@ -920,7 +1017,8 @@ def process_batch(input_files: List[str],
                   outdir: str, 
                   style: str, 
                   model: str, 
-                  temperature: float) -> Dict[str, Tuple[str, List[Hit]]]:
+                  temperature: float,
+                  api_type: str = "auto") -> Dict[str, Tuple[str, List[Hit]]]:
     """Process multiple files in batch."""
     results = {}
     
@@ -934,7 +1032,8 @@ def process_batch(input_files: List[str],
                 outdir=outdir,
                 style=style,
                 model=model,
-                temperature=temperature
+                temperature=temperature,
+                api_type=api_type
             )
             results[input_file] = (out_file, hits)
             print(f"✅ Completed: {input_file} ({len(hits)} flags found)")
@@ -951,9 +1050,10 @@ def main():
     parser.add_argument("--map", required=True, help="Path to replacements.json (term -> suggestion)")
     parser.add_argument("--outdir", default="out", help="Output directory")
     parser.add_argument("--style", choices=["highlight", "underline"], default="highlight", help="Annotation style")
-    parser.add_argument("--model", default="gpt-4.1-mini", help="OpenAI model to use")
+    parser.add_argument("--model", default="gpt-4.1-mini", help="OpenAI model to use (ignored if using Gemini)")
     parser.add_argument("--temperature", type=float, default=0.2, help="LLM temperature")
-    parser.add_argument("--env-file", default=None, help="Path to a .env file containing OPENAI_API_KEY (optional)")
+    parser.add_argument("--api", choices=["openai", "gemini", "auto"], default="auto", help="API to use: openai, gemini, or auto (default: auto)")
+    parser.add_argument("--env-file", default=None, help="Path to a .env file containing API keys (optional)")
     args = parser.parse_args()
 
     # Load environment variables (OPENAI_API_KEY) from .env if present
@@ -977,7 +1077,8 @@ def main():
             outdir=args.outdir,
             style=args.style,
             model=args.model,
-            temperature=args.temperature
+            temperature=args.temperature,
+            api_type=args.api
         )
         
         # Summary
@@ -996,7 +1097,8 @@ def main():
             outdir=args.outdir,
             style=args.style,
             model=args.model,
-            temperature=args.temperature
+            temperature=args.temperature,
+            api_type=args.api
         )
 
         # Export reports
