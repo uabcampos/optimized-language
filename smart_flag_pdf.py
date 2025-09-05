@@ -227,33 +227,27 @@ def should_skip_term(term: str, skip_terms: List[str]) -> bool:
 def is_proper_noun_context(text: str, match_start: int, match_end: int) -> bool:
     """Check if the matched term is part of a proper noun (like department names, titles, grants, publications)."""
     # Get context around the match
-    context_start = max(0, match_start - 100)
-    context_end = min(len(text), match_end + 100)
+    context_start = max(0, match_start - 50)
+    context_end = min(len(text), match_end + 50)
     context = text[context_start:context_end]
     
-    # Check for common proper noun patterns
+    # Check for common proper noun patterns (more specific and less aggressive)
     proper_noun_patterns = [
-        # Institutional names
-        r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+of\s+',
-        r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+for\s+',
-        r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+',
-        # Titles and positions
-        r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+of\s+',
-        r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+for\s+',
-        r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+',
+        # Institutional names with specific context
+        r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+of\s+[A-Z]',
+        r'\b(Department|Center|Institute|School|College|University|Hospital|Clinic|Program|Office|Division|Unit|Section|Group|Team|Committee|Board|Council|Foundation|Organization|Association|Society|Academy|Laboratory|Lab)\s+for\s+[A-Z]',
+        # Titles and positions with specific context
+        r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+of\s+[A-Z]',
+        r'\b(Chair|Director|Dean|President|Vice|Executive|Senior|Chief|Head|Lead|Principal|Coordinator|Manager|Administrator)\s+for\s+[A-Z]',
         # Grant and funding patterns
-        r'\b(Grant|Award|Contract|Cooperative Agreement|R01|R21|R03|P01|P50|U01|U19|K01|K08|K23|F31|F32|T32|T35)\s+',
-        r'\b(NIH|NSF|CDC|AHRQ|PCORI|NCI|NHLBI|NIDDK|NIMH|NIA|NIAID|NINDS|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA)\s+',
+        r'\b(Grant|Award|Contract|Cooperative Agreement|R01|R21|R03|P01|P50|U01|U19|K01|K08|K23|F31|F32|T32|T35)\s+[A-Z]',
+        r'\b(NIH|NSF|CDC|AHRQ|PCORI|NCI|NHLBI|NIDDK|NIMH|NIA|NIAID|NINDS|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA|NICHD|NIEHS|NIGMS|NIDCR|NIDCD|NIDCR|NLM|NCCIH|NIMHD|NINR|NIBIB|NIDA|NIAAA)\s+[A-Z]',
         # Publication patterns
-        r'\b(Journal|Journal of|American Journal|British Journal|New England Journal|Lancet|Nature|Science|Cell|PNAS|PLOS|BMC|Frontiers)\s+',
-        r'\b(Volume|Vol\.|Issue|No\.|Pages|pp\.|DOI|PMID|PMCID)\s+',
+        r'\b(Journal|Journal of|American Journal|British Journal|New England Journal|Lancet|Nature|Science|Cell|PNAS|PLOS|BMC|Frontiers)\s+[A-Z]',
         # Title patterns (often in quotes or italics)
         r'["\']([^"\']*' + re.escape(text[match_start:match_end]) + r'[^"\']*)["\']',
-        r'\b(Title|Abstract|Introduction|Methods|Results|Discussion|Conclusion|Background|Objective|Purpose|Aim)\s*:',
-        # Center and program names
-        r'\b(Center for|Program for|Initiative for|Project for|Study of|Research on|Institute for|Laboratory for)\s+',
-        # Geographic and proper names
-        r'\b(Alabama|Birmingham|Montgomery|Huntsville|Mobile|Tuscaloosa|Auburn|Troy|Jacksonville|Florence|Gadsden|Dothan|Decatur|Phenix City|Prattville|Opelika|Anniston|Bessemer|Hoover|Vestavia Hills|Homewood|Mountain Brook|Trussville|Pelham|Helena|Calera|Chelsea|Leeds|Moody|Pell City|Sylacauga|Alexander City|Talladega|Oxford|Albertville|Fort Payne|Scottsboro|Athens|Hartselle|Cullman|Jasper|Hamilton|Winfield|Fayette|Carrollton|Livingston|Demopolis|Selma|Marion|Greensboro|Eutaw|Tuskegee|Union Springs|Auburn|Opelika|Phenix City|Columbus|Valley|Lanett|LaGrange|West Point|Auburn|Opelika|Phenix City|Columbus|Valley|Lanett|LaGrange|West Point)\s+',
+        # Center and program names with specific context
+        r'\b(Center for|Program for|Initiative for|Project for|Study of|Research on|Institute for|Laboratory for)\s+[A-Z]',
     ]
     
     for pattern in proper_noun_patterns:
@@ -749,10 +743,8 @@ def process_terms_chunk(args) -> List[Hit]:
                 bbox = get_union_bbox(matched_words)
                 context = extract_context_tokens(orig_tokens, i, i+n)
                 
-                # Check if this is part of a proper noun context
-                if is_proper_noun_context(context, 0, len(matched_text)):
-                    i += 1
-                    continue
+                # Check if this is part of a proper noun context (for LLM context, not to skip)
+                is_proper_noun = is_proper_noun_context(context, 0, len(matched_text))
                 
                 # Check if this term should be skipped
                 if should_skip_term(phrase, skip_terms):
@@ -769,7 +761,11 @@ def process_terms_chunk(args) -> List[Hit]:
                 if cache_key in cache:
                     suggestion, reason = cache[cache_key]
                 else:
-                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature, api_type)
+                    # Add proper noun context to the context for better LLM analysis
+                    enhanced_context = context
+                    if is_proper_noun:
+                        enhanced_context = f"[PROPER NOUN CONTEXT] {context}"
+                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, enhanced_context, temperature, api_type)
                     cache[cache_key] = (suggestion, reason)
                 
                 hit = Hit(
@@ -824,9 +820,8 @@ def find_hits_on_page(page: fitz.Page,
                 bbox = get_union_bbox(matched_words)
                 context = extract_context_tokens(orig_tokens, i, i+n)
 
-                # Check if this is part of a proper noun context
-                if is_proper_noun_context(context, 0, len(matched_text)):
-                    continue  # Skip this match if it's part of a proper noun
+                # Check if this is part of a proper noun context (for LLM context, not to skip)
+                is_proper_noun = is_proper_noun_context(context, 0, len(matched_text))
                 
                 static_suggestion = repl_map.get(phrase, "")
                 # Always ask LLM
@@ -834,7 +829,11 @@ def find_hits_on_page(page: fitz.Page,
                 if cache_key in cache:
                     suggestion, reason = cache[cache_key]
                 else:
-                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, context, temperature, api_type)
+                    # Add proper noun context to the context for better LLM analysis
+                    enhanced_context = context
+                    if is_proper_noun:
+                        enhanced_context = f"[PROPER NOUN CONTEXT] {context}"
+                    suggestion, reason = llm_suggest(client, model, phrase, static_suggestion, enhanced_context, temperature, api_type)
                     cache[cache_key] = (suggestion, reason)
 
                 hit = Hit(
@@ -1298,6 +1297,7 @@ def process_file(input_file: str,
     )
     
     # Save document analysis
+    os.makedirs(outdir, exist_ok=True)  # Ensure output directory exists
     analysis_file = os.path.join(outdir, "document_analysis.json")
     with open(analysis_file, 'w', encoding='utf-8') as f:
         json.dump({
